@@ -90,7 +90,6 @@ public class Acl2 extends Thread {
 		this.workingDir = workingDir;
 		// Startup callback
 		callbacks.add(callback);
-		// FIXME: Initial message not showing.
 	}
 
 	public void run() {

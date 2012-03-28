@@ -133,13 +133,6 @@ public class IdeWindow extends JFrame {
 		}
 
 		acl2 = new Acl2(acl2Path, workingDir);
-		try {
-			acl2.initialize();
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(that, "ACL2 executable not found",
-					"Error", JOptionPane.ERROR_MESSAGE);
-		}
-		acl2.start();
 		proofBar = new ProofBar(acl2);
 		editor = new CodePane(proofBar);
 		jsp.setViewportView(editor);
@@ -150,6 +143,13 @@ public class IdeWindow extends JFrame {
 		editor.setDocument(doc);
 		parser = new Acl2Parser(editor, workingDir, new File(acl2Path).getParentFile());
 		editor.addParser(parser);
+		try {
+			acl2.initialize();
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(that, "ACL2 executable not found",
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
+		acl2.start();
 
 		undoAction = new ActionListener() {
 			@Override
