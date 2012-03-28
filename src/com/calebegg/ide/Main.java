@@ -42,7 +42,8 @@ public class Main {
 	public static long startTime = System.currentTimeMillis();
 	public static CacheData cache;
 	
-	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
+	public static void main(String[] args) throws FileNotFoundException, IOException,
+			ClassNotFoundException {
 		logtime("Starting main");
 		System.setProperty("apple.awt.brushMetalLook", "true");
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -79,7 +80,8 @@ public class Main {
 			});
 			app.setQuitHandler(new com.apple.eawt.QuitHandler() {
 				@Override
-				public void handleQuitRequestWith(com.apple.eawt.AppEvent.QuitEvent qe, com.apple.eawt.QuitResponse qr) {
+				public void handleQuitRequestWith(com.apple.eawt.AppEvent.QuitEvent qe,
+						com.apple.eawt.QuitResponse qr) {
 					for (Iterator<IdeWindow> ii = IdeWindow.windows.iterator(); ii.hasNext();) {
 						IdeWindow win = ii.next();
 						win.promptIfUnsavedAndQuit(ii);
