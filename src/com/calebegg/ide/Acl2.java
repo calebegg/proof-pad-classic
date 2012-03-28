@@ -180,15 +180,72 @@ public class Acl2 extends Thread {
 		//admit("(set-gag-mode t)", doNothingCallback);
 		errorOccured = false;
 	}
-	public void admit(String exp, Callback callback) {
-		callbacks.add(callback);
-		try {
-			out.write(exp + "\n");
-			out.flush();
-		} catch (IOException e) { }
-		synchronized (this) {
-			backoff = 0;
-			notify();
+	public void admit(String code, Callback callback) {
+		code = code
+				.replaceAll("\\)\\(", ") (")
+				.replaceAll(";.*?\r?\n", "")
+				.replaceAll("#\\|.*?\\|#", "")
+				.trim() + '\n';
+		if (code.isEmpty()) {
+			return;
+		}
+		int parenLevel = 0;
+		boolean isWord = false;
+		boolean isColonCmd = false;
+		StringBuilder exp = new StringBuilder();
+		List<String> exps = new LinkedList<String>();
+		for (char c : code.toCharArray()) {
+			if (isColonCmd) {
+				if (c == '\n') {
+					exp.append(')');
+					isColonCmd = false;
+					exps.add(exp.toString());
+					exp = new StringBuilder();
+				} else {
+					exp.append(c);
+				}
+				continue;
+			}
+			if (isWord && Character.isWhitespace(c)) {
+				isWord = false;
+				exps.add(exp.toString());
+				exp = new StringBuilder();
+				continue;
+			}
+			if (c == '(') {
+				parenLevel++;
+				exp.append(c);
+			} else if (c == ')') {
+				parenLevel--;
+				exp.append(c);
+			} else if (c == ':' && !isWord && parenLevel == 0) {
+				exp.append('(');
+				isColonCmd = true;
+				continue;
+			} else if (!Character.isWhitespace(c) && exp.length() == 0) {
+				// Starting a word
+				exp.append(c);
+				isWord = true;
+				continue;
+			} else {
+				exp.append(c);
+			}
+			if (parenLevel == 0 && !exp.toString().matches(("\\s+"))) {
+				exps.add(exp.toString());
+				exp = new StringBuilder();
+			}
+		}
+		System.out.println(exps);
+		for (String current : exps) {
+			callbacks.add(callback);
+			try {
+				out.write(current + "\n");
+				out.flush();
+			} catch (IOException e) { }
+			synchronized (this) {
+				backoff = 0;
+				notify();
+			}
 		}
 	}
 	private static List<Character> stringToCharacterList(String s) {
