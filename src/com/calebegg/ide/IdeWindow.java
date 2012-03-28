@@ -379,11 +379,16 @@ public class IdeWindow extends JFrame {
 			
 			@Override
 			public void readOnlyIndexChanged(int newIndex) {
-				editor.repaint();
-				String lineSep = System.getProperty("line.seperator");
+				String lineSep = System.getProperty("line.separator");
 				if (editor.getLastVisibleOffset() - lineSep.length() <= newIndex) {
 					editor.append(lineSep);
 				}
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						editor.repaint();
+					}
+				});
 			}
 		});
 		

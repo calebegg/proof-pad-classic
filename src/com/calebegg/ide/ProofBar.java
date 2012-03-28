@@ -424,6 +424,7 @@ public class ProofBar extends JComponent {
 	}
 
 	public void setReadOnlyIndex(int readOnlyIndex) {
+		repaint();
 		if (this.readOnlyIndex != readOnlyIndex) {
 			fireReadOnlyIndexChange(readOnlyIndex);
 		}
