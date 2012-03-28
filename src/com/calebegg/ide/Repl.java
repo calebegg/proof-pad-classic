@@ -312,8 +312,10 @@ public class Repl extends JPanel {
 		//input.setBorder(BorderFactory.createEmptyBorder(inputBorder, inputBorder, inputBorder, inputBorder));
 		inputScroller.setMaximumSize(new Dimension(Integer.MAX_VALUE, StatusLabel.size + 4));
 		bottom.add(inputScroller);
-		JButton run = new JButton("run");
-		JButton trace = new JButton("trace");
+		final JButton run = new JButton("run");
+		final JButton trace = new JButton("trace");
+		run.setEnabled(false);
+		trace.setEnabled(false);
 		//run.putClientProperty("JButton.buttonType", "textured");
 		run.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -417,6 +419,14 @@ public class Repl extends JPanel {
 						}
 					}
 				}
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						boolean enable = input.getLastVisibleOffset() != 0;
+						run.setEnabled(enable);
+						trace.setEnabled(enable);
+					}
+				});
 			}
 			public void keyReleased(KeyEvent arg0) { }
 		});
