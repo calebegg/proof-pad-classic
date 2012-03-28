@@ -81,6 +81,7 @@ public class AboutWindow extends JFrame{
 	public static final Icon icon64 = new ImageIcon("media/IDEIcon64.png");
 
 	public AboutWindow() {
+		super("About Proof Pad");
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -89,7 +90,7 @@ public class AboutWindow extends JFrame{
 		label.setAlignmentX(CENTER_ALIGNMENT);
 		add(label);
 		add(Box.createVerticalStrut(6));
-		label = new JLabel("IDE");
+		label = new JLabel("Proof Pad");
 		label.setAlignmentX(CENTER_ALIGNMENT);
 		label.setFont(label.getFont().deriveFont(Font.BOLD, 16));
 		add(label);

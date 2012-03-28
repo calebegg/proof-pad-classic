@@ -476,7 +476,7 @@ public class IdeWindow extends JFrame {
 		} else {
 			setTitle("untitled"
 				+ (untitledCount == 1 ? "" : " " + (untitledCount))
-				+ (!isMac ? " - IDE_NAME" : ""));
+				+ (!isMac ? " - Proof Pad" : ""));
 			untitledCount++;
 		}
 		updateWindowMenu();
