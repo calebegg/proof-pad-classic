@@ -391,62 +391,7 @@ public class IdeWindow extends JFrame {
 				});
 			}
 		});
-		
-		editor.addKeyListener(new KeyListener() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				int readOnlyLine = 0;
-				try {
-					readOnlyLine = editor.getLineOfOffset(proofBar.getReadOnlyIndex() + 2) - 1;
-				} catch (BadLocationException e1) {
-				}
-				if (editor.getCaretLineNumber() == readOnlyLine + 1
-						&& e.getKeyCode() == KeyEvent.VK_UP) {
-					// Up arrow at the top of the readable area moves the cursor
-					// to the beginning of the line
-					if (proofBar.getReadOnlyIndex() == -1) {
-						editor.setCaretPosition(0);
-					} else {
-						editor.setCaretPosition(proofBar.getReadOnlyIndex() + 2);
-					}
-					e.consume();
-					return;
-				} else if (editor.getCaretLineNumber() == editor
-						.getLineCount() - 1
-						&& e.getKeyCode() == KeyEvent.VK_DOWN) {
-					// Down arrow at bottom moves to end of document
-					editor.setCaretPosition(editor.getLastVisibleOffset());
-					e.consume();
-				}
-				if (e.isAltDown() || e.isMetaDown() || e.isControlDown()
-						|| proofBar.getReadOnlyIndex() == -1) {
-					return;
-				}
-				if (editor.getCaretColor() == transparent) {
-					e.consume();
-					// jsp.keyDown(null, e.getKeyCode());
-				}
-				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-					if (editor.getCaretPosition() - 3 < proofBar.getReadOnlyIndex()) {
-						e.consume();
-					}
-				}
-			}
-
-			public void keyReleased(KeyEvent e) {
-				if (proofBar.getReadOnlyIndex() >= 0
-						&& editor.getCaretPosition() < proofBar.getReadOnlyIndex() + 2) {
-					// textarea.setCaretPosition(0);
-					editor.setCaretColor(transparent);
-				} else {
-					editor.setCaretColor(Color.BLACK);
-				}
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-		});
-		
+				
 		editor.getCaret().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {

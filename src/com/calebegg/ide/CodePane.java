@@ -1,6 +1,8 @@
 package com.calebegg.ide;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,7 +37,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	private UndoManagerCreatedListener undoManagerCreatedListener;
 	private RUndoManager undoManager;
 	
-	public CodePane(ProofBar pb) {
+	public CodePane(final ProofBar pb) {
 		this.pb = pb;
 		setAntiAliasingEnabled(true);
 		setAutoIndentEnabled(false);
@@ -53,6 +55,71 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		setBorder(BorderFactory.createEmptyBorder(0, leftMargin, 0, 0));
 		setTabSize(4);
 		setBackground(IdeWindow.transparent);
+		addKeyListener(new KeyListener() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				int readOnlyLine = 0;
+				try {
+					readOnlyLine = getLineOfOffset(pb.getReadOnlyIndex() + 2) - 1;
+				} catch (BadLocationException e1) {
+				}
+				if (getCaretLineNumber() == readOnlyLine + 1
+						&& e.getKeyCode() == KeyEvent.VK_UP) {
+					// Up arrow at the top of the readable area moves the cursor
+					// to the beginning of the line
+					int newCaretPosition;
+					if (pb.getReadOnlyIndex() == -1) {
+						newCaretPosition = 0;
+					} else {
+						newCaretPosition = pb.getReadOnlyIndex() + 2;
+					}
+					if (e.isShiftDown()) {
+						setCaretPosition(getSelectionEnd());
+						moveCaretPosition(newCaretPosition);
+					} else {
+						setCaretPosition(newCaretPosition);
+					}
+					e.consume();
+					return;
+				} else if (getCaretLineNumber() == getLineCount() - 1
+						&& e.getKeyCode() == KeyEvent.VK_DOWN) {
+					// Down arrow at bottom moves to end of document
+					if (e.isShiftDown()) {
+						setSelectionEnd(getLastVisibleOffset());
+					} else {
+						setCaretPosition(getLastVisibleOffset());
+					}
+					e.consume();
+				}
+				if (e.isAltDown() || e.isMetaDown() || e.isControlDown()
+						|| pb.getReadOnlyIndex() == -1) {
+					return;
+				}
+				if (getCaretColor() == IdeWindow.transparent) {
+					e.consume();
+					// jsp.keyDown(null, e.getKeyCode());
+				}
+				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+					if (getCaretPosition() - 3 < pb.getReadOnlyIndex()) {
+						e.consume();
+					}
+				}
+			}
+			
+			public void keyReleased(KeyEvent e) {
+				if (pb.getReadOnlyIndex() >= 0
+						&& getCaretPosition() < pb.getReadOnlyIndex() + 2) {
+					// textarea.setCaretPosition(0);
+					setCaretColor(IdeWindow.transparent);
+				} else {
+					setCaretColor(Color.BLACK);
+				}
+			}
+			
+			public void keyTyped(KeyEvent e) {
+			}
+		});
+
 	}
 	
 	@Override
