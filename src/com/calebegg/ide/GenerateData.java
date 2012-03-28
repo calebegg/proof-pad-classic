@@ -9,13 +9,14 @@ import com.calebegg.ide.Acl2Parser.CacheSets;
 
 public class GenerateData {
 	// TODO: This will be faster to generate/load with a trimmed down set of system books.
+	public final static String pathToAcl2 = "/Users/calebegg/Code/acl2/";
 	public static void main(String[] args) throws Exception {
 		CacheData cache = new CacheData();
 		Main.cache = cache;
 
 		// Documentation
 		Map<String, String> docs = new HashMap<String, String>();
-		File docdir = new File("/Users/calebegg/Code/acl2/doc/HTML/");
+		File docdir = new File(pathToAcl2 + "doc" + File.separator + "HTML");
 		for (File f : docdir.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File f, String s) {
@@ -62,7 +63,7 @@ public class GenerateData {
 		// Parameters
 
 		// Included book parse results
-		File bookdir = new File("/Users/calebegg/Code/acl2/books");
+		File bookdir = new File(pathToAcl2 + "books");
 		List<File> booksToParse = new LinkedList<File>();
 		Map<CacheKey, CacheSets> bookCache = new HashMap<CacheKey, CacheSets>();
 		booksToParse.addAll(Arrays.asList(bookdir.listFiles()));
@@ -77,7 +78,7 @@ public class GenerateData {
 			} else if (book.getName().endsWith(".lisp") &&
 					!bookCache.containsKey(new CacheKey(book, Long.MAX_VALUE))) {
 				bookCache.put(new CacheKey(book, Long.MAX_VALUE),
-						Acl2Parser.parseBook(book, new File("/Users/calebegg/Code/acl2/books"), bookCache));
+						Acl2Parser.parseBook(book, bookdir, bookCache));
 			}
 		} while (booksToParse.size() > 0);
 		cache.setBookCache(bookCache);
