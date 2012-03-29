@@ -210,6 +210,9 @@ public class Acl2 extends Thread {
 				exps.add(exp.toString());
 				exp = new StringBuilder();
 				continue;
+			} else if (isWord) {
+				exp.append(c);
+				continue;
 			}
 			if (c == '(') {
 				parenLevel++;
@@ -234,7 +237,7 @@ public class Acl2 extends Thread {
 				exp = new StringBuilder();
 			}
 		}
-		System.out.println(exps);
+//		System.out.println(exps);
 		for (String current : exps) {
 			callbacks.add(callback);
 			try {
@@ -268,8 +271,7 @@ public class Acl2 extends Thread {
 		if (IdeWindow.isWindows) {
 			try {
 				Runtime.getRuntime().exec(new String[] {"sendbreak.exe", Integer.toString(procId)});
-				acl2.waitFor();
-			} catch (InterruptedException e) {
+				//acl2.waitFor();
 			} catch (IOException e) { }
 		}
 		acl2.destroy();

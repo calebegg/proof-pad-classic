@@ -58,6 +58,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		addKeyListener(new KeyListener() {
 			@Override
 			public void keyPressed(KeyEvent e) {
+				if (pb == null) return;
 				int readOnlyLine = 0;
 				try {
 					readOnlyLine = getLineOfOffset(pb.getReadOnlyIndex() + 2) - 1;
@@ -107,6 +108,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 			}
 			
 			public void keyReleased(KeyEvent e) {
+				if (pb == null) return;
 				if (pb.getReadOnlyIndex() >= 0
 						&& getCaretPosition() < pb.getReadOnlyIndex() + 2) {
 					// textarea.setCaretPosition(0);

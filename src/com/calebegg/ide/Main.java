@@ -57,7 +57,7 @@ public class Main {
 		}
 		
 		logtime("Start loading cache");
-		ObjectInputStream ois = new ObjectInputStream(new FileInputStream("cache.dat"));
+		ObjectInputStream ois = new ObjectInputStream(Main.class.getResource("/data/cache.dat").openStream());
 		cache = (CacheData) ois.readObject();
 		logtime("Loaded cache");
 		
