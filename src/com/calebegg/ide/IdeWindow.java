@@ -122,14 +122,12 @@ public class IdeWindow extends JFrame {
 		String maybeAcl2Path = prefs.get("acl2Path", null);
 		final String acl2Path;
 		if (maybeAcl2Path == null) {
-			acl2Path = null; // promptForAcl2Exec(prefs);
+			FileDialog fd = new FileDialog(this, "Choose an ACL2 executable");
+			fd.setVisible(true);
+			acl2Path = fd.getDirectory() + fd.getFile();
+			prefs.put("acl2Path", acl2Path);
 		} else {
 			acl2Path = maybeAcl2Path;
-		}
-		if (acl2Path == null) {
-			JOptionPane.showMessageDialog(this,
-					"Cannot run without an ACL2 executable", "Error",
-					JOptionPane.ERROR_MESSAGE);
 		}
 
 		acl2 = new Acl2(acl2Path, workingDir);
@@ -145,11 +143,12 @@ public class IdeWindow extends JFrame {
 		editor.addParser(parser);
 		try {
 			acl2.initialize();
+			acl2.start();
 		} catch (IOException e) {
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(that, "ACL2 executable not found",
 					"Error", JOptionPane.ERROR_MESSAGE);
 		}
-		acl2.start();
 
 		undoAction = new ActionListener() {
 			@Override
@@ -640,7 +639,7 @@ public class IdeWindow extends JFrame {
 			bw.close();
 			setSaved(true);
 			getRootPane().putClientProperty("Window.documentFile", openFile);
-			setTitle(openFile.getName() + (!isMac ? " - IDE_NAME" : ""));
+			setTitle(openFile.getName() + (!isMac ? " - Proof Pad" : ""));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -657,7 +656,7 @@ public class IdeWindow extends JFrame {
 
 	protected void openAndDisplay(File file) {
 		getRootPane().putClientProperty("Window.documentFile", file);
-		setTitle(file.getName() + (!isMac ? " - IDE_NAME" : ""));
+		setTitle(file.getName() + (!isMac ? " - Proof Pad" : ""));
 		openFile = file;
 		// build.setToolTipText("Create an executable from " +
 		// openFile.getName());
