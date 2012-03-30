@@ -1,4 +1,4 @@
-package com.calebegg.ide;
+package org.proofpad;
 
 import java.util.*;
 import java.util.List;
@@ -20,11 +20,11 @@ import javax.swing.undo.UndoManager;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
+import org.proofpad.Acl2.OutputEvent;
+import org.proofpad.Acl2.OutputEventListener;
+import org.proofpad.PrefsWindow.FontChangeListener;
+import org.proofpad.Repl.MsgType;
 
-import com.calebegg.ide.Acl2.OutputEvent;
-import com.calebegg.ide.Acl2.OutputEventListener;
-import com.calebegg.ide.PrefsWindow.FontChangeListener;
-import com.calebegg.ide.Repl.MsgType;
 
 public class IdeWindow extends JFrame {
 	public static final boolean isMac = System.getProperty("os.name").indexOf("Mac") != -1;

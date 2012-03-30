@@ -1,4 +1,4 @@
-package com.calebegg.ide;
+package org.proofpad;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -12,8 +12,8 @@ import javax.swing.*;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.Token;
+import org.proofpad.Acl2.OutputEvent;
 
-import com.calebegg.ide.Acl2.OutputEvent;
 
 public class Repl extends JPanel {
 
@@ -424,10 +424,6 @@ public class Repl extends JPanel {
 				});
 			}
 		});
-		//JPanel white = new JPanel();
-		//white.setBackground(Color.WHITE);
-		//white.setBorder(BorderFactory.createEmptyBorder());
-		//white.add(run);
 		bottom.add(run);
 		bottom.add(trace);
 		JPanel bottomWrapper = new JPanel();
@@ -495,7 +491,7 @@ public class Repl extends JPanel {
 
 	private static Pattern welcomeMessage = Pattern.compile(".*ACL2 comes with ABSOLUTELY NO WARRANTY\\..*");
 	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL:  The guard for the function call (.*?), which is (.*?), is violated by the arguments in the call (.*?)\\. See :DOC set-guard-checking for information about suppressing.*");
-	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL:  Global variables, such as (.*?), are not allowed. See :DOC ASSIGN and :DOC @.");
+	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL:  Global variables, such as (.*?).*?, are not allowed. See :DOC ASSIGN and :DOC @.");
 	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL:  (.*?) takes (.*?) arguments? but in the call (.*?) it is given (.*?) arguments?\\..*");
 	private static Pattern nonRec = Pattern.compile("Since (.*?) is non-recursive, its admission is trivial\\..*");
 	private static Pattern trivial = Pattern.compile("The admission of (.*?) is trivial, using the relation O< .*");

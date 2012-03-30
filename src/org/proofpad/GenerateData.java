@@ -1,11 +1,12 @@
-package com.calebegg.ide;
+package org.proofpad;
 
 import java.util.regex.*;
 import java.io.*;
 import java.util.*;
 
-import com.calebegg.ide.Acl2Parser.CacheKey;
-import com.calebegg.ide.Acl2Parser.CacheSets;
+import org.proofpad.Acl2Parser.CacheKey;
+import org.proofpad.Acl2Parser.CacheSets;
+
 
 public class GenerateData {
 	// TODO: This will be faster to generate/load with a trimmed down set of system books.
@@ -83,7 +84,7 @@ public class GenerateData {
 		} while (booksToParse.size() > 0);
 		cache.setBookCache(bookCache);
 
-		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("cache.dat"));
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data/cache.dat"));
 		oos.writeObject(cache);
 	}
 }

@@ -1,4 +1,4 @@
-package com.calebegg.ide;
+package org.proofpad;
 
 import java.awt.Color;
 import java.io.File;

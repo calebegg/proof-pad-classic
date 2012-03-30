@@ -1,4 +1,4 @@
-package com.calebegg.ide;
+package org.proofpad;
 
 public class Expression {
 	final public int height;

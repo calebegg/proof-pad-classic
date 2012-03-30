@@ -1,4 +1,4 @@
-package com.calebegg.ide;
+package org.proofpad;
 import java.util.*;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;

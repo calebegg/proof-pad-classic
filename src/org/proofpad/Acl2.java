@@ -1,8 +1,9 @@
-package com.calebegg.ide;
+package org.proofpad;
 import java.io.*;
 import java.util.*;
 
-import com.calebegg.ide.Repl.MsgType;
+import org.proofpad.Repl.MsgType;
+
 
 public class Acl2 extends Thread {
 	public interface RestartListener {

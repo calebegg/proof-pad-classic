@@ -1,4 +1,4 @@
-package com.calebegg.ide;
+package org.proofpad;
 
 import javax.swing.*;
 import javax.swing.tree.*;
