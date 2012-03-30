@@ -13,6 +13,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.undo.UndoManager;
 
@@ -30,19 +31,39 @@ public class IdeWindow extends JFrame {
 	public static final boolean isWindows =
 			System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
 	public static final Color transparent = new Color(1f, 1f, 1f, 0f);
+	private static JFileChooser fc = new JFileChooser();
+	static {
+		fc.addChoosableFileFilter(new FileFilter() {
+			@Override
+			public String getDescription() {
+				return "Lisp files";
+			}
+			@Override
+			public boolean accept(File f) {
+				return f.getName().endsWith(".lisp") || f.getName().endsWith(".lsp")
+						|| f.getName().endsWith(".acl2");
+			}
+		});
+	}
 	public static final ActionListener openAction = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			FileDialog fc = new FileDialog((Frame)null, "Open file");
-			fc.setFilenameFilter(new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					return name.endsWith(".lisp") || name.endsWith(".lsp")
-							|| name.endsWith(".acl2");
-				}
-			});
-			fc.setVisible(true);
-			String filename = fc.getFile();
-			File file = filename == null ? null : new File(fc.getDirectory(), filename);
+			File file;
+			if (isMac) {
+				FileDialog fc = new FileDialog((Frame)null, "Open file");
+				fc.setFilenameFilter(new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.endsWith(".lisp") || name.endsWith(".lsp")
+								|| name.endsWith(".acl2");
+					}
+				});
+				fc.setVisible(true);
+				String filename = fc.getFile();
+				file = filename == null ? null : new File(fc.getDirectory(), filename);
+			} else {
+				int response = fc.showOpenDialog(null);
+				file = response == JFileChooser.APPROVE_OPTION ? fc.getSelectedFile() : null;
+			}
 			if (file != null) {
 				IdeWindow window = new IdeWindow(file);
 				if (windows.size() == 1 &&
@@ -122,9 +143,25 @@ public class IdeWindow extends JFrame {
 		String maybeAcl2Path = prefs.get("acl2Path", null);
 		final String acl2Path;
 		if (maybeAcl2Path == null) {
-			FileDialog fd = new FileDialog(this, "Choose an ACL2 executable");
-			fd.setVisible(true);
-			acl2Path = fd.getDirectory() + fd.getFile();
+			if (isMac) {
+				FileDialog fd = new FileDialog(this, "Choose an ACL2 executable");
+				fd.setVisible(true);
+				acl2Path = fd.getDirectory() + fd.getFile();
+			} else {
+				JFileChooser fc = new JFileChooser();
+				fc.addChoosableFileFilter(new FileFilter() {
+					@Override
+					public String getDescription() {
+						return "Executable";
+					}
+					@Override
+					public boolean accept(File f) {
+						return f.getName().endsWith(".exe");
+					}
+				});
+				fc.showOpenDialog(this);
+				acl2Path = fc.getSelectedFile().getAbsolutePath();
+			}
 			prefs.put("acl2Path", acl2Path);
 		} else {
 			acl2Path = maybeAcl2Path;
@@ -215,19 +252,26 @@ public class IdeWindow extends JFrame {
 					builder.admit(
 							"(defun __main__ () (acl2::main acl2::state))",
 							null);
-					FileDialog fc = new FileDialog(that, "Save Executable...");
-					fc.setMode(FileDialog.SAVE);
-					fc.setDirectory(openFile.getPath());
-					fc.setFile(openFile.getName().split("\\.")[0]
-							+ (isWindows ? ".exe" : ""));
-					fc.setVisible(true);
-					final String filename = fc.getFile();
+					final String filename;
+					if (isMac) {
+						FileDialog fc = new FileDialog(that, "Save Executable...");
+						fc.setMode(FileDialog.SAVE);
+						fc.setDirectory(openFile.getPath());
+						fc.setFile(openFile.getName().split("\\.")[0]
+								+ (isWindows ? ".exe" : ""));
+						fc.setVisible(true);
+						filename = fc.getDirectory() + fc.getFile();
+					} else {
+						JFileChooser fc = new JFileChooser();
+						fc.showSaveDialog(that);
+						filename = fc.getSelectedFile().getAbsolutePath();
+					}
 					if (filename == null) {
 						builder.terminate();
 						return;
 					}
 					builder.admit(
-							"(ccl:save-application \"" + fc.getDirectory()
+							"(ccl:save-application \""
 							+ filename
 							+ "\" :toplevel-function #'__main__\n"
 							+ ":prepend-kernel t)",
@@ -593,21 +637,26 @@ public class IdeWindow extends JFrame {
 
 	private boolean saveFile() {
 		if (openFile == null) {
-			FileDialog fc = new FileDialog(this, "Save As...");
-			fc.setMode(FileDialog.SAVE);
-			fc.setVisible(true);
-			String filename = fc.getFile();
 			File file = null;
-			if (filename != null) {
-				if (filename.indexOf('.') == -1) {
-					filename += ".lisp";
+			if (isMac) {
+				FileDialog fc = new FileDialog(this, "Save As...");
+				fc.setMode(FileDialog.SAVE);
+				fc.setVisible(true);
+				String filename = fc.getFile();
+				if (filename != null) {
+					if (filename.indexOf('.') == -1) {
+						filename += ".lisp";
+					}
+					file = new File(fc.getDirectory(), filename);
 				}
-				file = new File(fc.getDirectory(), filename);
+			} else {
+				int response = fc.showSaveDialog(this);
+				file = response == JFileChooser.APPROVE_OPTION ? fc.getSelectedFile() : null;
 			}
 			if (file != null) {
 				if (file.exists()) {
 					int answer = JOptionPane.showConfirmDialog(this,
-							filename + " already exists. Do you want to replace it?", "",
+							file.getName() + " already exists. Do you want to replace it?", "",
 							JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 					if (answer == JOptionPane.NO_OPTION) {
 						return false;
