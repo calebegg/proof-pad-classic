@@ -175,7 +175,7 @@ public class Acl2 extends Thread {
 			procId = Integer.parseInt(in.readLine());
 		}
 		out = new BufferedWriter(new OutputStreamWriter(acl2.getOutputStream()));
-		admit("(add-include-book-dir :teachpacks \"teachpacks\")", doNothingCallback);
+		admit("(add-include-book-dir :teachpacks \"dracula\")", doNothingCallback);
 		admit("(set-compile-fns nil)", doNothingCallback);
 		//admit("(set-gag-mode t)", doNothingCallback);
 		errorOccured = false;
