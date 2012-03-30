@@ -50,11 +50,7 @@ public class MenuBar extends JMenuBar {
 		menu.add(item);
 		
 		item = new JMenuItem("Open...");
-		if (parent == null) {
-			// TODO
-		} else {
-			item.addActionListener(IdeWindow.openAction);
-		}
+		item.addActionListener(IdeWindow.openAction);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, modKey));
 		menu.add(item);
 		recentMenu = new JMenu("Open " + (titleCase  ? 'r' : 'R') + "ecent");

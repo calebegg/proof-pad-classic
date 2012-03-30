@@ -52,7 +52,6 @@ public class PrefsWindow extends JFrame {
 		font = getPrefFont();
 		final int widthGuide = prefs.getInt("widthguide", 60);
 		setResizable(false);
-		// TODO: red jewel button.
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		//setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		setLayout(new GridBagLayout());
@@ -225,9 +224,7 @@ public class PrefsWindow extends JFrame {
 		useBuiltinAcl2.setSelected(!customAcl2Enabled);
 		useCustomAcl2.setSelected(customAcl2Enabled);
 		info.setText(String.format(htmlTemplate, customAcl2Enabled ? "black" : "grey", infoText));
-		acl2Path.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent arg0) { }
+		acl2Path.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent arg0) {
 				prefs.put("acl2Path", acl2Path.getText());
@@ -281,13 +278,16 @@ public class PrefsWindow extends JFrame {
 			}
 		});
 		add(closeButton, c);
-		addWindowFocusListener(new WindowFocusListener() {
+		addWindowFocusListener(new WindowAdapter() {
 			@Override
 			public void windowGainedFocus(WindowEvent arg0) {
 				closeButton.requestFocus();
 			}
+		});
+		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowLostFocus(WindowEvent arg0) {
+			public void windowClosing(WindowEvent e) {
+				setVisible(false);
 			}
 		});
 		setMinimumSize(new Dimension(500, 1));

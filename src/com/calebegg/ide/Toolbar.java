@@ -66,21 +66,18 @@ public class Toolbar extends JPanel {
 			button.setText("Help");
 		}
 		final JButton helpButton = button;
-		button.addMouseListener(new MouseListener() {
+		button.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent event) {
 				if (!isWindows) {
 					showMenu();
 				}
 			}
-			public void mouseEntered(MouseEvent arg0) { }
-			public void mouseExited(MouseEvent arg0) { }
 			public void mouseClicked(MouseEvent arg0) {
 				if (isWindows) {
 					showMenu();
 				}
 			}
-			public void mouseReleased(MouseEvent arg0) { }
 			public void showMenu() {
 				JPopupMenu helpMenu = new JPopupMenu();
 				helpMenu.addPopupMenuListener(new PopupMenuListener() {

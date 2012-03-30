@@ -72,7 +72,7 @@ public class ProofBar extends JComponent {
 		proofQueue = new LinkedList<Expression>();
 		setPreferredSize(new Dimension(width, 0));
 		setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
-		addMouseListener(new MouseListener() {
+		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (numProving > 0) {
@@ -124,8 +124,6 @@ public class ProofBar extends JComponent {
 				hover = false;
 				that.repaint();
 			}
-			public void mousePressed(MouseEvent e) { }
-			public void mouseReleased(MouseEvent e) { }
 		});
 		addMouseMotionListener(new MouseMotionListener() {
 			@Override

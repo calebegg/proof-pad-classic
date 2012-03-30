@@ -105,6 +105,8 @@ public class IdeWindow extends JFrame {
 	public ActionListener printAction;
 	public ActionListener findAction;
 	public ActionListener buildAction;
+	protected int dY;
+	protected int dX;
 
 	public IdeWindow() {
 		this((File)null);
@@ -118,9 +120,6 @@ public class IdeWindow extends JFrame {
 	public IdeWindow(File file) {
 		super();
 		windows.add(this);
-		// TODO: :-(
-		// getRootPane().putClientProperty("apple.awt.draggableWindowBackground",
-		// Boolean.TRUE);
 		openFile = file;
 		workingDir = openFile == null ? null : openFile.getParentFile();
 		setLayout(new BorderLayout());
@@ -478,12 +477,11 @@ public class IdeWindow extends JFrame {
 			}
 		});
 
-		addWindowListener(new WindowListener() {
+		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowActivated(WindowEvent arg0) {
 				proofBar.repaint();
 			}
-			public void windowClosed(WindowEvent arg0) { }
 			@Override
 			public void windowClosing(WindowEvent arg0) {
 				if (that.promptIfUnsavedAndClose()) {
@@ -494,9 +492,6 @@ public class IdeWindow extends JFrame {
 			public void windowDeactivated(WindowEvent e) {
 				proofBar.repaint();
 			}
-
-			public void windowDeiconified(WindowEvent arg0) { }
-			public void windowIconified(WindowEvent arg0) { }
 			@Override
 			public void windowOpened(WindowEvent arg0) {
 				proofBar.repaint();
@@ -541,18 +536,11 @@ public class IdeWindow extends JFrame {
 				adjustMaximizedBounds();
 			}
 		});
-		addComponentListener(new ComponentListener() {
-			@Override
-			public void componentHidden(ComponentEvent arg0) { }
+		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentMoved(ComponentEvent arg0) {
 				adjustMaximizedBounds();
-			}
-			@Override
-			public void componentResized(ComponentEvent arg0) { }
-			@Override
-			public void componentShown(ComponentEvent arg0) { }
-			
+			}			
 		});
 		addWindowFocusListener(new WindowFocusListener() {
 			@Override
@@ -564,6 +552,30 @@ public class IdeWindow extends JFrame {
 				proofBar.repaint();
 			}
 		});
+		
+		if (isMac) {
+			// Adapted from http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
+			toolbar.addMouseListener(new MouseAdapter() {
+	            @Override
+	            public void mousePressed(MouseEvent e) {
+	                Point clickPoint = new Point(e.getPoint());
+	                SwingUtilities.convertPointToScreen(clickPoint, toolbar);
+
+	                dX = clickPoint.x - that.getX();
+	                dY = clickPoint.y - that.getY();
+	            }
+	        });
+			toolbar.addMouseMotionListener(new MouseMotionAdapter() {
+				@Override
+				public void mouseDragged(MouseEvent e) {
+	                Point dragPoint = new Point(e.getPoint());
+	                SwingUtilities.convertPointToScreen(dragPoint, toolbar);
+
+	                that.setLocation(dragPoint.x - dX, dragPoint.y - dY);
+	            }
+			});
+		}
+		
 		adjustMaximizedBounds();
 		pack();
 		editor.requestFocus();

@@ -294,15 +294,11 @@ public class Repl extends JPanel {
 		JLabel prompt = new StatusLabel(MsgType.INPUT);
 		input = new CodePane(null);
 		input.setDocument(new IdeDocument(null));
-		prompt.addMouseListener(new MouseListener() {
+		prompt.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				input.requestFocus();
 			}
-			public void mouseEntered(MouseEvent arg0) { }
-			public void mouseExited(MouseEvent arg0) { }
-			public void mousePressed(MouseEvent arg0) { }
-			public void mouseReleased(MouseEvent arg0) { }
 		});
 		bottom.add(prompt);
 		//input.setFont(font);
@@ -323,7 +319,6 @@ public class Repl extends JPanel {
 			}
 		});
 		trace.addActionListener(new ActionListener() {
-			// FIXME: Strange things happen if the input box has != 1 expression.
 			public void actionPerformed(ActionEvent e) {
 				final String inputText = input.getText();
 				displayResult(inputText + "\n", MsgType.INPUT);
@@ -354,7 +349,7 @@ public class Repl extends JPanel {
 				resetInput();
 			}
 		});
-		input.addKeyListener(new KeyListener() {
+		input.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.getText().equals("")) {
 					// Prevent that awful backspace beep.
@@ -428,7 +423,6 @@ public class Repl extends JPanel {
 					}
 				});
 			}
-			public void keyReleased(KeyEvent arg0) { }
 		});
 		//JPanel white = new JPanel();
 		//white.setBackground(Color.WHITE);
@@ -506,48 +500,49 @@ public class Repl extends JPanel {
 	private static Pattern nonRec = Pattern.compile("Since (.*?) is non-recursive, its admission is trivial\\..*");
 	private static Pattern trivial = Pattern.compile("The admission of (.*?) is trivial, using the relation O< .*");
 	private static Pattern admission = Pattern.compile("For the admission of (.*?) we will use the relation O< .*");
+	private static Pattern proved = Pattern.compile("Q.E.D.");
 	// TODO: Add these error messages (and others)
-	// Q.E.D.
 	// Undefined var
 	// Redefinition of func/reserved name
 	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL:  The symbol (.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in ACL2\\.  Please define it\\..*");
 	public static String cleanUpMsg(String result) {
-		// TODO Auto-generated method stub
 		return cleanUpMsg(result, null);
 	}
 	private static String cleanUpMsg(String result, Set<String> functions) {
-		String shortResult;
+		String ret;
 		Matcher match;
 		String joined = result.replaceAll("[\n\r]+", " ").replaceAll("\\s+", " ").trim();
 		if ((match = welcomeMessage.matcher(joined)).matches()) {
 			//FIXME: type = MsgType.INFO;
-			shortResult = "ACL2 started successfully.";
+			ret = "ACL2 started successfully.";
 		} else if ((match = guardViolation.matcher(joined)).matches()) {
-			shortResult = "Guard violation in " + match.group(3).toLowerCase() + ".";
+			ret = "Guard violation in " + match.group(3).toLowerCase() + ".";
 		} else if ((match = globalVar.matcher(joined)).matches()) {
-			shortResult = "Global variables, such as " + match.group(1).toLowerCase() +
+			ret = "Global variables, such as " + match.group(1).toLowerCase() +
 					", are not allowed.";
 		} else if ((match = wrongNumParams.matcher(joined)).matches()) {
-			shortResult = match.group(1).toLowerCase() +  " takes " + match.group(2) +
+			ret = match.group(1).toLowerCase() +  " takes " + match.group(2) +
 					" arguments but was given " + match.group(4) + " at " +
 					match.group(3).toLowerCase();
 		} else if ((match = trivial.matcher(joined)).matches() ||
 				   (match = nonRec.matcher(joined)).matches() ||
 				   (match = admission.matcher(joined)).matches()) {
-			shortResult = "<html><b>" + match.group(1).toLowerCase() + "</b> was admitted successfully.</html>";
+			ret = "<html><b>" + match.group(1).toLowerCase() + "</b> was admitted successfully.</html>";
 		} else if ((match = undefinedFunc.matcher(joined)).matches()) {
 			String func = match.group(1).toLowerCase();
 			if (functions != null && functions.contains(func)) {
-				shortResult = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to the left of its definition.</html>";
+				ret = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to the left of its definition.</html>";
 			} else {
-				shortResult = "The function " + func + " is undefined.";
+				ret = "The function " + func + " is undefined.";
 			}
+		} else if ((match = proved.matcher(joined)).find()) {
+			ret = "Proof successful.";
 		} else if (joined.length() > 80) {
-			shortResult = joined.substring(0, 75) + " [...]";
+			ret = joined.substring(0, 75) + " [...]";
 		} else {
-			shortResult = joined;
+			ret = joined;
 		}
-		return shortResult;
+		return ret;
 	}
 	public void displayResult(final String result, MsgType type) {
 		String traceFreeResult = result.replaceAll("\\s*\\d+>.*?\\n", "").replaceAll("\\s*<\\d+.*?\\n", "");
@@ -556,7 +551,7 @@ public class Repl extends JPanel {
 		line.setPreferredSize(new Dimension(200, 25));
 		line.setMaximumSize(new Dimension(Short.MAX_VALUE, 25));
 		final Repl that = this;
-		line.addMouseListener(new MouseListener() {
+		line.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				ResultWindow resWin = new ResultWindow("Full ACL2 output");
@@ -568,10 +563,6 @@ public class Repl extends JPanel {
 				resWin.setVisible(true);
 				//JOptionPane.showMessageDialog(that, result);
 			}
-			public void mouseEntered(MouseEvent arg0) { }
-			public void mouseExited(MouseEvent arg0) { }
-			public void mousePressed(MouseEvent arg0) { }
-			public void mouseReleased(MouseEvent arg0) { }
 		});
 		line.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 		JLabel text = new JLabel(shortResult.trim());

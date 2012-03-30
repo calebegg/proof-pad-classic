@@ -39,14 +39,9 @@ public class SExpUtils {
 				if (!token.isComment() && !token.isWhitespace() && !token.isSingleChar('\r')) {
 					contents.append(token.text, token.textOffset, token.textCount);
 					if (firstType == -1 && !token.isSingleChar('(')) {
-						// TODO: Strip colon off of :symbols.
-						//if () {
-						//	firstTerm = token.getLexeme().substring(1);
-						//} else {
-							firstType = token.type;
-							gapHeight = height - 1;
-							height = 1;
-						//}
+						firstType = token.type;
+						gapHeight = height - 1;
+						height = 1;
 					}
 				} else if (token.isWhitespace()) {
 					contents.append(token.text, token.textOffset, token.textCount);
