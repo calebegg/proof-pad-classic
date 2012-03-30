@@ -1,7 +1,94 @@
 <!doctype html>
-
+<style>
+  * {
+    font-family: sans-serif;
+  }
+  tt, tt * {
+    font-family: monospace;
+  }
+  h1, h2, h3, h4 {
+    text-align: center;
+  }
+  a.download {
+    margin: 10px auto;
+    width: 240px;
+    text-decoration: none;
+    color: black;
+    font-size: 32px;
+    display: block;
+    padding: 25px 0;
+    text-align: center;
+    border-radius: 5px;
+    background-color: #36BA3F;
+    border: outset 4px rgba(0, 0, 0, .1);
+    background-image: -webkit-linear-gradient(
+      bottom,
+      #36BA3F 0%,
+      #49E654);
+  }
+  a.download div {
+    font-size: 14px;
+  }
+  img.screenshot {
+    display: block;
+    margin: 0 auto;
+  }
+  .win-show, .osx-show, .linux-show, .none-show {
+    display: none !important;
+  }
+  .win .win-show {
+    display: block !important;
+  }
+  .osx .osx-show {
+    display: block !important;
+  }
+  .linux .linux-show {
+    display: block !important;
+  }
+  .none .none-show {
+    display: block !important;
+  }
+</style>
+<body class="none">
+<script>
+  var body = document.getElementsByTagName("body")[0]
+  if (navigator.platform.indexOf("Win") != -1) {
+    body.className = "win";
+  } else if (navigator.platform.indexOf("Mac") != -1) {
+    body.className = "osx";
+  } else if (navigator.platform.indexOf("Linux") != -1) {
+    body.className = "linux";
+  } else {
+    body.className = "none";
+  }
+</script>
 <title>Proof Pad</title>
 
 <h1>Proof Pad</h1>
 
-<a href="http://github.com/calebegg/proof-pad">See Github project page.</a>
+<a class="download osx-show" href="https://github.com/downloads/calebegg/proof-pad/proofpad.jar">Download<div>for OS X</div></a>
+<a class="download win-show" href="https://github.com/downloads/calebegg/proof-pad/proofpad.jar">Download<div>for Windows</div></a>
+<a class="download linux-show" href="https://github.com/downloads/calebegg/proof-pad/proofpad.jar">Download<div>for Linux</div></a>
+
+<br />
+
+<tt>(For now, you'll need a platform-specific build of ACL2 from <a href="http://acl2s.ccs.neu.edu/acl2s/update/images/">here</a> as well).</tt>
+
+<h2>Screenshots</h2>
+<img src="osxss.png" class="screenshot osx-show none-show" />
+<img src="windowsss.png" class="screenshot win-show" />
+<img src="ubuntuss.png" class="screenshot linux-show" />
+
+<a href="http://github.com/calebegg/proof-pad"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/7afbc8b248c68eb468279e8c17986ad46549fb71/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub"></a>
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-315420-11']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</body>
