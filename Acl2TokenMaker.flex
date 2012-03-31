@@ -164,6 +164,7 @@ Letter						= [A-Za-z]
 LetterOrUnderscore			= ({Letter}|"_")
 NonzeroDigit				= [1-9]
 Digit						= ("0"|{NonzeroDigit})
+HexDigit					= [0-9A-Fa-f]
 IdentifierStart				= ([^\t\f\r\n\ \(\)\;\|\.&\"\'])
 IdentifierPart				= ([^\t\f\r\n\ \(\)\;\|\.\"\'])
 Identifier					= ({IdentifierStart}{IdentifierPart}*)|"|"[^|]"|"
@@ -176,7 +177,9 @@ MLCEnd						= "|#"
 LineCommentBegin			= ";"
 
 IntegerLiteral				= (-?{Digit}+)
+HexIntegerLiteral			= (#[Xx]?-?{HexDigit}+)
 RationalLiteral				= ({IntegerLiteral}"/"{Digit}+)
+HexRationalLiteral			= ({HexIntegerLiteral}"/"{HexDigit}+)
 CharacterLiteral			= "#\\"(.|"Space"|"Tab"|"Newline"|"Page"|"Rubout")
 
 Symbol						= "'"{Identifier}
@@ -736,7 +739,9 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 	/* Literals */
 	{IntegerLiteral}				{ addToken(Token.LITERAL_NUMBER_DECIMAL_INT); }
+	{HexIntegerLiteral}				{ addToken(Token.LITERAL_NUMBER_HEXADECIMAL); }
 	{RationalLiteral}				{ addToken(Token.LITERAL_NUMBER_FLOAT); }
+	{HexRationalLiteral}			{ addToken(Token.LITERAL_NUMBER_HEXADECIMAL); }
 	{CharacterLiteral}				{ addToken(Token.LITERAL_CHAR); }
 	"t" |
 	"nil" |
