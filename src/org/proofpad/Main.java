@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Iterator;
 
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -54,6 +57,25 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				String stackTrace = e + ": " + e.getMessage();
+				StackTraceElement[] stes = e.getStackTrace();
+				for (StackTraceElement ste : stes) {
+					stackTrace += "\n" + ste;
+				}
+				JTextArea errorText = new JTextArea();
+				JScrollPane sp = new JScrollPane(errorText);
+				errorText.setText(stackTrace);
+				errorText.setCaretPosition(0);
+				errorText.setEditable(false);
+				ResultWindow errorWindow = new ResultWindow(null, "Error");
+				errorWindow.setContent(sp);
+				errorWindow.setVisible(true);
+			}
+		});
 		
 		logtime("Start loading cache");
 		ObjectInputStream ois = new ObjectInputStream(Main.class.getResource("/data/cache.dat").openStream());
