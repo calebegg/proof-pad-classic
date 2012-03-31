@@ -165,8 +165,8 @@ LetterOrUnderscore			= ({Letter}|"_")
 NonzeroDigit				= [1-9]
 Digit						= ("0"|{NonzeroDigit})
 HexDigit					= [0-9A-Fa-f]
-IdentifierStart				= ([^\t\f\r\n\ \(\)\;\|\.&\"\'])
-IdentifierPart				= ([^\t\f\r\n\ \(\)\;\|\.\"\'])
+IdentifierStart				= ([^\t\f\r\n\ \(\)\;\|\.&\"\':])
+IdentifierPart				= ([^\t\f\r\n\ \(\)\;\|\.\"\':])
 Identifier					= ({IdentifierStart}{IdentifierPart}*)|"|"[^|]"|"
 
 LineTerminator				= (\n)
@@ -182,7 +182,7 @@ RationalLiteral				= ({IntegerLiteral}"/"{Digit}+)
 HexRationalLiteral			= ({HexIntegerLiteral}"/"{HexDigit}+)
 CharacterLiteral			= "#\\"(.|"Space"|"Tab"|"Newline"|"Page"|"Rubout")
 
-Symbol						= "'"{Identifier}
+Symbol						= ("'"{Identifier}|":"{Identifier})
 
 Separator					= ([\(\)])
 
