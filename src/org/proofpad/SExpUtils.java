@@ -24,6 +24,7 @@ public class SExpUtils {
 		int height = 0;
 		boolean first = false;
 		StringBuilder contents = new StringBuilder();
+		boolean contentsAdmittable = true;
 		int firstType = -1;
 		int charIndex = -1;
 		Expression prev = null;
@@ -43,17 +44,19 @@ public class SExpUtils {
 						gapHeight = height - 1;
 						height = 1;
 					}
+					contentsAdmittable = true;
 				} else if (token.isWhitespace()) {
 					contents.append(token.text, token.textOffset, token.textCount);
 				}
 				if (token.isSingleChar('(')) {
 					parenLevel++;
-				} else if (token.isSingleChar(')')) {
+				} else if (token.isSingleChar(')') && parenLevel > 0) {
 					parenLevel--;
 				}
                 boolean nextTokenIsNull = token.getNextToken() == null ||
                 		token.getNextToken().type == Token.NULL;
-				if (parenLevel == 0 && nextTokenIsNull && contents.length() != 0) {
+
+				if (parenLevel == 0 && nextTokenIsNull && contents.length() != 0 && contentsAdmittable) {
 					if (prev != null) {
 						prev.nextGapHeight = gapHeight;
 					}
@@ -64,6 +67,7 @@ public class SExpUtils {
 					firstType = -1;
 					charIndex = -1;
 					contents = new StringBuilder();
+					contentsAdmittable = false;
 					height = 0;
 				}
 				if (first) first = false;
