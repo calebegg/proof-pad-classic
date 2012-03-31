@@ -600,6 +600,8 @@ public class Acl2Parser extends AbstractParser {
 								dirKey = top.params.get(dirLoc);
 								if (dirKey.equals(":system")) {
 									dir = new File(acl2Dir, "books");
+								} else if (dirKey.equals(":teachpacks")) {
+									dir = new File(acl2Dir, "dracula");
 								} else {
 									result.addNotice(new Acl2ParserNotice(this,
 											"Unrecognized book location: " + dirKey, top,
