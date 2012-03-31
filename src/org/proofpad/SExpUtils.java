@@ -73,6 +73,7 @@ public class SExpUtils {
 				if (first) first = false;
 				token = token.getNextToken();
 			}
+			contents.append('\n');
 		}
 		r.add(new Expression(height, "", -1, charIndex, -1, prev));
 		//for (Expression exp : r) {
