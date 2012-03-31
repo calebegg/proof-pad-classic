@@ -50,7 +50,7 @@ public class SExpUtils {
 				}
 				if (token.isSingleChar('(')) {
 					parenLevel++;
-				} else if (token.isSingleChar(')')) {
+				} else if (token.isSingleChar(')') && parenLevel > 0) {
 					parenLevel--;
 				}
                 boolean nextTokenIsNull = token.getNextToken() == null ||
