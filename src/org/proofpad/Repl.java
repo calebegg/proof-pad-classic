@@ -250,6 +250,7 @@ public class Repl extends JPanel {
 	private HeightChangeListener heightChangeListener;
 	protected int inputLines = 1;
 	private JPanel bottom;
+	private JFrame parent;
 		
 	enum MsgType {
 		ERROR,
@@ -258,8 +259,9 @@ public class Repl extends JPanel {
 		SUCCESS
 	}
 	
-	public Repl(Acl2 newAcl2, final CodePane definitions) {
+	public Repl(final JFrame parent, Acl2 newAcl2, final CodePane definitions) {
 		super();
+		this.parent = parent;
 		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, false);
 		split.setBorder(BorderFactory.createEmptyBorder());
 		split.setDividerSize(0);
@@ -335,7 +337,7 @@ public class Repl extends JPanel {
 				acl2.admit(inputText, new Acl2.Callback() {
 					public boolean run(boolean success, String response) {
 						// Display the results in a nicely-formatted way
-						TraceResult tr = new TraceResult(response, inputText);
+						TraceResult tr = new TraceResult(parent, response, inputText);
 						tr.setLocationRelativeTo(that);
 						tr.setVisible(true);
 						return true;
@@ -550,7 +552,7 @@ public class Repl extends JPanel {
 		line.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				ResultWindow resWin = new ResultWindow("Full ACL2 output");
+				ResultWindow resWin = new ResultWindow(parent, "Full ACL2 output");
 				JTextArea resBox = new JTextArea();
 				resBox.setText(result);
 				resBox.setEditable(false);

@@ -3,6 +3,7 @@ package org.proofpad;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +12,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -19,15 +21,15 @@ import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-public class ResultWindow extends JFrame {
+public class ResultWindow extends JDialog {
 
 	private static final long serialVersionUID = -4360856107145207588L;
 	
 	private JScrollPane scroller;
 
-	public ResultWindow(String string) {
+	public ResultWindow(Frame parent, String string) {
 		// TODO: Hook this up to the parent IdeWindow's JMenu on mac.
-		super(string);
+		super(parent, string);
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 		getRootPane().putClientProperty("Window.style", "small");
 		setAlwaysOnTop(true);
@@ -68,13 +70,13 @@ public class ResultWindow extends JFrame {
 				scroller.getVerticalScrollBar().setValue(0);
 			}
 		});
-		if (comp instanceof Scrollable) {
-			Dimension preferredSize = ((Scrollable) comp).getPreferredScrollableViewportSize();
-			Dimension extentSize = scroller.getViewport().getExtentSize();
-			int maxWidth = getWidth() - extentSize.width + preferredSize.width + 5;
-			int maxHeight = getHeight() - extentSize.height + preferredSize.height + 5;
-			setMaximizedBounds(new Rectangle(getLocation(), new Dimension(maxWidth, maxHeight)));
-		}
+//		if (comp instanceof Scrollable) {
+//			Dimension preferredSize = ((Scrollable) comp).getPreferredScrollableViewportSize();
+//			Dimension extentSize = scroller.getViewport().getExtentSize();
+//			int maxWidth = getWidth() - extentSize.width + preferredSize.width + 5;
+//			int maxHeight = getHeight() - extentSize.height + preferredSize.height + 5;
+//			setMaximizedBounds(new Rectangle(getLocation(), new Dimension(maxWidth, maxHeight)));
+//		}
 	}
 
 }

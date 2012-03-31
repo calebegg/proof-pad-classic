@@ -1,13 +1,15 @@
 package org.proofpad;
 
+import java.awt.Frame;
+
 import javax.swing.*;
 import javax.swing.tree.*;
 
 public class TraceResult extends ResultWindow {
 	private static final long serialVersionUID = 2124327473664301528L;
 
-	public TraceResult(String trace, String input) {
-		super("Trace Output for " + input);
+	public TraceResult(Frame parent, String trace, String input) {
+		super(parent, "Trace Output for " + input);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(input);
 		//int level = 0;
 		DefaultMutableTreeNode node = root;

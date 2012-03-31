@@ -171,7 +171,7 @@ public class IdeWindow extends JFrame {
 		editor = new CodePane(proofBar);
 		jsp.setViewportView(editor);
 		jsp.setRowHeaderView(proofBar);
-		repl = new Repl(acl2, editor);
+		repl = new Repl(this, acl2, editor);
 		proofBar.setLineHeight(editor.getLineHeight());
 		final IdeDocument doc = new IdeDocument(proofBar);
 		editor.setDocument(doc);
