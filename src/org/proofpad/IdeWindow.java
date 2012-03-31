@@ -9,12 +9,13 @@ import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.prefs.Preferences;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.text.BadLocationException;
 import javax.swing.undo.UndoManager;
 
 import org.fife.ui.rsyntaxtextarea.Token;
@@ -139,32 +140,31 @@ public class IdeWindow extends JFrame {
 		splitTop.add(jsp, BorderLayout.CENTER);
 
 		final Preferences prefs = Preferences.userNodeForPackage(Main.class);
-		String maybeAcl2Path = prefs.get("acl2Path", null);
+		
 		final String acl2Path;
-		if (maybeAcl2Path == null) {
-			if (isMac) {
-				FileDialog fd = new FileDialog(this, "Choose an ACL2 executable");
-				fd.setVisible(true);
-				acl2Path = fd.getDirectory() + fd.getFile();
-			} else {
-				JFileChooser fc = new JFileChooser();
-				fc.addChoosableFileFilter(new FileFilter() {
-					@Override
-					public String getDescription() {
-						return "Executable";
-					}
-					@Override
-					public boolean accept(File f) {
-						return f.getName().endsWith(".exe");
-					}
-				});
-				fc.showOpenDialog(this);
-				acl2Path = fc.getSelectedFile().getAbsolutePath();
-			}
-			prefs.put("acl2Path", acl2Path);
+		if (prefs.getBoolean("customacl2", false)) {
+			acl2Path = prefs.get("acl2Path", "");
 		} else {
+			String maybeAcl2Path = "";
+			try {
+				String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+				jarPath = URLDecoder.decode(jarPath, "UTF-8");
+				File jarFile = new File(jarPath);
+				String sep = File.separator;
+				maybeAcl2Path = jarFile.getParent() + sep  + "acl2" + sep + "run_acl2" + (isWindows ? ".exe" : "");
+				if (isWindows) {
+					//maybeAcl2Path = "\"" + maybeAcl2Path + "\"";
+				} else {
+					maybeAcl2Path = maybeAcl2Path.replaceAll(" ", "\\\\ ");
+				}
+			} catch (NullPointerException e) {
+				System.err.println("Built-in ACL2 not found.");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 			acl2Path = maybeAcl2Path;
 		}
+		System.out.println(acl2Path);
 
 		acl2 = new Acl2(acl2Path, workingDir);
 		proofBar = new ProofBar(acl2);
