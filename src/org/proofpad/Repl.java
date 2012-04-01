@@ -505,14 +505,13 @@ public class Repl extends JPanel {
 	// Redefinition of func/reserved name
 	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL:  The symbol (.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in ACL2\\.  Please define it\\..*");
 	public static String cleanUpMsg(String result) {
-		return cleanUpMsg(result, null);
+		return cleanUpMsg(result, null, null);
 	}
-	private static String cleanUpMsg(String result, Set<String> functions) {
+	private static String cleanUpMsg(String result, Set<String> functions, MsgType msgtype) {
 		String ret;
 		Matcher match;
 		String joined = result.replaceAll("[\n\r]+", " ").replaceAll("\\s+", " ").trim();
 		if ((match = welcomeMessage.matcher(joined)).matches()) {
-			//FIXME: type = MsgType.INFO;
 			ret = "ACL2 started successfully.";
 		} else if ((match = guardViolation.matcher(joined)).matches()) {
 			ret = "Guard violation in " + match.group(3).toLowerCase() + ".";
@@ -526,11 +525,18 @@ public class Repl extends JPanel {
 		} else if ((match = trivial.matcher(joined)).matches() ||
 				   (match = nonRec.matcher(joined)).matches() ||
 				   (match = admission.matcher(joined)).matches()) {
-			ret = "<html><b>" + match.group(1).toLowerCase() + "</b> was admitted successfully.</html>";
+			if (msgtype == MsgType.ERROR) {
+				ret = "<html>Admission of <b>" + match.group(1).toLowerCase() + "</b> failed. " +
+						"Click for details.</html>";
+			} else {
+				ret = "<html><b>" + match.group(1).toLowerCase() + "</b> was admitted successfully." +
+						"</html>";
+			}
 		} else if ((match = undefinedFunc.matcher(joined)).matches()) {
 			String func = match.group(1).toLowerCase();
 			if (functions != null && functions.contains(func)) {
-				ret = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to the left of its definition.</html>";
+				ret = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to " +
+						"the left of its definition.</html>";
 			} else {
 				ret = "The function " + func + " is undefined.";
 			}
@@ -545,7 +551,12 @@ public class Repl extends JPanel {
 	}
 	public void displayResult(final String result, MsgType type) {
 		String traceFreeResult = result.replaceAll("\\s*\\d+>.*?\\n", "").replaceAll("\\s*<\\d+.*?\\n", "");
-		String shortResult = cleanUpMsg(traceFreeResult, ((Acl2Parser) definitions.getParser(0)).functions);
+		String shortResult = cleanUpMsg(traceFreeResult,
+				((Acl2Parser) definitions.getParser(0)).functions,
+				type);
+		if (shortResult.startsWith("ACL2 started successfully")) {
+			type = MsgType.INFO;
+		}
 		final JPanel line = new JPanel();
 		line.setPreferredSize(new Dimension(200, 25));
 		line.setMaximumSize(new Dimension(Short.MAX_VALUE, 25));

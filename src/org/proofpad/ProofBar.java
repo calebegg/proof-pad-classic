@@ -371,7 +371,6 @@ public class ProofBar extends JComponent {
 					@Override
 					public boolean run(boolean s, String r) {
 						tried.admissionIndex = Integer.parseInt(r.substring(4, r.length()).split(":")[0].trim());
-						System.out.println(tried.contents + ": " + tried.admissionIndex);
 						proofCallback(outerSuccess);
 						return false;
 					}
