@@ -81,6 +81,7 @@ public class ProofBar extends JComponent {
 				int begin = 0;
 				int provedSoFar = numProved;
 				int addToNextHeight = 0;
+				int admissionIndexSoFar = 2; // Start at 2 because of the 2 events in Acl2.java
 				for (Expression ex : expressions) {
 					//System.out.println(ex.first);
 					int height = pixelHeight(ex);
@@ -93,7 +94,7 @@ public class ProofBar extends JComponent {
 							height -= addToNextHeight;
 						}
 						if (e.getY() < begin + height) {
-							if (ex.firstType == SExpUtils.ExpType.UNDOABLE) {
+							for (; admissionIndexSoFar < ex.admissionIndex; admissionIndexSoFar++) {
 								that.acl2.admit(":u\n", null);
 							}
 							numProved--;
@@ -111,6 +112,7 @@ public class ProofBar extends JComponent {
 						}
 					}
 					begin += height;
+					admissionIndexSoFar = ex.admissionIndex;
 				}
 				that.proveNext();
 				error = false;
@@ -296,12 +298,14 @@ public class ProofBar extends JComponent {
 				@Override
 				public void undo() {
 					int provedSoFar = numProved;
+					int admissionIndexSoFar = 2;
 					for (Expression ex : expressions) {
 						provedSoFar--;
 						if (provedSoFar > 1) continue;
-						if (ex.firstType == ExpType.UNDOABLE) {
+						for (; admissionIndexSoFar < ex.admissionIndex; admissionIndexSoFar++) {
 							acl2.admit(":u\n", null);
 						}
+						admissionIndexSoFar = ex.admissionIndex;
 						setReadOnlyIndex(Math.min(getReadOnlyIndex(), ex.prev == null ? -1 : ex.prev.nextIndex));
 						numProved--;
 						repaint();
@@ -364,8 +368,16 @@ public class ProofBar extends JComponent {
 			return;
 		}
 		acl2.admit(tried.contents, new Acl2.Callback() {
-			public boolean run(boolean success, String response) {
-				proofCallback(success);
+			public boolean run(final boolean outerSuccess, String response) {
+				acl2.admit(":pbt :here", new Acl2.Callback() {
+					@Override
+					public boolean run(boolean s, String r) {
+						tried.admissionIndex = Integer.parseInt(r.substring(4, r.length()).split(":")[0].trim());
+						System.out.println(tried.contents + ": " + tried.admissionIndex);
+						proofCallback(outerSuccess);
+						return false;
+					}
+				});
 				return true;
 			}
 		});

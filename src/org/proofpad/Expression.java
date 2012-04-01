@@ -11,6 +11,7 @@ public class Expression {
 	public int prevGapHeight = 0;
 	public int nextGapHeight = 0;
 	public Expression prev;
+	public int admissionIndex;
 	public Expression(int height, String contents, ExpType firstType, int index, int nextIndex, Expression prev) {
 		this.height = height;
 		this.contents = contents;
