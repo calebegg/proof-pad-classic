@@ -105,7 +105,7 @@ public class ProofBar extends JComponent {
 						if (error) {
 							break;
 						}
-						if (e.getY() > begin) {
+						if (e.getY() > begin && ex.firstType != ExpType.FINAL) {
 							proofQueue.add(ex);
 							numProving++;
 							setReadOnlyIndex(Math.max(getReadOnlyIndex(), ex.nextIndex - 1));
@@ -169,7 +169,38 @@ public class ProofBar extends JComponent {
 			int height = pixelHeight(e);
 			height += addToNextHeight;
 			addToNextHeight = 0;
-			if (isError && provedSoFar == 0) {
+			if (provedSoFar > 0) {
+				// Drawing proved terms
+				provedSoFar--;
+				if (provedSoFar == 0) {
+					addToNextHeight = e.nextGapHeight * lineHeight / 2 - 1;
+					height -= addToNextHeight;
+					setReadOnlyHeight(begin + height);
+				}
+				if (hover && my < begin + height) {
+					//g.setColor(untriedColor.brighter());
+					g.setPaint(unprove);
+					//g.setPaint(new GradientPaint(0, 0, new Color(.7f, .7f, .7f), width, 0, new Color(.8f, .8f, .8f)));
+					g.fillRect(0, begin, 30, height);
+					if (my >= begin) {
+						g.setColor(provedColor);
+						g.fillPolygon(new int[] {0, width / 2, width, width, 0, 0},
+								new int[] {begin + 10, begin, begin + 10, begin, begin, begin + 10},
+								6);
+						setToolTipText("Undo admitting this term.");
+					}
+				} else {
+					g.setColor(provedColor);
+					int flashEndIndex = e.nextIndex + e.nextGapHeight / 2;
+					if (flashPhase % 2 == 1 && flashIndex <= flashEndIndex && flashIndex > flashStartIndex) {
+						g.setColor(provedColor.darker());
+					}
+					flashStartIndex = flashEndIndex;
+					g.fillRect(0, begin, 30, height);
+					//drawStringCentered(g, begin, height, "\u2713");
+					g.drawImage(successIcon.getImage(), (width - 19) / 2, (height - 19) / 2 + begin, this);
+				}
+			} else if (isError && provedSoFar == 0) {
 				// Draw error box
 				isError = false;
 				g.setColor(errorColor);
@@ -179,7 +210,16 @@ public class ProofBar extends JComponent {
 				}
 				//drawStringCentered(g, begin, height, "\u2715");
 				g.drawImage(errorIcon.getImage(), (width - 19) / 2, (height - 19) / 2 + begin, this); 
-			} else if (provedSoFar == 0 && provingSoFar == 0) {
+			} else if (provingSoFar > 0) {
+				// Drawing in-progress terms
+				provingSoFar--;
+				if (provingSoFar == 0) {
+					setReadOnlyHeight(begin + height - e.nextGapHeight * lineHeight / 2);
+				}
+				g.setColor(provingColor);
+				g.fillRect(0, begin, 30, height);
+				g.drawImage(inProgressThrobber, (width - 16) / 2, begin + (height - 16) / 2, this);
+			} else if (e.firstType != SExpUtils.ExpType.FINAL) {
 				// Drawing untried terms
 				if (hover && my > begin && !error && !e.contents.equals("")) {
 					//g.setColor(provedColor.brighter());
@@ -197,48 +237,6 @@ public class ProofBar extends JComponent {
 					g.setColor(untriedColor);
 					g.fillRect(0, begin, 30, height);
 				}
-			} else if (provedSoFar > 0) {
-				// Drawing proved terms
-				provedSoFar--;
-				if (provedSoFar == 0) {
-					addToNextHeight = e.nextGapHeight * lineHeight / 2 - 1;
-					height -= addToNextHeight;
-				}
-				if (provedSoFar == 0) {
-					setReadOnlyHeight(begin + height);
-				}
-				if (hover && my < begin + height) {
-					//g.setColor(untriedColor.brighter());
-					g.setPaint(unprove);
-					//g.setPaint(new GradientPaint(0, 0, new Color(.7f, .7f, .7f), width, 0, new Color(.8f, .8f, .8f)));
-					g.fillRect(0, begin, 30, height);
-					if (my >= begin) {
-						g.setColor(provedColor);
-						g.fillPolygon(new int[] {0, width / 2, width, width, 0, 0},
-								new int[] {begin + 10, begin, begin + 10, begin, begin, begin + 10},
-						        6);
-						setToolTipText("Undo admitting this term.");
-					}
-				} else {
-					g.setColor(provedColor);
-					int flashEndIndex = e.nextIndex + e.nextGapHeight / 2;
-					if (flashPhase % 2 == 1 && flashIndex <= flashEndIndex && flashIndex > flashStartIndex) {
-						g.setColor(provedColor.darker());
-					}
-					flashStartIndex = flashEndIndex;
-					g.fillRect(0, begin, 30, height);
-					//drawStringCentered(g, begin, height, "\u2713");
-					g.drawImage(successIcon.getImage(), (width - 19) / 2, (height - 19) / 2 + begin, this);
-				}
-			} else {
-				// Drawing in-progress terms
-				provingSoFar--;
-				if (provingSoFar == 0) {
-					setReadOnlyHeight(begin + height - e.nextGapHeight * lineHeight / 2);
-				}
-				g.setColor(provingColor);
-				g.fillRect(0, begin, 30, height);
-				g.drawImage(inProgressThrobber, (width - 16) / 2, begin + (height - 16) / 2, this);
 			}
 			g.setColor(Color.GRAY);
 			g.drawLine(0, begin, width, begin);
