@@ -9,7 +9,6 @@ import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.util.prefs.Preferences;
 
