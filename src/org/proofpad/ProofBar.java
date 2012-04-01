@@ -6,7 +6,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
-import org.fife.ui.rsyntaxtextarea.Token;
+import org.proofpad.SExpUtils.ExpType;
 
 public class ProofBar extends JComponent {
 	
@@ -93,7 +93,7 @@ public class ProofBar extends JComponent {
 							height -= addToNextHeight;
 						}
 						if (e.getY() < begin + height) {
-							if (ex.firstType == Token.RESERVED_WORD_2) {
+							if (ex.firstType == SExpUtils.ExpType.UNDOABLE) {
 								that.acl2.admit(":u\n", null);
 							}
 							numProved--;
@@ -252,7 +252,7 @@ public class ProofBar extends JComponent {
 	private static int pixelHeight(Expression ex) {
 		if (ex.prev == null) {
 			return (ex.height + ex.prevGapHeight) * lineHeight + ex.nextGapHeight * lineHeight / 2;
-		} else if (ex.firstType == -1) {
+		} else if (ex.firstType == ExpType.FINAL) {
 			return (ex.height + ex.nextGapHeight) * lineHeight + ex.prevGapHeight * lineHeight / 2;
 		} else {
 			return ex.height * lineHeight + (ex.prevGapHeight + ex.nextGapHeight) * lineHeight / 2;
@@ -299,7 +299,7 @@ public class ProofBar extends JComponent {
 					for (Expression ex : expressions) {
 						provedSoFar--;
 						if (provedSoFar > 1) continue;
-						if (ex.firstType == Token.RESERVED_WORD_2) {
+						if (ex.firstType == ExpType.UNDOABLE) {
 							acl2.admit(":u\n", null);
 						}
 						setReadOnlyIndex(Math.min(getReadOnlyIndex(), ex.prev == null ? -1 : ex.prev.nextIndex));

@@ -13,6 +13,7 @@ import javax.swing.*;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.proofpad.Acl2.OutputEvent;
+import org.proofpad.SExpUtils.ExpType;
 
 
 public class Repl extends JPanel {
@@ -462,7 +463,7 @@ public class Repl extends JPanel {
 
 	private void runInputCode(CodePane input) {
 		List<Expression> exps = SExpUtils.topLevelExps((RSyntaxDocument) input.getDocument());
-		if (exps.size() > 0 && exps.get(0).firstType == Token.RESERVED_WORD_2) {
+		if (exps.size() > 0 && exps.get(0).firstType == ExpType.UNDOABLE) {
 			displayResult("This event was moved up to the definitions window.", MsgType.INFO);
 			definitions.admitBelowProofLine(input.getText());
 			resetInput();

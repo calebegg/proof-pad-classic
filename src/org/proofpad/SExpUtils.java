@@ -7,6 +7,11 @@ import org.fife.ui.rsyntaxtextarea.Token;
 
 public class SExpUtils {
 	static String newline = System.getProperty("line.separator");
+	static enum ExpType {
+		NORMAL,
+		FINAL,
+		UNDOABLE
+	}
 	static enum Lex {
 		NONE,
 		STRING,
@@ -25,7 +30,7 @@ public class SExpUtils {
 		boolean first = false;
 		StringBuilder contents = new StringBuilder();
 		boolean contentsAdmittable = true;
-		int firstType = -1;
+		ExpType firstType = ExpType.FINAL;
 		int charIndex = -1;
 		Expression prev = null;
 		int gapHeight = 0;
@@ -39,8 +44,11 @@ public class SExpUtils {
 				}
 				if (!token.isComment() && !token.isWhitespace() && !token.isSingleChar('\r')) {
 					contents.append(token.text, token.textOffset, token.textCount);
-					if (firstType == -1 && !token.isSingleChar('(')) {
-						firstType = token.type;
+					if (firstType == ExpType.FINAL && !token.isSingleChar('(')) {
+						firstType = token.type == Token.RESERVED_WORD_2 ? ExpType.UNDOABLE : ExpType.NORMAL;
+						if (token.getLexeme().equalsIgnoreCase("defproperty")) {
+							firstType = ExpType.UNDOABLE;
+						}
 						gapHeight = height - 1;
 						height = 1;
 					}
@@ -64,7 +72,7 @@ public class SExpUtils {
 							token.offset + token.textCount, prev);
 					prev.prevGapHeight = gapHeight;
 					r.add(prev);
-					firstType = -1;
+					firstType = ExpType.FINAL;
 					charIndex = -1;
 					contents = new StringBuilder();
 					contentsAdmittable = false;
@@ -75,7 +83,7 @@ public class SExpUtils {
 			}
 			contents.append('\n');
 		}
-		r.add(new Expression(height, "", -1, charIndex, -1, prev));
+		r.add(new Expression(height, "", ExpType.FINAL, charIndex, -1, prev));
 		//for (Expression exp : r) {
 		//	System.out.println(exp.first == null ? "null" : exp.first);
 		//}
