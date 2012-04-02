@@ -12,13 +12,14 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
-public class AboutWindow extends JFrame {
+public class AboutWindow extends JDialog {
 	class License {
 		final String title;
 		final String body;
@@ -100,7 +101,7 @@ public class AboutWindow extends JFrame {
 	}
 	
 	public AboutWindow() {
-		super("About Proof Pad");
+		super((JFrame)null, "About Proof Pad");
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -126,6 +127,7 @@ public class AboutWindow extends JFrame {
 		for (License license: licenses) {
 			JTextArea licenseText = new JTextArea(license.body);
 			licenseText.setFont(f);
+			licenseText.setEditable(false);
 			final JScrollPane textScroller = new JScrollPane(licenseText);
 			textScroller.setPreferredSize(new Dimension(licenseWidth, 200));
 			
