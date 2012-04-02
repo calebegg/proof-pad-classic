@@ -2,5 +2,7 @@
 OrangeExtensions-1.2.jar
 bin/*
 *.exe
-rsyntaxtextarea.jar
 cache.dat
+*.swp
+acl2/*
+*.jar
