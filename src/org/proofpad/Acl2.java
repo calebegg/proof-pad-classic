@@ -180,7 +180,7 @@ public class Acl2 extends Thread {
 			draculaPath = "/PROGRA~1/PROOFP~1/acl2/dracula";
 		} else {
 			try {
-				draculaPath = new File(acl2Path).getParent().replaceAll("\\\\", "") + "/dracula\")";
+				draculaPath = new File(acl2Path).getParent().replaceAll("\\\\", "") + "/dracula";
 			} catch (Exception e) {
 				draculaPath = "";
 			}
