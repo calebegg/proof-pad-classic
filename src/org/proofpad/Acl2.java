@@ -175,10 +175,18 @@ public class Acl2 extends Thread {
 			procId = Integer.parseInt(in.readLine());
 		}
 		out = new BufferedWriter(new OutputStreamWriter(acl2.getOutputStream()));
-		
+		String draculaPath;
+		if (IdeWindow.isWindows) {
+			draculaPath = "/PROGRA~1/PROOFP~1/acl2/dracula";
+		} else {
+			try {
+				draculaPath = new File(acl2Path).getParent().replaceAll("\\\\", "") + "/dracula\")";
+			} catch (Exception e) {
+				draculaPath = "";
+			}
+		}
 		try {
-			admit("(add-include-book-dir :teachpacks \"" + new File(acl2Path).getParent().replaceAll("\\\\", "") + "/dracula\")", doNothingCallback);
-			System.out.println("(add-include-book-dir :teachpacks \"" + new File(acl2Path).getParent() + "/dracula\")");
+			admit("(add-include-book-dir :teachpacks \"" + draculaPath + "\")", doNothingCallback);
 		} catch (Exception e) {
 		}
 		admit("(set-compile-fns nil)", doNothingCallback);

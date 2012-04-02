@@ -144,24 +144,24 @@ public class IdeWindow extends JFrame {
 		if (prefs.getBoolean("customacl2", false)) {
 			acl2Path = prefs.get("acl2Path", "");
 		} else {
-			String maybeAcl2Path = "";
-			try {
-				String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-				jarPath = URLDecoder.decode(jarPath, "UTF-8");
-				File jarFile = new File(jarPath);
-				String sep = File.separator;
-				maybeAcl2Path = jarFile.getParent() + sep  + "acl2" + sep + "run_acl2" + (isWindows ? ".exe" : "");
-				if (isWindows) {
-					//maybeAcl2Path = "\"" + maybeAcl2Path + "\"";
-				} else {
+			if (isWindows) {
+				// HACK: oh no oh no oh no
+				acl2Path = "C:\\PROGRA~1\\PROOFP~1\\acl2\\run_acl2.exe";
+			} else {
+				String maybeAcl2Path = "";
+				try {
+					String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+					jarPath = URLDecoder.decode(jarPath, "UTF-8");
+					File jarFile = new File(jarPath);
+					maybeAcl2Path = jarFile.getParent() + "/acl2/run_acl2";
 					maybeAcl2Path = maybeAcl2Path.replaceAll(" ", "\\\\ ");
+				} catch (NullPointerException e) {
+					System.err.println("Built-in ACL2 not found.");
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
 				}
-			} catch (NullPointerException e) {
-				System.err.println("Built-in ACL2 not found.");
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				acl2Path = maybeAcl2Path;
 			}
-			acl2Path = maybeAcl2Path;
 		}
 		System.out.println(acl2Path);
 
