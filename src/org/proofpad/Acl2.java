@@ -104,7 +104,8 @@ public class Acl2 extends Thread {
 					try {
 						acl2.exitValue();
 						// If we get here, the process has terminated.
-						for (Callback callback : callbacks) {
+						List<Callback> callbacksCopy = new LinkedList<Callback>(callbacks);
+						for (Callback callback : callbacksCopy) {
 							if (callback != null) callback.run(false, "");
 						}
 						callbacks.clear();
