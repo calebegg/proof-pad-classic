@@ -263,6 +263,7 @@ public class MenuBar extends JMenuBar {
 				}
 			});
 		}
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem("Build");
