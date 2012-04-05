@@ -816,6 +816,9 @@ public class IdeWindow extends JFrame {
 		for (IdeWindow w : windows) {
 			w.menuBar.updateRecentMenu();
 		}
+		if (isMac) {
+			Main.menuBar.updateRecentMenu();
+		}
 
 	}
 
