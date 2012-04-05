@@ -135,10 +135,10 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		for (Rectangle match : fullMatch) {
 			g.fillRect(match.x, match.y, match.width, match.height);
 		}
-		// Paint read only part
-		g.setColor(new Color(.9f, .9f, .9f));
+		// Paint read only background.
+		g.setColor(new Color(240, 235, 231));
 		g.fillRect(0, 0, getWidth(), readOnlyHeight);
-		g.setColor(new Color(.4f, .4f, .4f));
+		g.setColor(new Color(.6f, .6f, .6f));
 		g.drawLine(0, readOnlyHeight - 1, getWidth(), readOnlyHeight - 1);
 		// Paint width guide
 		if (widthGuide != -1) {
@@ -147,7 +147,12 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 			g.drawLine(linex, 0, linex, getHeight());
 		}
 		super.paintComponent(g);
+		// Paint a semi-transparent rectangle over read-only part.
+		g.setColor(new Color(1f, 1f, 1f, .2f));
+		g.fillRect(0, 0, getWidth(), readOnlyHeight);
+		g.setColor(new Color(.4f, .4f, .4f));
 		if (getLastVisibleOffset() == 0 && !canUndo() && pb != null) {
+			// Paint welcome message.
 			g.setColor(Color.BLACK);
 			FontMetrics fm = g.getFontMetrics();
 			Font originalFont = g.getFont();
@@ -224,6 +229,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		repaint();
 	}
 	
+	@Override
 	protected void fireCaretUpdate(CaretEvent e) {
 		super.fireCaretUpdate(e);
 		highlightBracketMatch();
