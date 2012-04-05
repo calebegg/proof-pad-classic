@@ -65,75 +65,7 @@ public class Toolbar extends JPanel {
 		if (!isMac) {
 			button.setText("Help");
 		}
-		final JButton helpButton = button;
-		button.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent event) {
-				if (!isWindows) {
-					showMenu();
-				}
-			}
-			public void mouseClicked(MouseEvent arg0) {
-				if (isWindows) {
-					showMenu();
-				}
-			}
-			public void showMenu() {
-				JPopupMenu helpMenu = new JPopupMenu();
-				helpMenu.addPopupMenuListener(new PopupMenuListener() {
-					@Override
-					public void popupMenuCanceled(PopupMenuEvent arg0) {
-					}
-
-					@Override
-					public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
-						helpButton.setSelected(false);
-					}
-
-					@Override
-					public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
-					}
-				});
-				JMenuItem item;
-				if (parent.editor.getSelectionStart() != parent.editor.getSelectionEnd()) {
-					item = new JMenuItem("Look up \""
-							+ parent.editor.getSelectedText() + "\"");
-					item.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-						}
-					});
-					helpMenu.add(item);
-				}
-				item = new JMenuItem("Quick Guide");
-				item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-					}
-				});
-				helpMenu.add(item);
-				item = new JMenuItem("Index");
-				item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						try {
-							Desktop.getDesktop()
-									.browse(new URI(
-											"http://www.cs.utexas.edu/users/moore/acl2/v4-3/acl2-doc-major-topics.html"));
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-					}
-				});
-				helpMenu.add(item);
-				item = new JMenuItem("Tutorial");
-				item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-					}
-				});
-				helpMenu.add(item);
-				helpButton.setSelected(true);
-				helpMenu.show(helpButton, 0, helpButton.getHeight());
-			}
-		});
-		add(Box.createGlue());
+		button.addActionListener(parent.tutorialAction);
 		add(button);
 	}
 }
