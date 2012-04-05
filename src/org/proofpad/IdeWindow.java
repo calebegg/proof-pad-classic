@@ -424,6 +424,9 @@ public class IdeWindow extends JFrame {
 				if (editor.getLastVisibleOffset() - lineSep.length() <= newIndex) {
 					editor.append(lineSep);
 				}
+				if (editor.getCaretPosition() <= newIndex + 1) {
+					editor.setCaretPosition(newIndex + 2);
+				}
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
