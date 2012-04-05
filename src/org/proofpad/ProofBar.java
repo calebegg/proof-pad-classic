@@ -22,14 +22,24 @@ public class ProofBar extends JComponent {
 	static Color errorColor = new Color(1f, .8f, .8f);
 	public static final ImageIcon errorIcon = new ImageIcon(ProofBar.class.getResource("/media/error.png"));
 	public static final ImageIcon successIcon = new ImageIcon(ProofBar.class.getResource("/media/check.png"));
-	static LinearGradientPaint prove = new LinearGradientPaint(0, 0, 8, 10,
-			new float[] {0f, .8f, .81f, 1f},
-			new Color[] {provedColor, provedColor, untriedColor, untriedColor},
-			MultipleGradientPaint.CycleMethod.REPEAT);
-	static LinearGradientPaint unprove = new LinearGradientPaint(0, 0, 8, 10,
-			new float[] {0f, .2f, .21f, 1f},
-			new Color[] {provedColor, provedColor, untriedColor, untriedColor},
-			MultipleGradientPaint.CycleMethod.REPEAT);
+	
+	static LinearGradientPaint diagonalPaint(Color a, Color b, int step, float dist) {
+		return new LinearGradientPaint(0, 0, step, step,
+				new float[] {0f, dist, dist + .01f, 1f},
+				new Color[] {a, a, b, b},
+				MultipleGradientPaint.CycleMethod.REPEAT);
+	}
+	
+	static Paint prove = diagonalPaint(provedColor, untriedColor, 8, .8f);
+//			new LinearGradientPaint(0, 0, 8, 10,
+//					new float[] {0f, .8f, .81f, 1f},
+//					new Color[] {provedColor, provedColor, untriedColor, untriedColor},
+//					MultipleGradientPaint.CycleMethod.REPEAT);
+	static Paint unprove = diagonalPaint(provedColor, untriedColor, 8, .2f);
+//			new LinearGradientPaint(0, 0, 8, 10,
+//					new float[] {0f, .2f, .21f, 1f},
+//					new Color[] {provedColor, provedColor, untriedColor, untriedColor},
+//					MultipleGradientPaint.CycleMethod.REPEAT);
 
 	private static final long serialVersionUID = 8267405348010307267L;
 	
@@ -300,9 +310,9 @@ public class ProofBar extends JComponent {
 					for (Expression ex : expressions) {
 						provedSoFar--;
 						if (provedSoFar > 1) continue;
-							acl2.admit(":u\n", null);
 						if (ex.admissionIndex != -1) {
 							for (; admissionIndexSoFar < ex.admissionIndex; admissionIndexSoFar++) {
+								acl2.undo();
 							}
 						}
 						admissionIndexSoFar = ex.admissionIndex;
