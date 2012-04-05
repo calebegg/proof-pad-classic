@@ -164,8 +164,7 @@ public class Acl2 extends Thread {
 	public void initialize() throws IOException {
 		ProcessBuilder processBuilder;
 		if (IdeWindow.isWindows) {
-			processBuilder = new ProcessBuilder(acl2Path);
-			//processBuilder = new ProcessBuilder("hiddencon.exe", acl2Path);
+			processBuilder = new ProcessBuilder("ctrlc-windows.exe", acl2Path);
 		} else {
 			processBuilder = new ProcessBuilder("sh", "-c", "echo \"$$\"; exec \"$0\" \"$@\"" + acl2Path);
 		}
@@ -296,7 +295,8 @@ public class Acl2 extends Thread {
 		backoff = 0;
 		if (IdeWindow.isWindows) {
 			try {
-				Runtime.getRuntime().exec(new String[] {"sendctrlc.exe", Integer.toString(procId)});
+				out.write(new char[] { 0 });
+				out.flush();
 			} catch (IOException e) { }
 		} else {
 			try {
