@@ -22,6 +22,7 @@ import javax.swing.text.DefaultEditorKit;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
 
 public class MenuBar extends JMenuBar {
+	static final int RECENT_MENU_ITEMS = 10;
 	private static final boolean isWindows = IdeWindow.isWindows;
 	private static final boolean isMac = IdeWindow.isMac;
 	private static final boolean titleCase = !isWindows;
@@ -284,6 +285,11 @@ public class MenuBar extends JMenuBar {
 		item = new JMenuItem("Index");
 		item = new JMenuItem("Quick " + (titleCase ? 'G' : 'g') + "uide");
 		item = new JMenuItem("Tutorial");
+		if (parent == null) {
+			item.setEnabled(false);
+		} else {
+			item.addActionListener(parent.tutorialAction);
+		}
 		menu.add(item);
 		if (!isMac) {
 			item = new JMenuItem("About");
@@ -299,8 +305,8 @@ public class MenuBar extends JMenuBar {
 
 	public void updateRecentMenu() {
 		recentMenu.removeAll();
-		Preferences prefs = Preferences.userNodeForPackage(Main.class);
-		for (int i = 1; i <= 10; i++) {
+		final Preferences prefs = Preferences.userNodeForPackage(Main.class);
+		for (int i = 1; i <= RECENT_MENU_ITEMS; i++) {
 			String path = prefs.get("recent" + i, null);
 			if (path == null) {
 				break;
@@ -320,6 +326,17 @@ public class MenuBar extends JMenuBar {
 		if (recentMenu.getItemCount() == 0) {
 			recentMenu.setEnabled(false);
 		}
+		JMenuItem clearItem = new JMenuItem("Clear Menu");
+		clearItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (int i = 1; i <= RECENT_MENU_ITEMS; i++) {
+					prefs.remove("recent" + i);
+				}
+			}
+		});
+		recentMenu.addSeparator();
+		recentMenu.add(clearItem);
 	}
 
 	public void updateWindowMenu() {
