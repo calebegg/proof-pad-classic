@@ -30,6 +30,7 @@ import com.apple.eawt.AppEvent.OpenFilesEvent;
 public class Main {
 	
 	public static final String displayName = "Proof Pad (alpha)";
+	public static final int RELEASE = 1;
 	
 	public static boolean startingUp = true;
 	public static long startTime = System.currentTimeMillis();

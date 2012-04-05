@@ -1,16 +1,22 @@
 package org.proofpad;
 
 import java.awt.Desktop;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Scanner;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 public class Toolbar extends JPanel {
 	private static final boolean isMac = IdeWindow.isMac;
-	private static final boolean isWindows = IdeWindow.isWindows;
+//	private static final boolean isWindows = IdeWindow.isWindows;
 	private static final long serialVersionUID = -333358626303272834L;
+private JButton updateButton;
 
 	public Toolbar(final IdeWindow parent) {
 		new JPanel();
@@ -60,6 +66,24 @@ public class Toolbar extends JPanel {
 		button.putClientProperty("JButton.segmentPosition", "last");
 		button.setEnabled(false);
 		add(button);
+		add(Box.createGlue());
+		button = new JButton(new ImageIcon(getClass().getResource("/media/update.png")));
+		updateButton = button;
+		button.setToolTipText("An update is available.");
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					Desktop.getDesktop().browse(new URI("http://proofpad.org/"));
+				} catch (IOException e) {
+				} catch (URISyntaxException e) { }
+			}
+		});
+		button.setVisible(false);
+		checkForUpdate();
+		button.putClientProperty("JButton.buttonType", "textured");
+		add(button);
+		add(Box.createHorizontalStrut(4));
 		button = new JButton();
 		button.putClientProperty("JButton.buttonType", "help");
 		if (!isMac) {
@@ -67,5 +91,20 @@ public class Toolbar extends JPanel {
 		}
 		button.addActionListener(parent.tutorialAction);
 		add(button);
+	}
+	
+	public void checkForUpdate() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Scanner s = new Scanner(new URL("http://proofpad.org/CURRENT").openStream());
+					if (s.nextInt() > Main.RELEASE) {
+						updateButton.setVisible(true);
+					}
+				} catch (MalformedURLException e) {
+				} catch (IOException e) { }
+			}
+		}).start();
 	}
 }
