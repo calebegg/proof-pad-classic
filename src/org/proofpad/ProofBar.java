@@ -95,7 +95,7 @@ public class ProofBar extends JComponent {
 						}
 						if (e.getY() < begin + height) {
 							for (; admissionIndexSoFar < ex.admissionIndex; admissionIndexSoFar++) {
-								that.acl2.admit(":u\n", null);
+								that.acl2.undo();
 							}
 							numProved--;
 							setReadOnlyIndex(Math.min(getReadOnlyIndex(),
@@ -300,8 +300,10 @@ public class ProofBar extends JComponent {
 					for (Expression ex : expressions) {
 						provedSoFar--;
 						if (provedSoFar > 1) continue;
-						for (; admissionIndexSoFar < ex.admissionIndex; admissionIndexSoFar++) {
 							acl2.admit(":u\n", null);
+						if (ex.admissionIndex != -1) {
+							for (; admissionIndexSoFar < ex.admissionIndex; admissionIndexSoFar++) {
+							}
 						}
 						admissionIndexSoFar = ex.admissionIndex;
 						setReadOnlyIndex(Math.min(getReadOnlyIndex(), ex.prev == null ? -1 : ex.prev.nextIndex));
@@ -370,7 +372,13 @@ public class ProofBar extends JComponent {
 				acl2.admit(":pbt :here", new Acl2.Callback() {
 					@Override
 					public boolean run(boolean s, String r) {
-						tried.admissionIndex = Integer.parseInt(r.substring(4, r.length()).split(":")[0].trim());
+						try {
+							tried.admissionIndex = Integer.parseInt(r.substring(4, r.length()).split(":")[0].trim());
+						} catch (NumberFormatException e) {
+							// TODO: This might mean that the admitted string had multiple prompts
+							// for one of its top-level forms.
+							tried.admissionIndex = -1;
+						}
 						proofCallback(outerSuccess);
 						return false;
 					}

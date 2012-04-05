@@ -325,4 +325,7 @@ public class Acl2 extends Thread {
 	public void addRestartListener(RestartListener restartListener) {
 		restartListeners.add(restartListener);
 	}
+	public void undo() {
+		admit(":u\n", doNothingCallback);		
+	}
 }
