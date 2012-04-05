@@ -334,7 +334,9 @@ public class MenuBar extends JMenuBar {
 				for (int i = 1; i <= RECENT_MENU_ITEMS; i++) {
 					prefs.remove("recent" + i);
 				}
-				updateRecentMenu();
+				for (IdeWindow w : IdeWindow.windows) {
+					w.menuBar.updateRecentMenu();
+				}
 			}
 		});
 		recentMenu.addSeparator();

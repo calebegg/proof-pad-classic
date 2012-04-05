@@ -34,6 +34,8 @@ public class Main {
 	public static boolean startingUp = true;
 	public static long startTime = System.currentTimeMillis();
 	public static CacheData cache;
+
+	public static MenuBar menuBar;
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException,
 			ClassNotFoundException {
@@ -137,8 +139,8 @@ public class Main {
 					}
 				}
 			});
-			MenuBar defaultMenuBar = new MenuBar(null);
-			app.setDefaultMenuBar(defaultMenuBar);
+			menuBar = new MenuBar(null);
+			app.setDefaultMenuBar(menuBar);
 			PopupMenu dockMenu = new PopupMenu();
 			MenuItem item = new MenuItem("New");
 			item.addActionListener(new ActionListener() {
