@@ -107,6 +107,7 @@ public class IdeWindow extends JFrame {
 	public ActionListener buildAction;
 	protected int dY;
 	protected int dX;
+	ActionListener tutorialAction;
 
 	public IdeWindow() {
 		this((File)null);
@@ -289,6 +290,60 @@ public class IdeWindow extends JFrame {
 				}
 			}
 		};
+
+		setGlassPane(new JComponent() {
+			{
+				setVisible(false);
+				addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						setVisible(false);
+					}
+				});
+			}
+			private static final long serialVersionUID = 1L;
+			@Override
+			public boolean contains(int x, int y) {
+				return y > toolbar.getHeight();
+			}
+			@Override
+			public void paintComponent(Graphics g) {
+//				g.setColor(new Color(.8f, .8f, .8f, .6f));
+//				g.setColor(new Color(1f, 1f, 1f, .6f));
+//				((Graphics2D) g).setPaint(ProofBar.diagonalPaint(
+//						new Color(.9f, .9f, .9f, .9f),
+//						new Color(1f, 1f, 1f, .7f),
+//						30, .5f));
+				g.setColor(new Color(.9f, .9f, .9f, .7f));
+				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(), jsp.getHeight() + 3);
+				g.setColor(new Color(.9f, .9f, .9f, .4f));
+				g.fillRect(0, toolbar.getHeight(), getWidth(), getHeight());
+				g.setColor(new Color(0f, 0f, .7f));
+				g.setFont(editor.getFont().deriveFont(16f).deriveFont(Font.BOLD));
+				int lineHeight = (int) g.getFontMetrics().getLineMetrics("", g).getHeight();
+				g.drawString("1. Write your functions here.",
+						proofBar.getWidth() + 20,
+						toolbar.getHeight() + 30);
+				int step2Y = toolbar.getHeight() + jsp.getHeight() / 6 + 40;
+				g.drawString("2. Click to admit them.",
+						proofBar.getWidth() + 30,
+						step2Y);
+				g.drawLine(proofBar.getWidth() + 24,
+						   step2Y - lineHeight / 4,
+						   proofBar.getWidth() - 10,
+						   step2Y - lineHeight / 4);
+				g.drawString("3. Test them here.",
+						proofBar.getWidth() + 20,
+						getHeight() - repl.inputLines * lineHeight - 30);
+			}
+		});
+		tutorialAction = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				getGlassPane().setVisible(true);
+			}
+		};
+		
 		final JPanel findBar = new JPanel();
 		final JTextField searchField = new JTextField();
 		findAction = new ActionListener() {
@@ -741,7 +796,7 @@ public class IdeWindow extends JFrame {
 		// Update recent files
 		Preferences prefs = Preferences.userNodeForPackage(Main.class);
 		int downTo = 10;
-		for (int i = 1; i <= 10; i++) {
+		for (int i = 1; i <= MenuBar.RECENT_MENU_ITEMS; i++) {
 			String temp = prefs.get("recent" + i, "");
 			if (temp.equals(openFile.getAbsolutePath())) {
 				downTo = i;
