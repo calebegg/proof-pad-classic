@@ -70,9 +70,10 @@ public class Acl2 extends Thread {
 	final String acl2Path;
 	private boolean errorOccured;
 	private StringBuilder sb;
-	final public Vector<String> exps;
+	final public Vector<String> exps = new Vector<String>();
 	private OutputEventListener outputEventListener;
-	private List<Callback> callbacks;
+	private List<Callback> callbacks = new LinkedList<Callback>();
+	private List<OutputEvent> outputQueue = new LinkedList<OutputEvent>();
 	private int backoff = 1;
 	File workingDir;
 
@@ -80,14 +81,18 @@ public class Acl2 extends Thread {
 
 	private int procId;
 
+	private boolean fullSuccess = true;
+	private String fullOutput = "";
+
+	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
+	private final static List<Character> markerChars = stringToCharacterList(marker);
+
 	public Acl2(String acl2Path, File workingDir) {
 		this(acl2Path, workingDir, null);
 	}
 	public Acl2(String acl2Path, File workingDir, Callback callback) {
 		this.acl2Path = acl2Path;
-		exps = new Vector<String>();
 		sb = new StringBuilder();
-		callbacks = new LinkedList<Callback>();
 		this.workingDir = workingDir;
 		// Startup callback
 		callbacks.add(callback);
@@ -98,6 +103,7 @@ public class Acl2 extends Thread {
 		if (acl2 == null) {
 			throw new NullPointerException("Call initialize() first");
 		}
+		outputQueue.add(null); // to not eat the initial message
 		while (true) {
 			synchronized (this) {
 				try {
@@ -121,7 +127,7 @@ public class Acl2 extends Thread {
 					if (in.ready()) {
 						backoff = 0;
 						char c = (char) in.read();
-//						System.out.print(c);
+						//System.out.print(c);
 						buffer.add(c);
 						if (buffer.size() > 100) {
 							buffer.remove(0);
@@ -137,15 +143,34 @@ public class Acl2 extends Thread {
 						for (List<Character> p : prompt) {
 							if (buffer.size() > p.size() &&
 									buffer.subList(buffer.size() - p.size(), buffer.size()).equals(p)) {
-								Callback callback = callbacks.size() > 0 ? callbacks.remove(0) : null;
 								String response = sb.toString().substring(0, sb.length() - p.size());
-								if (callback == null || callback.run(!errorOccured, response)) {
-									fireOutputEvent(new OutputEvent(response,
-											errorOccured ? Repl.MsgType.ERROR : Repl.MsgType.SUCCESS));
+								if (outputQueue.size() > 0) {
+									fullSuccess &= !errorOccured;
+									fullOutput += response;
 								}
+								outputQueue.add(new OutputEvent(response,
+										errorOccured ? Repl.MsgType.ERROR : Repl.MsgType.SUCCESS));
+//								System.out.println("RESPONSE: [[[" + response + "]]]");
 								sb = new StringBuilder();
 								errorOccured = false;
 								break;
+							}
+						}
+						if (markerChars != null &&
+								buffer.size() > markerChars.size() &&
+								buffer.subList(buffer.size() - markerChars.size(), buffer.size()).equals(markerChars)) {
+//							System.out.println("READ A MARKER");
+							outputQueue.remove(0);
+							if (callbacks.size() > 0) {
+								Callback cb = callbacks.remove(0);
+								if (cb == null || cb.run(fullSuccess, fullOutput)) {
+									for (OutputEvent oe : outputQueue) {
+										fireOutputEvent(oe);
+									}
+								}
+								outputQueue.clear();
+								fullSuccess = true;
+								fullOutput = "";
 							}
 						}
 					}
@@ -176,6 +201,7 @@ public class Acl2 extends Thread {
 			procId = Integer.parseInt(in.readLine());
 		}
 		out = new BufferedWriter(new OutputStreamWriter(acl2.getOutputStream()));
+		out.write("(cw \"" + marker + "\")\n");
 		String draculaPath;
 		if (IdeWindow.isWindows) {
 			draculaPath = "/PROGRA~1/PROOFP~1/acl2/dracula";
@@ -257,6 +283,7 @@ public class Acl2 extends Thread {
 			callbacks.add(callback);
 			try {
 				out.write(current + "\n");
+				out.write("(cw \"" + marker + "\")\n");
 				out.flush();
 			} catch (IOException e) { }
 			synchronized (this) {
