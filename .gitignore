@@ -5,3 +5,4 @@ bin/*
 rsyntaxtextarea.jar
 cache.dat
 *.swp
+*.jar
