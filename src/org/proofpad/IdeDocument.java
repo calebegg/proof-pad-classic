@@ -18,10 +18,12 @@ public class IdeDocument extends RSyntaxDocument implements Document {
 		public final int offset;
 		public final int type;
 		public int params = 0;
-		public IndentToken(String name, int offset, int type) {
+		public IndentToken parent;
+		public IndentToken(String name, int offset, int type, IndentToken parent) {
 			this.name = name;
 			this.offset = offset;
 			this.type = type;
+			this.parent = parent;
 		}
 		@Override
 		public String toString() {
@@ -36,16 +38,18 @@ public class IdeDocument extends RSyntaxDocument implements Document {
 			int lineBeginOffset = 0;
 			Token token = null;
 			int lineIndentLevel = -1;
+			IndentToken top = null;
 			for (int i = 0; i < lineCount(); i++) {
 				token = getTokenListForLine(i);
 				lineBeginOffset = token.offset;
 				while (token != null && token.offset != -1 && offs > token.offset) {
+					top = s.empty() ? null : s.peek();
 					if (token.offset == lineBeginOffset && token.isWhitespace()) {
 						lineIndentLevel = token.textCount;
 					}
 					if (token.isSingleChar('(')) {
 						if (waitingForName) {
-							s.push(new IndentToken(null, token.offset - lineBeginOffset, -1));
+							s.push(new IndentToken(null, token.offset - lineBeginOffset, -1, top));
 						}
 						waitingForName = true;
 					} else if (token.isSingleChar(')')) {
@@ -57,7 +61,7 @@ public class IdeDocument extends RSyntaxDocument implements Document {
 					if (waitingForName && (token.type == Token.IDENTIFIER ||
 							               token.type == Token.RESERVED_WORD ||
 							               token.type == Token.RESERVED_WORD_2)) {
-						s.push(new IndentToken(token.getLexeme(), token.offset - lineBeginOffset, token.type));
+						s.push(new IndentToken(token.getLexeme(), token.offset - lineBeginOffset, token.type, top));
 						waitingForName = false;
 						lineIndentLevel = -1;
 					}
@@ -65,12 +69,13 @@ public class IdeDocument extends RSyntaxDocument implements Document {
 				}
 			}
 			if (waitingForName && token != null) {
-				s.push(new IndentToken(null, token.offset - lineBeginOffset, -1));
+				s.push(new IndentToken(null, token.offset - lineBeginOffset, -1, top));
 			}
 			if (s.size() > 0) {
 				IndentToken it = s.peek();
 				int offset = it.offset;
 				int indentLevel;
+				boolean important = false;
 				if (it.type == -1) {
 					// Last token is open parenthesis
 					if (it.params == 0 || waitingForName) {
@@ -90,6 +95,13 @@ public class IdeDocument extends RSyntaxDocument implements Document {
 					} else {
 						indentLevel = offset + it.name.length();
 					}
+				} else if (it.parent != null && it.parent.name.equals("defproperty") && it.parent.params == 2) {
+					indentLevel = offset - 1;
+				} else if (it.name.equalsIgnoreCase("defproperty")) {
+					if (it.params == 3) {
+						important = true;
+					}
+					indentLevel = offset + 1;
 				} else if (it.type == Token.RESERVED_WORD_2) {
 					// Events
 					indentLevel = offset + 1;
@@ -99,7 +111,7 @@ public class IdeDocument extends RSyntaxDocument implements Document {
 					// Regular functions
 					indentLevel = offset + it.name.length();
 				}
-				if (lineIndentLevel != -1) {
+				if (lineIndentLevel != -1 && !important) {
 					indentLevel = lineIndentLevel - 1;
 				}
 				for (int j = 0; j < indentLevel + 1; j++) {
