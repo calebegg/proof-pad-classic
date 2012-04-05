@@ -314,8 +314,11 @@ public class IdeWindow extends JFrame {
 //						new Color(.9f, .9f, .9f, .9f),
 //						new Color(1f, 1f, 1f, .7f),
 //						30, .5f));
-				g.setColor(new Color(.9f, .9f, .9f, .7f));
+				// More opaque over areas we want to write on
+				g.setColor(new Color(.95f, .95f, .95f, .7f));
 				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(), jsp.getHeight() + 3);
+				g.fillRect(0, getHeight() - repl.getHeight(),
+						getWidth(), repl.getHeight() - repl.getInputHeight() - 10);
 				g.setColor(new Color(.9f, .9f, .9f, .4f));
 				g.fillRect(0, toolbar.getHeight(), getWidth(), getHeight());
 				g.setColor(new Color(0f, 0f, .7f));

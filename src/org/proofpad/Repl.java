@@ -635,4 +635,8 @@ public class Repl extends JPanel {
 	public void setHeightChangeListener(HeightChangeListener heightChangeListener) {
 		this.heightChangeListener = heightChangeListener;
 	}
+
+	public int getInputHeight() {
+		return inputScroller.getHeight();
+	}
 }
