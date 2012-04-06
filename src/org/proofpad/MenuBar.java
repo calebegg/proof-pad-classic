@@ -263,6 +263,7 @@ public class MenuBar extends JMenuBar {
 				}
 			});
 		}
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem("Build");
@@ -332,6 +333,9 @@ public class MenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent e) {
 				for (int i = 1; i <= RECENT_MENU_ITEMS; i++) {
 					prefs.remove("recent" + i);
+				}
+				for (IdeWindow w : IdeWindow.windows) {
+					w.menuBar.updateRecentMenu();
 				}
 			}
 		});

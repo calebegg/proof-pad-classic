@@ -83,19 +83,20 @@ public class IdeDocument extends RSyntaxDocument implements Document {
 					} else {
 						indentLevel = offset - 1;
 					}
-				} else if (it.name.equals("let") || it.name.equals("let*")) {
+				} else if (it.name.equalsIgnoreCase("let") || it.name.equalsIgnoreCase("let*")) {
 					if (it.params >= 2) {
 						indentLevel = offset + 1;
 					} else {
 						indentLevel = offset + it.name.length();
 					}
-				} else if (it.name.equals("mv-let")) {
+				} else if (it.name.equalsIgnoreCase("mv-let")) {
 					if (it.params >= 3) { // FIXME: parenthesized param getting double counted?
 						indentLevel = offset + 1;
 					} else {
 						indentLevel = offset + it.name.length();
 					}
-				} else if (it.parent != null && it.parent.name.equals("defproperty") && it.parent.params == 2) {
+				} else if (it.parent != null && it.parent.name.equalsIgnoreCase("defproperty") &&
+						it.parent.params == 2) {
 					indentLevel = offset - 1;
 				} else if (it.name.equalsIgnoreCase("defproperty")) {
 					if (it.params == 3) {
