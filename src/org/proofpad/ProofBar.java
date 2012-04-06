@@ -54,6 +54,7 @@ public class ProofBar extends JComponent {
 	private int numProved;
 	private int numProving;
 	private boolean error;
+	private List<Integer> admissionIndices = new ArrayList<Integer>();
 	
 	private int readOnlyIndex = -1;
 	private Expression tried;
@@ -92,24 +93,34 @@ public class ProofBar extends JComponent {
 				int provedSoFar = numProved;
 				int addToNextHeight = 0;
 				int admissionIndexSoFar = 2; // Start at 2 because of the 2 events in Acl2.java
+				int i = 0;
+				System.out.println(admissionIndices);
 				for (Expression ex : expressions) {
 					//System.out.println(ex.first);
 					int height = pixelHeight(ex);
 					height += addToNextHeight;
 					addToNextHeight = 0;
 					if (provedSoFar > 0) {
+						int admissionIndex = admissionIndices.get(i);
 						provedSoFar--;
 						if (provedSoFar == 0) {
 							addToNextHeight = ex.nextGapHeight * lineHeight / 2 - 1;
 							height -= addToNextHeight;
 						}
 						if (e.getY() < begin + height) {
-							for (; admissionIndexSoFar < ex.admissionIndex; admissionIndexSoFar++) {
+							for (; admissionIndexSoFar < admissionIndex; admissionIndexSoFar++) {
+								System.out.println("Undoing: " + admissionIndexSoFar);
 								that.acl2.undo();
 							}
 							numProved--;
 							setReadOnlyIndex(Math.min(getReadOnlyIndex(),
 									ex.prev == null ? -1 : ex.prev.nextIndex - 1));
+							admissionIndices.remove(i);
+							i--;
+						}
+						i++;
+						if (admissionIndex > admissionIndexSoFar) {
+							admissionIndexSoFar = admissionIndex;
 						}
 					} else {
 						if (error) {
@@ -122,7 +133,6 @@ public class ProofBar extends JComponent {
 						}
 					}
 					begin += height;
-					admissionIndexSoFar = ex.admissionIndex;
 				}
 				that.proveNext();
 				error = false;
@@ -301,60 +311,60 @@ public class ProofBar extends JComponent {
 				proveNext();				
 			}
 			repaint();
-			undoManager.addEdit(new AbstractUndoableEdit() {
-				private static final long serialVersionUID = -8089563163417075830L;
-				@Override
-				public void undo() {
-					int provedSoFar = numProved;
-					int admissionIndexSoFar = 2;
-					for (Expression ex : expressions) {
-						provedSoFar--;
-						if (provedSoFar > 1) continue;
-						if (ex.admissionIndex != -1) {
-							for (; admissionIndexSoFar < ex.admissionIndex; admissionIndexSoFar++) {
-								acl2.undo();
-							}
-						}
-						admissionIndexSoFar = ex.admissionIndex;
-						setReadOnlyIndex(Math.min(getReadOnlyIndex(), ex.prev == null ? -1 : ex.prev.nextIndex));
-						numProved--;
-						repaint();
-						break;
-					}
-				}
-				@Override
-				public void redo() {
-					int ignore = numProved + numProving;
-					for (Expression ex : expressions) {
-						ignore--;
-						if (ignore > 0) continue;
-						acl2.admit(ex.contents, new Acl2.Callback() {
-							@Override
-							public boolean run(boolean success,
-									String response) {
-								numProving--;
-								if (success) {
-									numProved++;
-								} else {
-									error = true;
-									setReadOnlyIndex(tried == null || tried.prev == null ?
-											-1 : tried.prev.nextIndex - 1);
-									proofQueue.clear();
-								}
-								repaint();
-								return true;
-							}
-							
-						});
-						numProving++;
-						return;
-					}
-				}
-				@Override
-				public String getPresentationName() {
-					return "Admission";
-				}
-			});
+//			undoManager.addEdit(new AbstractUndoableEdit() {
+//				private static final long serialVersionUID = -8089563163417075830L;
+//				@Override
+//				public void undo() {
+//					int provedSoFar = numProved;
+//					int admissionIndexSoFar = 2;
+//					for (Expression ex : expressions) {
+//						provedSoFar--;
+//						if (provedSoFar > 1) continue;
+//						if (ex.admissionIndex != -1) {
+//							for (; admissionIndexSoFar < ex.admissionIndex; admissionIndexSoFar++) {
+//								acl2.undo();
+//							}
+//						}
+//						admissionIndexSoFar = ex.admissionIndex;
+//						setReadOnlyIndex(Math.min(getReadOnlyIndex(), ex.prev == null ? -1 : ex.prev.nextIndex));
+//						numProved--;
+//						repaint();
+//						break;
+//					}
+//				}
+//				@Override
+//				public void redo() {
+//					int ignore = numProved + numProving;
+//					for (Expression ex : expressions) {
+//						ignore--;
+//						if (ignore > 0) continue;
+//						acl2.admit(ex.contents, new Acl2.Callback() {
+//							@Override
+//							public boolean run(boolean success,
+//									String response) {
+//								numProving--;
+//								if (success) {
+//									numProved++;
+//								} else {
+//									error = true;
+//									setReadOnlyIndex(tried == null || tried.prev == null ?
+//											-1 : tried.prev.nextIndex - 1);
+//									proofQueue.clear();
+//								}
+//								repaint();
+//								return true;
+//							}
+//							
+//						});
+//						numProving++;
+//						return;
+//					}
+//				}
+//				@Override
+//				public String getPresentationName() {
+//					return "Admission";
+//				}
+//			});
 		} else if (!success) {
 			numProving = 0;
 			setReadOnlyIndex(tried.prev == null ? -1 : tried.prev.nextIndex - 1);
@@ -382,13 +392,11 @@ public class ProofBar extends JComponent {
 				acl2.admit(":pbt :here", new Acl2.Callback() {
 					@Override
 					public boolean run(boolean s, String r) {
+						int idx = -1;
 						try {
-							tried.admissionIndex = Integer.parseInt(r.substring(4, r.length()).split(":")[0].trim());
-						} catch (NumberFormatException e) {
-							// TODO: This might mean that the admitted string had multiple prompts
-							// for one of its top-level forms.
-							tried.admissionIndex = -1;
-						}
+							idx = Integer.parseInt(r.substring(4, r.length()).split(":")[0].trim());
+						} catch (NumberFormatException e) { }
+						admissionIndices.add(admissionIndices.size(), idx);
 						proofCallback(outerSuccess);
 						return false;
 					}
