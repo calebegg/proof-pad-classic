@@ -10,7 +10,24 @@
 
 unsigned int edibleCtrlCs = 0;
 
-//HANDLE ghJob;
+DWORD WINAPI MonitorProcessCloseThread(LPVOID processParam)
+{
+	HANDLE process = (HANDLE)processParam;
+	::WaitForSingleObject(process, INFINITE);
+	CloseHandle(GetStdHandle(STD_INPUT_HANDLE));
+
+	return 0;
+}
+
+BOOL MonitorProcessClose(HANDLE process)
+{
+	if (!process) return FALSE;
+
+	HANDLE thread = ::CreateThread(NULL, 0, MonitorProcessCloseThread, process, 0, 0);
+
+	return thread!=NULL;
+}
+
 
 BOOL CreatePipes(HANDLE * readPipe, HANDLE * writePipe)
 {
@@ -47,6 +64,9 @@ BOOL ProcessExited(HANDLE process)
 	return exitCode != STILL_ACTIVE;
 }
 
+#define TERMINATE_SIGNAL 0
+#define CTRL_C_SIGNAL 1
+
 BOOL WriteToPipe(HANDLE sink, HANDLE process)
 {
 	char buffer[1024];
@@ -55,25 +75,31 @@ BOOL WriteToPipe(HANDLE sink, HANDLE process)
 	DWORD numberOfBytesRead = 0;
 
 	while (true) {
-		if (ProcessExited(process)) return TRUE;
-
-		if (!ReadFile(myStdIn, &buffer, sizeof(buffer), &numberOfBytesRead, NULL)) 
+		
+		if (!ReadFile(myStdIn, &buffer, sizeof(buffer), &numberOfBytesRead, NULL)) {
+			if (ProcessExited(process)) return TRUE;
 			return FALSE;
+		}
 
 		DWORD sendStart = 0;
 		DWORD sendEnd = 0;
 
 		while (sendStart < numberOfBytesRead) {
-			while (sendEnd < numberOfBytesRead && buffer[sendEnd]) {
+			while (sendEnd < numberOfBytesRead && buffer[sendEnd]!=CTRL_C_SIGNAL && buffer[sendEnd]!=TERMINATE_SIGNAL) {
 				sendEnd++;
 			}
 
 			if (!SendFully(sink, buffer + sendStart, sendEnd - sendStart)) return FALSE;
 
 			if (sendEnd < numberOfBytesRead) {
-				// That means we hit a 0!
-				edibleCtrlCs++;
-				GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
+				if (buffer[sendEnd] == TERMINATE_SIGNAL) {
+					TerminateProcess(process, 0);
+					return TRUE;
+				} else if (buffer[sendEnd] == CTRL_C_SIGNAL) {
+					// That means we hit a 0!
+					edibleCtrlCs++;
+					GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
+				}
 			}
 			sendStart = sendEnd + 1;
 		}
@@ -120,17 +146,28 @@ BOOL Go(const char *commandLine)
 		return FALSE;
 	}
 
-	/*if (!AssignProcessToJobObject( ghJob, piProcInfo.hProcess)) {
+	HANDLE ghJob = CreateJobObject( NULL, NULL);
+
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = { 0 };
+	jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+	if( ghJob == NULL || SetInformationJobObject( ghJob, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)) == FALSE) {
+		std::cerr << "Error initializing close-process job";
+		return 1;
+	}
+
+	if (!AssignProcessToJobObject( ghJob, piProcInfo.hProcess)) {
 		DWORD error = GetLastError();
 		std::cerr << "AssignProcessToJobObject failed" << std::endl;
 		return FALSE;
-	}*/
+	}
 
 	// Close handles to the child process and its primary thread.
 	// Some applications might keep these handles to monitor the status
 	// of the child process, for example. 
 
 	CloseHandle(piProcInfo.hThread);
+	
+	MonitorProcessClose(piProcInfo.hProcess);
 
 	WriteToPipe(stdInWrite, piProcInfo.hProcess);
 	
@@ -167,24 +204,12 @@ int main(int argc, char* argv[])
 	SetConsoleCtrlHandler(HandlerRoutine, TRUE);
 	_setmode(_fileno(stdout), O_BINARY);
 	_setmode(_fileno(stdin), O_BINARY);
-	/*
-	SECURITY_ATTRIBUTES jobSec = { 0 };
-	jobSec.nLength = sizeof(SECURITY_ATTRIBUTES);
-	jobSec.lpSecurityDescriptor = JOB_OBJECT_ASSIGN_PROCESS;
-	ghJob = CreateJobObject( &jobSec, NULL);
-
-	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = { 0 };
-	jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-	if( ghJob == NULL || SetInformationJobObject( ghJob, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)) == FALSE) {
-		std::cerr << "Error initializing close-process job";
-		return 1;
-	}*/
-
+	
 	std::string args;
 	for (int arg = 1; arg < argc; arg++) {
 		if (arg > 1) args += " ";
 		args += argv[arg];
 	}
 	
-	Go(args.c_str());
+	return Go(args.c_str()) ? 0 : 1;
 }

@@ -300,6 +300,7 @@ public class Acl2 extends Thread {
 	}
 	public void restart() throws IOException {
 		backoff = 0;
+		terminate();
 		initialize();
 		fireRestartEvent();
 	}
@@ -308,23 +309,28 @@ public class Acl2 extends Thread {
 			l.acl2Restarted();
 		}
 	}
+	
+	private void writeByte(int b) {
+		try {
+			out.write(b);
+			out.flush();
+		} catch (IOException e) { }
+	}
+	
 	public void terminate() {
-		if (IdeWindow.isWindows) {
-			try {
-				Runtime.getRuntime().exec(new String[] {"sendbreak.exe", Integer.toString(procId)});
-				//acl2.waitFor();
-			} catch (IOException e) { }
+		if (acl2 != null) {
+			if (IdeWindow.isWindows) {
+				writeByte(0);
+			} else {
+				acl2.destroy();
+			}
 		}
-		acl2.destroy();
 	}
 	
 	public void interrupt() {
 		backoff = 0;
 		if (IdeWindow.isWindows) {
-			try {
-				out.write(new char[] { 0 });
-				out.flush();
-			} catch (IOException e) { }
+			writeByte(1);
 		} else {
 			try {
 				Runtime.getRuntime().exec(new String[] {"kill", "-s", "INT", Integer.toString(procId)});
