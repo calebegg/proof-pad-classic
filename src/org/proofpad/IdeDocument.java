@@ -95,7 +95,7 @@ public class IdeDocument extends RSyntaxDocument implements Document {
 					} else {
 						indentLevel = offset + it.name.length();
 					}
-				} else if (it.parent != null && it.parent.name.equalsIgnoreCase("defproperty") &&
+				} else if (it.parent != null && it.parent.name != null && it.parent.name.equalsIgnoreCase("defproperty") &&
 						it.parent.params == 2) {
 					indentLevel = offset - 1;
 				} else if (it.name.equalsIgnoreCase("defproperty")) {

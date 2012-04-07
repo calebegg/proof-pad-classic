@@ -343,7 +343,7 @@ public class IdeWindow extends JFrame {
 		tutorialAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				getGlassPane().setVisible(true);
+				getGlassPane().setVisible(!getGlassPane().isVisible());
 			}
 		};
 		
