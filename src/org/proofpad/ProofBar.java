@@ -390,6 +390,10 @@ public class ProofBar extends JComponent {
 		}
 		acl2.admit(tried.contents, new Acl2.Callback() {
 			public boolean run(final boolean outerSuccess, String response) {
+				if (!outerSuccess) {
+					proofCallback(outerSuccess);
+					return true;
+				}
 				acl2.admit(":pbt :here", new Acl2.Callback() {
 					@Override
 					public boolean run(boolean s, String r) {
