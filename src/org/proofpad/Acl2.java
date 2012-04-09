@@ -49,7 +49,6 @@ public class Acl2 extends Thread {
 				"ACL2 p>",
 				"ACL2 p!>",
 				"ACL2 P>",
-				"ACL2 P!>",
 				"ACL2 >",
 				"? [RAW LISP]",
 		};
