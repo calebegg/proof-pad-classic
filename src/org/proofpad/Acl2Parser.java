@@ -557,7 +557,8 @@ public class Acl2Parser extends AbstractParser {
 						(parent.name.equals("defun") && parent.params.size() == 2 ||
 						parent.name.equals("defmacro") && parent.params.size() == 2 ||
 						parent.name.equals("mv-let") && parent.params.size() == 1 ||
-						parent.name.equals("cond") /* any parameter */);
+						parent.name.equals("cond") /* any parameter */ ||
+						parent.name.equals("case") /* any parameter */);
 				boolean isIgnoredBecauseCurrent = top != null && top.name != null &&
 						(top.name.equals("defun") && top.params.size() == 1 ||
 						 top.name.equals("defmacro") && top.params.size() == 1);
