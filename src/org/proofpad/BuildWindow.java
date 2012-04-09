@@ -51,12 +51,12 @@ public class BuildWindow extends JFrame {
 		try {
 			builder.initialize();
 			builder.start();
-			builder.admit("(program)", null);
-			builder.admit(":q", null);
+			builder.admit("(defttag builder)", null);
+			builder.admit(":set-raw-mode t", null);
 			builder.admit("(load \"" + file.getAbsolutePath()
 					+ "\" )", null);
 			builder.admit(
-					"(defun __main__ () (acl2::main acl2::state))",
+					"(defun __main__ () (main state))",
 					null);
 			final String filename;
 			if (isMac) {

@@ -48,6 +48,8 @@ public class Acl2 extends Thread {
 				"ACL2 !>",
 				"ACL2 p>",
 				"ACL2 p!>",
+				"ACL2 P>",
+				"ACL2 P!>",
 				"ACL2 >",
 				"? [RAW LISP]",
 		};
@@ -123,7 +125,7 @@ public class Acl2 extends Thread {
 					if (in.ready()) {
 						backoff = 0;
 						char c = (char) in.read();
-						//System.out.print(c);
+						System.out.print(c);
 						buffer.add(c);
 						if (buffer.size() > 100) {
 							buffer.remove(0);
@@ -287,6 +289,7 @@ public class Acl2 extends Thread {
 //		System.out.println(exps);
 		for (String current : exps) {
 			callbacks.add(callback);
+			current = current.replaceAll("\\(q\\)", ":q\n"); // The only :command that has no function equivalent
 			try {
 				out.write(current + "\n");
 				out.write("(cw \"" + marker + "\")\n");
