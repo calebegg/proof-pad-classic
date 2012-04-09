@@ -76,6 +76,7 @@ public class ProofBar extends JComponent {
 			public void acl2Restarted() {
 				numProved = 0;
 				numProving = 0;
+				admissionIndices.clear();
 				repaint();
 			}
 		});
@@ -396,7 +397,9 @@ public class ProofBar extends JComponent {
 						try {
 							idx = Integer.parseInt(r.substring(4, r.length()).split(":")[0].trim());
 						} catch (NumberFormatException e) { }
-						admissionIndices.add(admissionIndices.size(), idx);
+						if (outerSuccess) {
+							admissionIndices.add(admissionIndices.size(), idx);
+						}
 						proofCallback(outerSuccess);
 						return false;
 					}
