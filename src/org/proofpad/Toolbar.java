@@ -95,7 +95,7 @@ private JButton updateButton;
 		button = new JButton();
 		button.putClientProperty("JButton.buttonType", "help");
 		if (!isMac) {
-			button.setText("Help");
+			button.setText("?");
 		}
 		button.addActionListener(parent.tutorialAction);
 		add(button);
