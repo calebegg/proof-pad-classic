@@ -11,6 +11,8 @@ import javax.swing.tree.TreeSelectionModel;
 
 public class BookViewer extends JFrame {
 
+	private static final String SYSTEM_BOOKS_SYMBOL = ":system";
+	private static final String DRACULA_SYMBOL = ":teachpacks";
 	private String draculaPath;
 	private String systemPath;
 	
@@ -35,9 +37,9 @@ public class BookViewer extends JFrame {
 			int pathLen;
 			if (symbol == null) {
 				pathLen = 0;
-		    } else if (symbol.equals(":system")) {
+		    } else if (symbol.equals(SYSTEM_BOOKS_SYMBOL)) {
 				pathLen = systemPath.length() + 1;
-			} else if (symbol.equals(":dracula")) {
+			} else if (symbol.equals(DRACULA_SYMBOL)) {
 				pathLen = draculaPath.length() + 1;
 			} else {
 				pathLen = 0;
@@ -62,10 +64,10 @@ public class BookViewer extends JFrame {
 		getContentPane().setLayout(bl);
 		getRootPane().setBorder(Main.WINDOW_BORDER);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Books");
-		DefaultMutableTreeNode sysBooks = nodeFromFile(new File(systemPath), ":system", 10);
-		sysBooks.setUserObject(":system");
+		DefaultMutableTreeNode sysBooks = nodeFromFile(new File(systemPath), SYSTEM_BOOKS_SYMBOL, 10);
+		sysBooks.setUserObject(SYSTEM_BOOKS_SYMBOL);
 		root.add(sysBooks);
-		DefaultMutableTreeNode dracula = nodeFromFile(new File(draculaPath), ":dracula", 10);
+		DefaultMutableTreeNode dracula = nodeFromFile(new File(draculaPath), DRACULA_SYMBOL, 10);
 		dracula.setUserObject(":teachpacks");
 		root.add(dracula);
 		final JTree tree = new JTree(root);
