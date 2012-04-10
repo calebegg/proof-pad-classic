@@ -105,6 +105,7 @@ public class IdeWindow extends JFrame {
 	public ActionListener printAction;
 	public ActionListener findAction;
 	public ActionListener buildAction;
+	public ActionListener includeBookAction;
 	protected int dY;
 	protected int dX;
 	ActionListener tutorialAction;
@@ -238,6 +239,14 @@ public class IdeWindow extends JFrame {
 				final BuildWindow builder = new BuildWindow(openFile, acl2Path);
 				builder.setVisible(true);
 				builder.build();
+			}
+		};
+		
+		includeBookAction = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				BookViewer viewer = new BookViewer(that);
+				viewer.setVisible(true);
 			}
 		};
 
@@ -798,5 +807,12 @@ public class IdeWindow extends JFrame {
 				Toolkit.getDefaultToolkit().beep();
 			}
 		}
+	}
+
+	public void includeBookAtCursor(String dirName, String path) {
+		editor.insert("(include-book \"" + path + "\""
+				       + (dirName == null ? "" : " :dir " + dirName) + ")" +
+				       System.getProperty("line.separator"),
+				       editor.getCaretPosition() - editor.getCaretOffsetFromLineStart());
 	}
 }
