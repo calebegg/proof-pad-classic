@@ -104,7 +104,7 @@ public class AboutWindow extends JDialog {
 		super((JFrame)null, "About Proof Pad");
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-		getRootPane().setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		getRootPane().setBorder(Main.WINDOW_BORDER);
 		JLabel label = new JLabel();
 		label.setIcon(icon64);
 		label.setAlignmentX(CENTER_ALIGNMENT);

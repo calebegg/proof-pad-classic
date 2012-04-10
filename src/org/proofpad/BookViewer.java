@@ -60,7 +60,7 @@ public class BookViewer extends JFrame {
 		bl.setHgap(8);
 		bl.setVgap(8);
 		getContentPane().setLayout(bl);
-		getRootPane().setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+		getRootPane().setBorder(Main.WINDOW_BORDER);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Books");
 		DefaultMutableTreeNode sysBooks = nodeFromFile(new File(systemPath), ":system", 10);
 		sysBooks.setUserObject(":system");

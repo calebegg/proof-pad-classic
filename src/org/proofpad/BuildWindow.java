@@ -22,7 +22,7 @@ public class BuildWindow extends JFrame {
 		this.file = file;
 		this.acl2Dir = acl2Dir;
 		getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
-		getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		getRootPane().setBorder(Main.WINDOW_BORDER);
 		progress = new JProgressBar();
 		progress.setIndeterminate(true);
 		progress.setAlignmentX(CENTER_ALIGNMENT);

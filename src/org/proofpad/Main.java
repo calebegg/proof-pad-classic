@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.Iterator;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 
 import com.apple.eawt.AppEvent.OpenFilesEvent;
 
@@ -31,10 +32,12 @@ public class Main {
 	
 	public static final String displayName = "Proof Pad (alpha)";
 	public static final int RELEASE = 1;
+	public static final Border WINDOW_BORDER = BorderFactory.createEmptyBorder(4, 4, 4, 4);
 	
 	public static boolean startingUp = true;
 	public static long startTime = System.currentTimeMillis();
 	public static CacheData cache;
+	
 
 	public static MenuBar menuBar;
 	
