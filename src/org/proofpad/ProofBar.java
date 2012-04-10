@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
-import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
 import org.proofpad.SExpUtils.ExpType;
 

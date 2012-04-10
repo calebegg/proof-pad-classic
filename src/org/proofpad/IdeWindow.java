@@ -20,8 +20,6 @@ import javax.swing.undo.UndoManager;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
-import org.proofpad.Acl2.OutputEvent;
-import org.proofpad.Acl2.OutputEventListener;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
 

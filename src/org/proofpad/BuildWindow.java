@@ -6,9 +6,6 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import javax.swing.*;
 
-import org.proofpad.Acl2.OutputEvent;
-import org.proofpad.Acl2.OutputEventListener;
-
 public class BuildWindow extends JFrame {
 
 	private static final long serialVersionUID = 8394742808899908090L;
