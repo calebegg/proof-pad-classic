@@ -102,8 +102,9 @@ public class Main {
 						com.apple.eawt.QuitResponse qr) {
 					for (Iterator<IdeWindow> ii = IdeWindow.windows.iterator(); ii.hasNext();) {
 						IdeWindow win = ii.next();
-						win.promptIfUnsavedAndQuit(ii);
-							//ii.remove();
+						if (!win.promptIfUnsavedAndQuit(ii)) {
+							break;
+						}
 					}
 					IdeWindow.updateWindowMenu();
 					if (IdeWindow.windows.size() <= 0) {
