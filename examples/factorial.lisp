@@ -1,6 +1,6 @@
 (in-package "ACL2")
 
-(include-book "ide/doublecheck/check-expect")
+(include-book "testing" :dir :teachpacks)
 
 (set-state-ok t)
 

@@ -45,7 +45,7 @@ public class ResultWindow extends JDialog {
 		bottom.add(closeButton);
 		bottom.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
 		add(bottom, BorderLayout.SOUTH);
-		getRootPane().setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		getRootPane().setBorder(Main.WINDOW_BORDER);
 		setPreferredSize(new Dimension(630, 300));
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		pack();

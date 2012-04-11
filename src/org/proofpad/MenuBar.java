@@ -267,6 +267,7 @@ public class MenuBar extends JMenuBar {
 		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem("Build");
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, modKey));
 		if (parent == null) {
 			item.setEnabled(false);
 		} else {

@@ -48,6 +48,7 @@ public class Acl2 extends Thread {
 				"ACL2 !>",
 				"ACL2 p>",
 				"ACL2 p!>",
+				"ACL2 P>",
 				"ACL2 >",
 				"? [RAW LISP]",
 		};
@@ -110,11 +111,7 @@ public class Acl2 extends Thread {
 					try {
 						acl2.exitValue();
 						// If we get here, the process has terminated.
-						List<Callback> callbacksCopy = new LinkedList<Callback>(callbacks);
-						for (Callback callback : callbacksCopy) {
-							if (callback != null) callback.run(false, "");
-						}
-						callbacks.clear();
+						failAllCallbacks();
 						fireRestartEvent();
 						fireOutputEvent(new OutputEvent("ACL2 has terminated. Use ACL2 > Restart ACL2 to restart.", MsgType.INFO));
 						return;
@@ -127,7 +124,7 @@ public class Acl2 extends Thread {
 					if (in.ready()) {
 						backoff = 0;
 						char c = (char) in.read();
-						//System.out.print(c);
+						System.out.print(c);
 						buffer.add(c);
 						if (buffer.size() > 100) {
 							buffer.remove(0);
@@ -160,24 +157,34 @@ public class Acl2 extends Thread {
 								buffer.size() > markerChars.size() &&
 								buffer.subList(buffer.size() - markerChars.size(), buffer.size()).equals(markerChars)) {
 //							System.out.println("READ A MARKER");
-							outputQueue.remove(0);
-							if (callbacks.size() > 0) {
-								Callback cb = callbacks.remove(0);
-								if (cb == null || cb.run(fullSuccess, fullOutput)) {
-									for (OutputEvent oe : outputQueue) {
-										fireOutputEvent(oe);
-									}
-								}
-								outputQueue.clear();
-								fullSuccess = true;
-								fullOutput = "";
-							}
+							fireOutputEvents(fullSuccess);
+							fullSuccess = true;
 						}
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+	private void failAllCallbacks() {
+		List<Callback> callbacksCopy = new LinkedList<Callback>(callbacks);
+		for (Callback callback : callbacksCopy) {
+			if (callback != null) callback.run(false, "");
+		}
+		callbacks.clear();
+	}
+	private void fireOutputEvents(boolean success) {
+		outputQueue.remove(0);
+		if (callbacks.size() > 0) {
+			Callback cb = callbacks.remove(0);
+			if (cb == null || cb.run(success, fullOutput)) {
+				for (OutputEvent oe : outputQueue) {
+					fireOutputEvent(oe);
+				}
+			}
+			outputQueue.clear();
+			fullOutput = "";
 		}
 	}
 	private void fireOutputEvent(OutputEvent outputEvent) {
@@ -280,6 +287,7 @@ public class Acl2 extends Thread {
 //		System.out.println(exps);
 		for (String current : exps) {
 			callbacks.add(callback);
+			current = current.replaceAll("\\(q\\)", ":q\n"); // The only :command that has no function equivalent
 			try {
 				out.write(current + "\n");
 				out.write("(cw \"" + marker + "\")\n");
@@ -334,8 +342,10 @@ public class Acl2 extends Thread {
 		} else {
 			try {
 				Runtime.getRuntime().exec(new String[] {"kill", "-s", "INT", Integer.toString(procId)});
-			} catch (IOException e) { }			
+			} catch (IOException e) { }
 		}
+		fireOutputEvents(false);
+		failAllCallbacks();
 	}
 
 	public OutputEventListener getOutputEventListener() {

@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
-import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
 import org.proofpad.SExpUtils.ExpType;
 
@@ -76,6 +75,7 @@ public class ProofBar extends JComponent {
 			public void acl2Restarted() {
 				numProved = 0;
 				numProving = 0;
+				admissionIndices.clear();
 				repaint();
 			}
 		});
@@ -389,6 +389,10 @@ public class ProofBar extends JComponent {
 		}
 		acl2.admit(tried.contents, new Acl2.Callback() {
 			public boolean run(final boolean outerSuccess, String response) {
+				if (!outerSuccess) {
+					proofCallback(outerSuccess);
+					return true;
+				}
 				acl2.admit(":pbt :here", new Acl2.Callback() {
 					@Override
 					public boolean run(boolean s, String r) {
@@ -396,7 +400,9 @@ public class ProofBar extends JComponent {
 						try {
 							idx = Integer.parseInt(r.substring(4, r.length()).split(":")[0].trim());
 						} catch (NumberFormatException e) { }
-						admissionIndices.add(admissionIndices.size(), idx);
+						if (outerSuccess) {
+							admissionIndices.add(admissionIndices.size(), idx);
+						}
 						proofCallback(outerSuccess);
 						return false;
 					}

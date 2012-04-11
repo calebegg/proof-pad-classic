@@ -20,8 +20,6 @@ import javax.swing.undo.UndoManager;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
-import org.proofpad.Acl2.OutputEvent;
-import org.proofpad.Acl2.OutputEventListener;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
 
@@ -105,6 +103,7 @@ public class IdeWindow extends JFrame {
 	public ActionListener printAction;
 	public ActionListener findAction;
 	public ActionListener buildAction;
+	public ActionListener includeBookAction;
 	protected int dY;
 	protected int dX;
 	ActionListener tutorialAction;
@@ -229,65 +228,23 @@ public class IdeWindow extends JFrame {
 		buildAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (!that.saveFile()) {
+				if (!saveFile()) {
 					JOptionPane.showMessageDialog(that,
 							"Save the current file in order to build", "Error",
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				final Acl2 builder = new Acl2(acl2Path, workingDir);
-				try {
-					builder.initialize();
-					builder.start();
-					builder.setOutputEventListener(new OutputEventListener() {
-						@Override
-						public void handleOutputEvent(OutputEvent outputEvent) {
-							System.out.println(outputEvent.output);
-						}
-					});
-					builder.admit(":q\n", null);
-					builder.admit("(load \"" + openFile.getAbsolutePath()
-							+ "\" )", null);
-					builder.admit(
-							"(defun __main__ () (acl2::main acl2::state))",
-							null);
-					final String filename;
-					if (isMac) {
-						FileDialog fc = new FileDialog(that, "Save Executable...");
-						fc.setMode(FileDialog.SAVE);
-						fc.setDirectory(openFile.getPath());
-						fc.setFile(openFile.getName().split("\\.")[0]
-								+ (isWindows ? ".exe" : ""));
-						fc.setVisible(true);
-						filename = fc.getDirectory() + fc.getFile();
-					} else {
-						JFileChooser fc = new JFileChooser();
-						fc.showSaveDialog(that);
-						filename = fc.getSelectedFile().getAbsolutePath();
-					}
-					if (filename == null) {
-						builder.terminate();
-						return;
-					}
-					builder.admit(
-							"(ccl:save-application \""
-							+ filename
-							+ "\" :toplevel-function #'__main__\n"
-							+ ":prepend-kernel t)",
-							new Acl2.Callback() {
-								public boolean run(boolean success,
-										String response) {
-									builder.terminate();
-									// buildButton.setIcon(null);
-									// buildButton.setText("Build");
-									repl.displayResult("Successfully built "
-											+ filename, MsgType.INFO);
-									return false;
-								}
-							});
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				final BuildWindow builder = new BuildWindow(openFile, acl2Path);
+				builder.setVisible(true);
+				builder.build();
+			}
+		};
+		
+		includeBookAction = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				BookViewer viewer = new BookViewer(that);
+				viewer.setVisible(true);
 			}
 		};
 
@@ -848,5 +805,12 @@ public class IdeWindow extends JFrame {
 				Toolkit.getDefaultToolkit().beep();
 			}
 		}
+	}
+
+	public void includeBookAtCursor(String dirName, String path) {
+		editor.insert("(include-book \"" + path + "\""
+				       + (dirName == null ? "" : " :dir " + dirName) + ")" +
+				       System.getProperty("line.separator"),
+				       editor.getCaretPosition() - editor.getCaretOffsetFromLineStart());
 	}
 }

@@ -6,3 +6,5 @@ cache.dat
 *.swp
 acl2/*
 *.jar
+examples/*
+!examples/*.*

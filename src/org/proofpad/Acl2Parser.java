@@ -58,7 +58,6 @@ public class Acl2Parser extends AbstractParser {
 		public Set<String> constants;		
 	}
 
-	private CodePane codePane;
 	public Set<String> functions;
 	public Set<String> macros;
 	public Set<String> constants;
@@ -69,7 +68,6 @@ public class Acl2Parser extends AbstractParser {
 		this(null, workingDir, acl2Dir);
 	}
 	public Acl2Parser(CodePane codePane, File workingDir, File acl2Dir) {
-		this.codePane = codePane;
 		this.workingDir = workingDir;
 		this.acl2Dir = acl2Dir;
 	}
@@ -473,29 +471,14 @@ public class Acl2Parser extends AbstractParser {
 		}
 	}
 	
-	private class Acl2ParserResult extends DefaultParseResult {
-		private Acl2Parser parent;
-		public Acl2ParserResult(Acl2Parser parser) {
-			super(parser);
-			parent = parser;
-		}
-		@Override
-		public void addNotice(ParserNotice pn) {
-			int pos = parent.codePane == null ? -1 : parent.codePane.getCaretPosition();
-			if (pos < pn.getOffset() || pos > pn.getOffset() + pn.getLength()) {
-				super.addNotice(pn);
-			}
-		}
-	}
-
 	@Override
 	public ParseResult parse(RSyntaxDocument doc, String style /* ignored */) {
-		DefaultParseResult result = new Acl2ParserResult(this);
+		DefaultParseResult result = new DefaultParseResult(this);
 		int lines = doc.getDefaultRootElement().getElementCount();
 		result.setParsedLines(0, lines);
 		functions = new HashSet<String>();
 		macros = new HashSet<String>(Arrays.asList(new String [] {
-				"declare", "include-book", "defproperty"
+				"declare", "include-book", "defproperty", "defttag"
 		}));
 		constants = new HashSet<String>();
 		constants.add("state");
@@ -557,7 +540,8 @@ public class Acl2Parser extends AbstractParser {
 						(parent.name.equals("defun") && parent.params.size() == 2 ||
 						parent.name.equals("defmacro") && parent.params.size() == 2 ||
 						parent.name.equals("mv-let") && parent.params.size() == 1 ||
-						parent.name.equals("cond") /* any parameter */);
+						parent.name.equals("cond") /* any parameter */ ||
+						parent.name.equals("case") /* any parameter */);
 				boolean isIgnoredBecauseCurrent = top != null && top.name != null &&
 						(top.name.equals("defun") && top.params.size() == 1 ||
 						 top.name.equals("defmacro") && top.params.size() == 1);

@@ -47,7 +47,7 @@ public class PrefsWindow extends JFrame {
 	public PrefsWindow() {
 		super("Settings");
 		final PrefsWindow that = this;
-		getRootPane().setBorder(BorderFactory.createEmptyBorder(2, 25, 2, 25));
+		getRootPane().setBorder(BorderFactory.createEmptyBorder(4, 25, 4, 25));
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 		font = getPrefFont();
 		final int widthGuide = prefs.getInt("widthguide", 60);
