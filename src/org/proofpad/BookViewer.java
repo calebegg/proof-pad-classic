@@ -117,7 +117,7 @@ public class BookViewer extends JFrame {
 	
 	private DefaultMutableTreeNode nodeFromFile(File dir, String sym, int maxdepth) {
 		DefaultMutableTreeNode r = new DefaultMutableTreeNode(new BookView(dir, null));
-		if (maxdepth == 0) return r;
+		if (maxdepth == 0 || !dir.isDirectory()) return r;
 		for (File f : dir.listFiles()) {
 			if (f.isDirectory()) {
 				r.add(nodeFromFile(f, sym, maxdepth - 1));
