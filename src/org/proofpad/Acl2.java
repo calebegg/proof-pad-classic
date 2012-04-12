@@ -124,7 +124,7 @@ public class Acl2 extends Thread {
 					if (in.ready()) {
 						backoff = 0;
 						char c = (char) in.read();
-						System.out.print(c);
+//						System.out.print(c);
 						buffer.add(c);
 						if (buffer.size() > 100) {
 							buffer.remove(0);
@@ -239,9 +239,17 @@ public class Acl2 extends Thread {
 		int parenLevel = 0;
 		boolean isWord = false;
 		boolean isColonCmd = false;
+		boolean isString = false;
 		StringBuilder exp = new StringBuilder();
 		List<String> exps = new LinkedList<String>();
 		for (char c : code.toCharArray()) {
+			if (isString) {
+				exp.append(c);
+				if (c == '"') {
+					isString = false;
+				}
+				continue;
+			}
 			if (isColonCmd) {
 				if (c == '\n') {
 					exp.append(')');
@@ -277,6 +285,9 @@ public class Acl2 extends Thread {
 				exp.append(c);
 				isWord = true;
 				continue;
+			} else if (c == '"') {
+				exp.append(c);
+				isString = true;
 			} else {
 				exp.append(c);
 			}
