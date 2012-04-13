@@ -206,6 +206,21 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 <YYINITIAL> {
 	"IN-PACKAGE" |
 	"THM" |
+	"AREF1" |
+    "AREF2" |
+    "ASET1" |
+    "ASET2" |
+    "COMPRESS1" |
+    "COMPRESS2" |
+    "ARRAY1P" |
+    "ARRAY2P" |
+    "DEFAULT" |
+    "DIMENSIONS" |
+    "FLUSH-COMPRESS" |
+    "HEADER" |
+    "MAXIMUM-LENGTH" |
+    "ASSIGN" |
+    "@" |
 	"*" |
 	"+" |
 	"-" |
