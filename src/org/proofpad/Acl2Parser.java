@@ -544,7 +544,9 @@ public class Acl2Parser extends AbstractParser {
 						parent.name.equals("case") /* any parameter */);
 				boolean isIgnoredBecauseCurrent = top != null && top.name != null &&
 						(top.name.equals("defun") && top.params.size() == 1 ||
-						 top.name.equals("defmacro") && top.params.size() == 1);
+						 top.name.equals("defmacro") && top.params.size() == 1 ||
+						 top.name.equals("assign") && top.params.size() == 1 ||
+						 top.name.equals("@") && top.params.size() == 1);
 				boolean isIgnored = isIgnoredBecauseMacro || isIgnoredBecauseParent || isIgnoredBecauseCurrent ||
 						(grandparent != null && grandparent.name != null &&
 						(grandparent.name.equals("let") && grandparent.params.size() == 1 && top.params.size() == 0 ||
