@@ -103,7 +103,7 @@ public class IdeDocument extends RSyntaxDocument {
 						important = true;
 					}
 					indentLevel = offset + 1;
-				} else if (it.type == Token.RESERVED_WORD_2) {
+				} else if (it.type == Token.RESERVED_WORD_2 || (it.type == Token.IDENTIFIER && it.name.toLowerCase().startsWith("def"))) {
 					// Events
 					indentLevel = offset + 1;
 				} else if (it.params == 0) {
