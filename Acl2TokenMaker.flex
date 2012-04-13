@@ -25,9 +25,11 @@
 package org.proofpad;
 
 import java.io.*;
+import java.util.*;
 import javax.swing.text.Segment;
 
 import org.fife.ui.rsyntaxtextarea.*;
+import org.fife.util.DynamicIntArray;
 
 
 /**
@@ -81,7 +83,11 @@ import org.fife.ui.rsyntaxtextarea.*;
 %{
 
 	private int symbolParenLevel = 0;
-	private int parenLevel = 0;
+	// This is basically an imitation of the token type array in RSyntaxDocument, but the logic has
+	// to go here because it's not possible to override/recreate the method in the correct class
+	// (IdeDocument).
+	private TreeMap<Integer, Integer> parenLevelForOffset = new TreeMap<Integer, Integer>();
+
 
 	public Acl2TokenMaker() {
 	}
@@ -104,14 +110,14 @@ import org.fife.ui.rsyntaxtextarea.*;
 						int startOffset, boolean hyperlink) {
 		super.addToken(array, start,end, tokenType, startOffset, hyperlink);
 		zzStartRead = zzMarkedPos;
+		parenLevelForOffset.put(startOffset, symbolParenLevel);		
 	}
 
 	public String[] getLineCommentStartAndEnd() {
 		return new String[] { ";", null };
 	}
-
+	
 	public Token getTokenList(Segment text, int initialTokenType, int startOffset) {
-
 		resetTokenList();
 		this.offsetShift = -text.offset + startOffset;
 
@@ -129,6 +135,26 @@ import org.fife.ui.rsyntaxtextarea.*;
 			default:
 				state = Token.NULL;
 		}
+		
+
+		Map.Entry<Integer, Integer> entry = parenLevelForOffset.floorEntry(startOffset - 1);
+		if (entry != null && entry.getValue() > 0) {
+			symbolParenLevel = entry.getValue();
+			if (symbolParenLevel > 0) {
+				state = SYMBOL_PAREN;
+				start = text.offset;
+			}
+		} else {
+		    symbolParenLevel = 0;
+		}
+		
+		for (Iterator<Map.Entry<Integer, Integer>> ii = parenLevelForOffset.entrySet().iterator();
+				ii.hasNext();) {
+			Map.Entry<Integer, Integer> e = ii.next();
+			if (e.getKey() > startOffset) {
+				ii.remove();
+			}
+		}
 
 		s = text;
 		try {
@@ -139,7 +165,6 @@ import org.fife.ui.rsyntaxtextarea.*;
 			ioe.printStackTrace();
 			return new DefaultToken();
 		}
-
 	}
 
 	private boolean zzRefill() throws java.io.IOException {
@@ -764,8 +789,8 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	{Symbol}						{ addToken(Token.DATA_TYPE); }
 	"'("							{ start = zzMarkedPos - 2; symbolParenLevel = 1; yybegin(SYMBOL_PAREN); }
 
-	"("								{ parenLevel++; addToken(Token.SEPARATOR); }
-	")"								{ parenLevel--; addToken(Token.SEPARATOR); }
+	"("								{ addToken(Token.SEPARATOR); }
+	")"								{ addToken(Token.SEPARATOR); }
 	{LineTerminator}				{ addNullToken(); return firstToken; }
 	{Identifier}					{ addToken(Token.IDENTIFIER); }
 	{WhiteSpace}+					{ addToken(Token.WHITESPACE); }
@@ -806,9 +831,9 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 
 <EOL_COMMENT> {
-	[^hwf\n]+				{}
+	[^hwf\n]+				{ }
 	{URL}					{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.COMMENT_EOL); addHyperlinkToken(temp,zzMarkedPos-1, Token.COMMENT_EOL); start = zzMarkedPos; }
-	[hwf]					{}
+	[hwf]					{ }
 	\n						{ addToken(start,zzStartRead-1, Token.COMMENT_EOL); addNullToken(); return firstToken; }
 	<<EOF>>					{ addToken(start,zzStartRead-1, Token.COMMENT_EOL); addNullToken(); return firstToken; }
 
@@ -816,10 +841,19 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 <SYMBOL_PAREN> {
 	"("						{ symbolParenLevel++; }
-	\n						{ addToken(start,zzStartRead - 1, Token.DATA_TYPE); return firstToken; }
-	")"						{ symbolParenLevel--; if (symbolParenLevel == 0) { yybegin(YYINITIAL); addToken(start, zzStartRead, Token.DATA_TYPE); } }
-	[^)\n]+					{}
-	<<EOF>>					{ addToken(start, zzStartRead - 1, Token.DATA_TYPE); return firstToken; }
+	\n						{ addToken(start, zzStartRead - 1, Token.DATA_TYPE);
+	                          parenLevelForOffset.put(zzStartRead, symbolParenLevel);
+	                          return firstToken; }
+	")"						{ symbolParenLevel--;
+	                          if (symbolParenLevel == 0) {
+	                            yybegin(YYINITIAL);
+	                            addToken(start, zzStartRead, Token.DATA_TYPE);
+	                          }
+	                        }
+	[^()\n]+				{ }
+	<<EOF>>					{ addToken(start, zzStartRead - 1, Token.DATA_TYPE);
+		                      parenLevelForOffset.put(zzStartRead, symbolParenLevel);
+		                      return firstToken; }
 
 }
 
