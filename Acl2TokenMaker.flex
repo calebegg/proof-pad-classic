@@ -190,8 +190,8 @@ LetterOrUnderscore			= ({Letter}|"_")
 NonzeroDigit				= [1-9]
 Digit						= ("0"|{NonzeroDigit})
 HexDigit					= [0-9A-Fa-f]
-IdentifierStart				= ([^\t\f\r\n\ \(\)\;\|\.&\"\':])
-IdentifierPart				= ([^\t\f\r\n\ \(\)\;\|\.\"\':])
+IdentifierStart				= ([^\t\f\r\n\ \(\)\;\|\.&\"\':,`])
+IdentifierPart				= ([^\t\f\r\n\ \(\)\;\|\.\"\':,`])
 Identifier					= ({IdentifierStart}{IdentifierPart}*)|"|"[^|]"|"
 
 LineTerminator				= (\n)
@@ -788,7 +788,8 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	"(" {WhiteSpace}* ")"			{ addToken(Token.LITERAL_BOOLEAN); }
 	{Symbol}						{ addToken(Token.DATA_TYPE); }
 	"'("							{ start = zzMarkedPos - 2; symbolParenLevel = 1; yybegin(SYMBOL_PAREN); }
-
+	"`"								{ addToken(Token.DATA_TYPE); }
+	","								{ addToken(Token.DATA_TYPE); }
 	"("								{ addToken(Token.SEPARATOR); }
 	")"								{ addToken(Token.SEPARATOR); }
 	{LineTerminator}				{ addNullToken(); return firstToken; }
