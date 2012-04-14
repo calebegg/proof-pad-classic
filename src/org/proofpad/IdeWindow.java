@@ -163,8 +163,7 @@ public class IdeWindow extends JFrame {
 				acl2Path = maybeAcl2Path;
 			}
 		}
-		System.out.println(acl2Path);
-
+		
 		acl2 = new Acl2(acl2Path, workingDir);
 		proofBar = new ProofBar(acl2);
 		editor = new CodePane(proofBar);
@@ -174,7 +173,13 @@ public class IdeWindow extends JFrame {
 		proofBar.setLineHeight(editor.getLineHeight());
 		final IdeDocument doc = new IdeDocument(proofBar);
 		editor.setDocument(doc);
-		parser = new Acl2Parser(editor, workingDir, new File(acl2Path).getParentFile());
+		parser = new Acl2Parser(workingDir, new File(acl2Path).getParentFile());
+		parser.addParseListener(new Acl2Parser.ParseListener() {
+			@Override
+			public void wasParsed() {
+				proofBar.admitUnprovenExps();
+			}
+		});
 		editor.addParser(parser);
 		try {
 			acl2.initialize();

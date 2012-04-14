@@ -15,7 +15,11 @@ import org.fife.ui.rsyntaxtextarea.parser.*;
 
 public class Acl2Parser extends AbstractParser {
 	
-    private static Logger logger = Logger.getLogger(Acl2Parser.class.toString());
+    public interface ParseListener {
+		void wasParsed();
+	}
+
+	private static Logger logger = Logger.getLogger(Acl2Parser.class.toString());
 	
 	public static class CacheKey implements Serializable {
 		private static final long serialVersionUID = -4201796432147755450L;
@@ -64,10 +68,9 @@ public class Acl2Parser extends AbstractParser {
 	public File workingDir;
 	private Map<CacheKey, CacheSets> cache = Main.cache.getBookCache();
 	private File acl2Dir;
+	private List<ParseListener> parseListeners = new LinkedList<Acl2Parser.ParseListener>();
+	
 	public Acl2Parser(File workingDir, File acl2Dir) {
-		this(null, workingDir, acl2Dir);
-	}
-	public Acl2Parser(CodePane codePane, File workingDir, File acl2Dir) {
 		this.workingDir = workingDir;
 		this.acl2Dir = acl2Dir;
 	}
@@ -656,6 +659,9 @@ public class Acl2Parser extends AbstractParser {
 				token = token.getNextToken();
 			}
 		}
+		for (ParseListener pl : parseListeners) {
+			pl.wasParsed();
+		}
 		return result;
 	}
 	
@@ -681,6 +687,10 @@ public class Acl2Parser extends AbstractParser {
 
 	private String htmlEncode(String name) {
 		return name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+	}
+
+	public void addParseListener(ParseListener parseListener) {
+		parseListeners.add(parseListener);
 	}
 
 }
