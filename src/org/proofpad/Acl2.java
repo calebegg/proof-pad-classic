@@ -175,7 +175,9 @@ public class Acl2 extends Thread {
 		callbacks.clear();
 	}
 	private void fireOutputEvents(boolean success) {
-		outputQueue.remove(0);
+		if (outputQueue.size() > 0) {
+			outputQueue.remove(0);
+		}
 		if (callbacks.size() > 0) {
 			Callback cb = callbacks.remove(0);
 			if (cb == null || cb.run(success, fullOutput)) {
