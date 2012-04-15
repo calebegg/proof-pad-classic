@@ -20,7 +20,7 @@ public class GenerateData {
 		File docdir = new File(pathToAcl2 + "doc" + File.separator + "HTML");
 		for (File f : docdir.listFiles(new FilenameFilter() {
 			@Override
-			public boolean accept(File f, String s) {
+			public boolean accept(File file, String s) {
 				return s.endsWith(".html");
 			}
 		})) {
@@ -29,6 +29,7 @@ public class GenerateData {
 				docScanner = new Scanner(f);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
+				return;
 			}
 			docScanner.useDelimiter("\\Z");
 			String doc = docScanner.next();

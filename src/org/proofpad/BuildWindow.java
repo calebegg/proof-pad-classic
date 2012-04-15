@@ -79,6 +79,7 @@ public class BuildWindow extends JFrame {
 					+ "\" :toplevel-function #'__main__\n"
 					+ ":prepend-kernel t)",
 					new Acl2.Callback() {
+						@Override
 						public boolean run(boolean success,
 								String response) {
 							builder.terminate();

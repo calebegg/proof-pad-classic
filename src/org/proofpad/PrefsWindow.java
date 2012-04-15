@@ -104,8 +104,8 @@ public class PrefsWindow extends JFrame {
 		((JTextField) fontSizeComboBox.getEditor().getEditorComponent()).setInputVerifier(
 				new InputVerifier() {
 					@Override
-					public boolean verify(JComponent c) {
-						JTextField tf = (JTextField) c;
+					public boolean verify(JComponent cmp) {
+						JTextField tf = (JTextField) cmp;
 						try {
 							Float.parseFloat(tf.getText());
 							return true;
@@ -273,6 +273,7 @@ public class PrefsWindow extends JFrame {
 		c.anchor = GridBagConstraints.EAST;
 		final JButton closeButton = new JButton("Close");
 		closeButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				that.setVisible(false);
 			}

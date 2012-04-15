@@ -66,8 +66,9 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		}
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (parent.promptIfUnsavedAndClose()) {
+				if (parent != null && parent.promptIfUnsavedAndClose()) {
 					IdeWindow.updateWindowMenu();
 				}
 			}
@@ -89,6 +90,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(new ActionListener(){
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					IdeWindow dupWin = new IdeWindow(parent.editor.getText());
 					dupWin.setVisible(true);
@@ -112,6 +114,7 @@ public class MenuBar extends JMenuBar {
 			menu.addSeparator();
 			item = new JMenuItem(isWindows ? "Exit" : "Quit");
 			item.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					for (IdeWindow w : IdeWindow.windows) {
 						w.promptIfUnsavedAndClose();
@@ -177,6 +180,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					try {
 						int selStart = parent.editor.getSelectionStart();
@@ -223,6 +227,7 @@ public class MenuBar extends JMenuBar {
 			menu.addSeparator();
 			item = new JMenuItem("Preferences...");
 			item.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (IdeWindow.prefsWindow == null) {
 						IdeWindow.prefsWindow = new PrefsWindow();
@@ -240,6 +245,7 @@ public class MenuBar extends JMenuBar {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if (parent == null) return;
 				try {
 					parent.acl2.restart();
 					parent.proofBar.resetProgress();
@@ -296,6 +302,7 @@ public class MenuBar extends JMenuBar {
 		if (!isMac) {
 			item = new JMenuItem("About");
 			item.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					new AboutWindow().setVisible(true);
 				}
@@ -352,6 +359,7 @@ public class MenuBar extends JMenuBar {
 		item.setEnabled(parent != null);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, modKey));
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				parent.setState(Frame.ICONIFIED);
 			}
@@ -360,6 +368,7 @@ public class MenuBar extends JMenuBar {
 		item = new JMenuItem("Zoom");
 		item.setEnabled(parent != null);
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (parent.getState() == Frame.MAXIMIZED_BOTH) {
 					parent.setState(Frame.NORMAL);

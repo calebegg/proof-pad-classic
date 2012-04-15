@@ -38,6 +38,7 @@ public class ResultWindow extends JDialog {
 		bottom.add(Box.createGlue());
 		JButton closeButton = new JButton("Close");
 		closeButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}
@@ -63,6 +64,7 @@ public class ResultWindow extends JDialog {
 	public void setContent(Component comp) {
 		scroller.setViewportView(comp);
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				scroller.getVerticalScrollBar().setValue(0);
 			}

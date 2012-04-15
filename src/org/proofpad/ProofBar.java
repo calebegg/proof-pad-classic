@@ -61,7 +61,7 @@ public class ProofBar extends JComponent {
 	private int readOnlyIndex = -1;
 	private Expression tried;
 	private Image inProgressThrobber = 
-			new ImageIcon(getClass().getResource("/media/in-progress-blue.gif")).getImage();;
+			new ImageIcon(getClass().getResource("/media/in-progress-blue.gif")).getImage();
 	private int flashIndex;
 	private int flashPhase;
 	private Runnable flashTimeout;
@@ -82,6 +82,7 @@ public class ProofBar extends JComponent {
 		super();
 		this.acl2 = acl2;
 		acl2.addRestartListener(new Acl2.RestartListener() {
+			@Override
 			public void acl2Restarted() {
 				numProved = 0;
 				numProving = 0;
@@ -149,10 +150,12 @@ public class ProofBar extends JComponent {
 				error = false;
 				repaint();
 			}
+			@Override
 			public void mouseEntered(MouseEvent e) {
 				hover = true;
 				that.repaint();
 			}
+			@Override
 			public void mouseExited(MouseEvent e) {
 				hover = false;
 				that.repaint();
@@ -314,15 +317,14 @@ public class ProofBar extends JComponent {
 		this.repaint();
 	}
 	
-	//@SuppressWarnings("unchecked")
-	public void adjustHeights(java.util.LinkedList<Expression> expressions) {
+	public void adjustHeights(java.util.LinkedList<Expression> newExps) {
 		/*
 		Object o = expressions.clone();
 		if (o instanceof List<?>) {
 			this.expressions = (List<Expression>) o;
 		}
 		*/
-		this.expressions = expressions;
+		this.expressions = newExps;
 		error = false;
 		repaint();
 	}
@@ -429,6 +431,7 @@ public class ProofBar extends JComponent {
 			return;
 		}
 		acl2.admit(tried.contents, new Acl2.Callback() {
+			@Override
 			public boolean run(final boolean outerSuccess, String response) {
 				if (!outerSuccess) {
 					proofCallback(outerSuccess);
@@ -482,6 +485,7 @@ public class ProofBar extends JComponent {
 		flashIndex = offs;
 		flashPhase = 1;
 		flashTimeout = new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Thread.sleep(100);

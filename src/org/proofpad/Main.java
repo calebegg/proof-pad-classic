@@ -130,6 +130,7 @@ public class Main {
 						System.exit(0);
 					}
 				}
+				@Override
 				public void appRaisedToForeground(com.apple.eawt.AppEvent.AppForegroundEvent arg0) {}
 			});
 			app.addAppEventListener(new com.apple.eawt.AppReOpenedListener() {
@@ -137,6 +138,7 @@ public class Main {
 				public void appReOpened(com.apple.eawt.AppEvent.AppReOpenedEvent arg0) {
 					if (IdeWindow.windows.size() == 0 && !startingUp) {
 						SwingUtilities.invokeLater(new Runnable() {
+							@Override
 							public void run() {
 								new IdeWindow().setVisible(true);
 							}
@@ -149,6 +151,7 @@ public class Main {
 			PopupMenu dockMenu = new PopupMenu();
 			MenuItem item = new MenuItem("New");
 			item.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					IdeWindow ide = new IdeWindow();
 					ide.setVisible(true);
@@ -162,6 +165,7 @@ public class Main {
 			//com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this, true);
 		}
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				logtime("Start creating main window");
 				IdeWindow win = new IdeWindow();

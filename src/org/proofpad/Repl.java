@@ -215,26 +215,24 @@ public class Repl extends JPanel {
 		"ZPF",
 	};
 	
-	private static String buildAddTrace() {
-		StringBuilder addTrace = new StringBuilder("(trace");
+	private static final String addTrace;
+	static {
+		StringBuilder addTraceBuilder = new StringBuilder("(trace");
 		for (String fun : functionsToTrace) {
-			addTrace.append(" " + fun);
+			addTraceBuilder.append(" " + fun);
 		}
-		addTrace.append(")");
-		return addTrace.toString();
+		addTraceBuilder.append(")");
+		addTrace = addTraceBuilder.toString();
 	}
-
-	private static String buildUnTrace() {
-		StringBuilder unTrace = new StringBuilder("(untrace");
+	private static final String unTrace;
+	static {
+		StringBuilder unTraceBuilder = new StringBuilder("(untrace");
 		for (String fun : functionsToTrace) {
-			unTrace.append(" " + fun);
+			unTraceBuilder.append(" " + fun);
 		}
-		unTrace.append(")");
-		return unTrace.toString();
+		unTraceBuilder.append(")");
+		unTrace = unTraceBuilder.toString();
 	}
-
-	private static final String addTrace = buildAddTrace();
-	private static final String unTrace = buildUnTrace();
 	private static final long serialVersionUID = -4551996064006604257L;
 	private final Acl2 acl2;
 	private JPanel output;
@@ -317,11 +315,13 @@ public class Repl extends JPanel {
 		trace.setEnabled(false);
 		//run.putClientProperty("JButton.buttonType", "textured");
 		run.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
-				runInputCode(input);
+				runInputCode();
 			}
 		});
 		trace.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				final String inputText = input.getText();
 				displayResult(inputText + "\n", MsgType.INPUT);
@@ -336,6 +336,7 @@ public class Repl extends JPanel {
 				acl2.admit("(lp)", Acl2.doNothingCallback);
 				// Run the code
 				acl2.admit(inputText, new Acl2.Callback() {
+					@Override
 					public boolean run(boolean success, String response) {
 						// Display the results in a nicely-formatted way
 						TraceResult tr = new TraceResult(parent, response, inputText);
@@ -353,6 +354,7 @@ public class Repl extends JPanel {
 			}
 		});
 		input.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.getText().equals("")) {
 					// Prevent that awful backspace beep.
@@ -394,6 +396,7 @@ public class Repl extends JPanel {
 					}
 				}
 			}
+			@Override
 			public void keyTyped(KeyEvent e) {
 				if (e.getKeyChar() == '\n') {
 					int parenLevel = 0;
@@ -409,7 +412,7 @@ public class Repl extends JPanel {
 					}
 					if (parenLevel <= 0) {
 						e.consume();
-						runInputCode(input);
+						runInputCode();
 					} else {
 						inputLines++;
 						if (inputLines <= 6) {
@@ -461,7 +464,7 @@ public class Repl extends JPanel {
 		}
 	}
 
-	private void runInputCode(CodePane input) {
+	private void runInputCode() {
 		List<Expression> exps = SExpUtils.topLevelExps((RSyntaxDocument) input.getDocument());
 		if (exps.size() > 0 && exps.get(0).firstType == ExpType.UNDOABLE) {
 			displayResult("This event was moved up to the definitions window.", MsgType.INFO);
@@ -621,6 +624,7 @@ public class Repl extends JPanel {
 	}
 	
 
+	@Override
 	public void setFont(Font f) {
 		super.setFont(f);
 		if (fontChangeList == null) return;

@@ -459,6 +459,7 @@ public class Acl2Parser extends AbstractParser {
 				Token token, int level) {
 			this(parser, msg, line, token.offset, token.textCount, level);
 		}
+		@Override
 		public Color getColor() {
 			if (getLevel() == ERROR) {
 				return Color.RED;
@@ -491,7 +492,7 @@ public class Acl2Parser extends AbstractParser {
 			token = doc.getTokenListForLine(line);
 			while (token != null && token.isPaintable()) {
 				ParseToken top = (s.empty() ? null : s.peek());
-				if (!s.empty() && top.name != null && !token.isWhitespace() &&
+				if (top != null && top.name != null && !token.isWhitespace() &&
 						!token.isComment() && !token.isSingleChar(')')) {
 					// In a parameter position.
 					top.params.add(token.getLexeme());
@@ -512,17 +513,17 @@ public class Acl2Parser extends AbstractParser {
 				}
 				ParseToken parent = s.size() <= 1 ? null : s.get(s.size() - 2);
 				ParseToken grandparent = s.size() <= 2 ? null : s.get(s.size() - 3);
-				boolean isVariableOfParent = (parent != null && parent.name != null &&
+				boolean isVariableOfParent = parent != null && parent.name != null &&
 						(parent.name.equals("defun") && parent.params.size() == 2 ||
-						 parent.name.equals("mv-let") && parent.params.size() == 1));
+						 parent.name.equals("mv-let") && parent.params.size() == 1);
 				boolean isVariableOfGrandparent = (grandparent != null && grandparent.name != null &&
 						((grandparent.name.equals("let") || grandparent.name.equals("let*")) &&
-								grandparent.params.size() == 1 && top.params.size() == 0));
+								grandparent.params.size() == 1 && top != null && top.params.size() == 0));
 				if (isVariableOfParent || isVariableOfGrandparent) {
 					if (token.type == Token.IDENTIFIER) {
-						if (isVariableOfParent) {
+						if (parent != null && isVariableOfParent) {
 							parent.vars.add(token.getLexeme());
-						} else if (isVariableOfGrandparent) {
+						} else if (grandparent != null && isVariableOfGrandparent) {
 							grandparent.vars.add(token.getLexeme());
 						}
 					} else if (token.type != Token.WHITESPACE && !token.isSingleChar(')')) {
@@ -551,7 +552,7 @@ public class Acl2Parser extends AbstractParser {
 						 top.name.equals("assign") && top.params.size() == 1 ||
 						 top.name.equals("@") && top.params.size() == 1);
 				boolean isIgnored = isIgnoredBecauseMacro || isIgnoredBecauseParent || isIgnoredBecauseCurrent ||
-						(grandparent != null && grandparent.name != null &&
+						(top != null && grandparent != null && grandparent.name != null &&
 						(grandparent.name.equals("let") && grandparent.params.size() == 1 && top.params.size() == 0 ||
 						grandparent.name.equals("let*") && grandparent.params.size() == 1 && top.params.size() == 0));
 				if (token.isSingleChar('(')) {
@@ -560,7 +561,7 @@ public class Acl2Parser extends AbstractParser {
 					s.peek().line = line;
 					s.peek().offset = token.offset;
 				} else if (token.isSingleChar(')')) {
-					if (s.empty()) {
+					if (top == null) {
 						result.addNotice(new Acl2ParserNotice(this, "Unmatched )", line, token.offset, 1,
 								ParserNotice.ERROR));
 					} else {
@@ -578,7 +579,7 @@ public class Acl2Parser extends AbstractParser {
 							result.addNotice(new Acl2ParserNotice(this, msg, top, token.offset + 1));
 						}
 						s.pop();
-						if (top != null && top.name != null && top.name.equals("include-book")) {
+						if (top.name != null && top.name.equals("include-book")) {
 							String bookName = top.params.get(0);
 							int dirLoc = top.params.indexOf(":dir") + 1;
 							File dir;
@@ -623,7 +624,7 @@ public class Acl2Parser extends AbstractParser {
 							}
 						}
 					}
-				} else if (!s.empty() && top.name == null &&
+				} else if (top != null && top.name == null &&
 						   !token.isComment() &&
 						   !token.isWhitespace()) {
 					// This token is at the beginning of an s expression

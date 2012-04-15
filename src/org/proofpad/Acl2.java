@@ -71,7 +71,6 @@ public class Acl2 extends Thread {
 	final String acl2Path;
 	private boolean errorOccured;
 	private StringBuilder sb;
-	final public Vector<String> exps = new Vector<String>();
 	private OutputEventListener outputEventListener;
 	private List<Callback> callbacks = new LinkedList<Callback>();
 	private List<OutputEvent> outputQueue = new LinkedList<OutputEvent>();
@@ -99,6 +98,7 @@ public class Acl2 extends Thread {
 		callbacks.add(callback);
 	}
 
+	@Override
 	public void run() {
 		List<Character> buffer = new LinkedList<Character>();
 		if (acl2 == null) {
@@ -340,6 +340,7 @@ public class Acl2 extends Thread {
 		acl2.destroy();
 	}
 	
+	@Override
 	public void interrupt() {
 		backoff = 0;
 		if (IdeWindow.isWindows) {
@@ -364,8 +365,8 @@ public class Acl2 extends Thread {
 	}
 	
 	public static boolean isError(String line) {
-		for (String failure : failures) {
-			if (line.startsWith(failure)) {
+		for (String f : failures) {
+			if (line.startsWith(f)) {
 				return true;
 			}
 		}

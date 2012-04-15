@@ -31,7 +31,6 @@ import java.util.*;
 import javax.swing.text.Segment;
 
 import org.fife.ui.rsyntaxtextarea.*;
-import org.fife.util.DynamicIntArray;
 
 
 /**
@@ -3516,28 +3515,10 @@ public class Acl2TokenMaker extends AbstractJFlexTokenMaker {
       from input */
   private int zzEndRead;
 
-  /** number of newlines encountered up to the start of the matched text */
-  private int yyline;
-
-  /** the number of characters up to the start of the matched text */
-  private int yychar;
-
-  /**
-   * the number of characters from the last newline up to the start of the 
-   * matched text
-   */
-  private int yycolumn;
-
-  /** 
-   * zzAtBOL == true <=> the scanner is currently at the beginning of a line
-   */
-  private boolean zzAtBOL = true;
-
   /** zzAtEOF == true <=> the scanner is at the EOF */
   private boolean zzAtEOF;
 
-  /** denotes if the user-EOF-code has already been executed */
-  private boolean zzEOFDone;
+  
 
   /* user code: */
 
@@ -3551,31 +3532,34 @@ public class Acl2TokenMaker extends AbstractJFlexTokenMaker {
 	public Acl2TokenMaker() {
 	}
 
-	private void addHyperlinkToken(int start, int end, int tokenType) {
-		int so = start + offsetShift;
-		addToken(zzBuffer, start,end, tokenType, so, true);
+	private void addHyperlinkToken(int st, int end, int tokenType) {
+		int so = st + offsetShift;
+		addToken(zzBuffer, st ,end, tokenType, so, true);
 	}
 
 	private void addToken(int tokenType) {
 		addToken(zzStartRead, zzMarkedPos-1, tokenType);
 	}
 
-	private void addToken(int start, int end, int tokenType) {
-		int so = start + offsetShift;
-		addToken(zzBuffer, start,end, tokenType, so, false);
+	private void addToken(int st, int end, int tokenType) {
+		int so = st + offsetShift;
+		addToken(zzBuffer, st,end, tokenType, so, false);
 	}
 
-	public void addToken(char[] array, int start, int end, int tokenType,
+	@Override
+	public void addToken(char[] array, int st, int end, int tokenType,
 						int startOffset, boolean hyperlink) {
-		super.addToken(array, start,end, tokenType, startOffset, hyperlink);
+		super.addToken(array, st,end, tokenType, startOffset, hyperlink);
 		zzStartRead = zzMarkedPos;
 		parenLevelForOffset.put(startOffset, symbolParenLevel);		
 	}
 
+	@Override
 	public String[] getLineCommentStartAndEnd() {
 		return new String[] { ";", null };
 	}
 	
+	@Override
 	public Token getTokenList(Segment text, int initialTokenType, int startOffset) {
 		resetTokenList();
 		this.offsetShift = -text.offset + startOffset;
@@ -3626,11 +3610,11 @@ public class Acl2TokenMaker extends AbstractJFlexTokenMaker {
 		}
 	}
 
-	private boolean zzRefill() throws java.io.IOException {
+	private boolean zzRefill() {
 		return zzCurrentPos>=s.offset+s.count;
 	}
 
-	public final void yyreset(java.io.Reader reader) throws java.io.IOException {
+	public final void yyreset(java.io.Reader reader) {
 		// 's' has been updated.
 		zzBuffer = s.array;
 		zzStartRead = s.offset;
@@ -3638,7 +3622,6 @@ public class Acl2TokenMaker extends AbstractJFlexTokenMaker {
 		zzCurrentPos = zzMarkedPos = s.offset;
 		zzLexicalState = YYINITIAL;
 		zzReader = reader;
-		zzAtBOL  = true;
 		zzAtEOF  = false;
 	}
 
@@ -3816,7 +3799,8 @@ public class Acl2TokenMaker extends AbstractJFlexTokenMaker {
    * @return      the next token
    * @exception   java.io.IOException  if any I/O-Error occurs
    */
-  public org.fife.ui.rsyntaxtextarea.Token yylex() throws java.io.IOException {
+  @SuppressWarnings("fallthrough")
+public org.fife.ui.rsyntaxtextarea.Token yylex() throws java.io.IOException {
     int zzInput;
     int zzAction;
 
@@ -3864,9 +3848,7 @@ public class Acl2TokenMaker extends AbstractJFlexTokenMaker {
               zzInput = YYEOF;
               break zzForAction;
             }
-            else {
-              zzInput = zzBufferL[zzCurrentPosL++];
-            }
+			zzInput = zzBufferL[zzCurrentPosL++];
           }
           int zzNext = zzTransL[ zzRowMapL[zzState] + zzCMapL[zzInput] ];
           if (zzNext == -1) break zzForAction;

@@ -44,20 +44,21 @@ public class IdeWindow extends JFrame {
 		});
 	}
 	public static final ActionListener openAction = new ActionListener() {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			File file;
 			if (isMac) {
-				FileDialog fc = new FileDialog((Frame)null, "Open file");
-				fc.setFilenameFilter(new FilenameFilter() {
+				FileDialog fd = new FileDialog((Frame)null, "Open file");
+				fd.setFilenameFilter(new FilenameFilter() {
 					@Override
 					public boolean accept(File dir, String name) {
 						return name.endsWith(".lisp") || name.endsWith(".lsp")
 								|| name.endsWith(".acl2");
 					}
 				});
-				fc.setVisible(true);
-				String filename = fc.getFile();
-				file = filename == null ? null : new File(fc.getDirectory(), filename);
+				fd.setVisible(true);
+				String filename = fd.getFile();
+				file = filename == null ? null : new File(fd.getDirectory(), filename);
 			} else {
 				int response = fc.showOpenDialog(null);
 				file = response == JFileChooser.APPROVE_OPTION ? fc.getSelectedFile() : null;
@@ -123,7 +124,6 @@ public class IdeWindow extends JFrame {
 		openFile = file;
 		workingDir = openFile == null ? null : openFile.getParentFile();
 		setLayout(new BorderLayout());
-		final IdeWindow that = this;
 
 		final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		final JPanel splitTop = new JPanel();
@@ -209,6 +209,7 @@ public class IdeWindow extends JFrame {
 		};
 		
 		saveAction = new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				saveFile();
 			}
@@ -362,9 +363,11 @@ public class IdeWindow extends JFrame {
 				}
 			}
 			
+			@Override
 			public void keyReleased(KeyEvent arg0) {
 			}
 			
+			@Override
 			public void keyTyped(KeyEvent e) {
 				char c = e.getKeyChar();
 				if (c == KeyEvent.CHAR_UNDEFINED || c == '\n' || c == '\b'
@@ -383,12 +386,14 @@ public class IdeWindow extends JFrame {
 		findBar.add(searchField);
 		JButton forward = new JButton(new ImageIcon("media/find_down.png"));
 		forward.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				searchFor(searchField.getText(), true);
 			}
 		});
 		JButton back = new JButton(new ImageIcon("media/find_up.png"));
 		back.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				searchFor(searchField.getText(), false);
 			}
@@ -471,6 +476,7 @@ public class IdeWindow extends JFrame {
 		});
 		
 		editor.SetUndoManagerCreatedListener(new CodePane.UndoManagerCreatedListener() {
+			@Override
 			public void undoManagerCreated(UndoManager undoManager) {
 				proofBar.undoManager = undoManager;
 			}
@@ -673,15 +679,15 @@ public class IdeWindow extends JFrame {
 		if (openFile == null) {
 			File file = null;
 			if (isMac) {
-				FileDialog fc = new FileDialog(this, "Save As...");
-				fc.setMode(FileDialog.SAVE);
-				fc.setVisible(true);
-				String filename = fc.getFile();
+				FileDialog fd = new FileDialog(this, "Save As...");
+				fd.setMode(FileDialog.SAVE);
+				fd.setVisible(true);
+				String filename = fd.getFile();
 				if (filename != null) {
 					if (filename.indexOf('.') == -1) {
 						filename += ".lisp";
 					}
-					file = new File(fc.getDirectory(), filename);
+					file = new File(fd.getDirectory(), filename);
 				}
 			} else {
 				int response = fc.showSaveDialog(this);
@@ -748,6 +754,7 @@ public class IdeWindow extends JFrame {
 			scan = new Scanner(openFile);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
+			return;
 		}
 		String content = scan.useDelimiter("\\Z").next();
 		editor.setText(content);

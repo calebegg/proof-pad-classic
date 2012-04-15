@@ -83,6 +83,7 @@ public class BookViewer extends JFrame {
 		buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
 		JButton include = new JButton("Include");
 		include.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 				BookView bv = (BookView) node.getUserObject();
@@ -95,6 +96,7 @@ public class BookViewer extends JFrame {
 		});
 		JButton cancel = new JButton("Close");
 		cancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}

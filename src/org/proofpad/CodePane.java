@@ -1,22 +1,16 @@
 package org.proofpad;
 
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
+import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.event.CaretEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.undo.UndoManager;
 
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
-import org.fife.ui.rsyntaxtextarea.Style;
-import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
-import org.fife.ui.rsyntaxtextarea.Token;
+import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.RUndoManager;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -55,7 +49,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		setBorder(BorderFactory.createEmptyBorder(0, leftMargin, 0, 0));
 		setTabSize(4);
 		setBackground(IdeWindow.transparent);
-		addKeyListener(new KeyListener() {
+		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (pb == null) return;
@@ -107,6 +101,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 				}
 			}
 			
+			@Override
 			public void keyReleased(KeyEvent e) {
 				if (pb == null) return;
 				if (pb.getReadOnlyIndex() >= 0
@@ -116,9 +111,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 				} else {
 					setCaretColor(Color.BLACK);
 				}
-			}
-			
-			public void keyTyped(KeyEvent e) {
 			}
 		});
 
@@ -235,6 +227,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		highlightBracketMatch();
 	}
 	
+	@Override
 	public Iterator<Token> iterator() {
 		final CodePane that = this;
 		Iterator<Token> it = new Iterator<Token>() {
@@ -283,10 +276,10 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	}
 
 	public void SetUndoManagerCreatedListener(
-			UndoManagerCreatedListener undoManagerCreatedListener) {
-		this.undoManagerCreatedListener = undoManagerCreatedListener;
+			UndoManagerCreatedListener umcl) {
+		this.undoManagerCreatedListener = umcl;
 		if (undoManager != null) {
-			undoManagerCreatedListener.undoManagerCreated(undoManager);
+			umcl.undoManagerCreated(undoManager);
 		}
 	}
 }

@@ -4,13 +4,12 @@ import java.util.Stack;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Token;
 
-public class IdeDocument extends RSyntaxDocument implements Document {
+public class IdeDocument extends RSyntaxDocument {
 	private static final long serialVersionUID = 7048788640273203918L;
 	private ProofBar pb;
 	class IndentToken {
@@ -30,6 +29,7 @@ public class IdeDocument extends RSyntaxDocument implements Document {
 			return "<" + name + ", " + offset + ", " + params + ">";
 		}
 	}
+	@Override
 	public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
 		// Auto indentation
 		if (str.endsWith("\n")) {
