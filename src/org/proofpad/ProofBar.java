@@ -6,6 +6,8 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.undo.UndoManager;
+
+import org.proofpad.ProofBar.UnprovenExp.Status;
 import org.proofpad.SExpUtils.ExpType;
 
 public class ProofBar extends JComponent {
@@ -69,9 +71,10 @@ public class ProofBar extends JComponent {
 	private List<ReadOnlyIndexChangeListener> readOnlyIndexListeners =
 			new LinkedList<ReadOnlyIndexChangeListener>();
 	
-	class UnprovenExp {
+	static class UnprovenExp {
+		enum Status { SUCCESS, FAILURE, UNTRIED }
 		public int hash;
-		public boolean success;
+		public Status status;
 	}
 	private List<UnprovenExp> unprovenStates = new ArrayList<UnprovenExp>();
 
@@ -265,10 +268,15 @@ public class ProofBar extends JComponent {
 				} else {
 					g.setColor(untriedColor);
 					if (unprovenIdx < unprovenStates.size()) {
-						if (unprovenStates.get(unprovenIdx).success) {
+						switch (unprovenStates.get(unprovenIdx).status) {
+						case SUCCESS:
 							g.setColor(new Color(.9f, 1f, .9f));
-						} else {
+							break;
+						case FAILURE:
 							g.setColor(new Color(1f, .9f, .9f));
+							break;
+						case UNTRIED:
+							g.setColor(untriedColor);
 						}
 						unprovenIdx++;
 					}
@@ -399,7 +407,7 @@ public class ProofBar extends JComponent {
 		if (admissionIndices.size() == 0) {
 			idx = 3;
 		} else {
-			idx = admissionIndices.get(admissionIndices.size() - 1);
+			idx = admissionIndices.get(admissionIndices.size() - 1) + 1;
 		}
 		acl2.admit(":ubt! " + idx + "\n", Acl2.doNothingCallback);
 		// Enter logic mode
@@ -538,12 +546,13 @@ public class ProofBar extends JComponent {
 					ue = new UnprovenExp();
 					unprovenStates.add(ue);
 				}
+				ue.status = Status.UNTRIED;
 				ue.hash = ex.contents.hashCode();
 				acl2.admit(ex.contents, new Acl2.Callback() {
 					@Override
 					public boolean run(boolean success, String response) {
 						repaint();
-						ue.success = success;
+						ue.status = success ? Status.SUCCESS : Status.FAILURE;
 						return false;
 					}
 				});
