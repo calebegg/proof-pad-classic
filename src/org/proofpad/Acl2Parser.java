@@ -46,10 +46,7 @@ public class Acl2Parser extends AbstractParser {
 		private static final long serialVersionUID = 3510110011135344206L;
 		public final int lower;
 		public final int upper;
-		private Range(int both) {
-			upper = lower = both;
-		}
-		private Range(int lower, int upper) {
+		Range(int lower, int upper) {
 			this.lower = lower;
 			this.upper = upper;
 		}
@@ -686,7 +683,7 @@ public class Acl2Parser extends AbstractParser {
 		return bookCache;
 	}
 
-	private String htmlEncode(String name) {
+	private static String htmlEncode(String name) {
 		return name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 	}
 

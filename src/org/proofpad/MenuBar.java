@@ -34,7 +34,7 @@ public class MenuBar extends JMenuBar {
 	protected Frame parent;
 	public JMenuItem saveItem;
 	JMenu recentMenu;
-	private JMenuItem parentItem;
+	JMenuItem parentItem;
 
 	public MenuBar(final IdeWindow parent) {
 		this.parent = parent;

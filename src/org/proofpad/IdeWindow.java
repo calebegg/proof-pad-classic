@@ -29,7 +29,7 @@ public class IdeWindow extends JFrame {
 	public static final boolean isWindows =
 			System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
 	public static final Color transparent = new Color(1f, 1f, 1f, 0f);
-	private static JFileChooser fc = new JFileChooser();
+	static JFileChooser fc = new JFileChooser();
 	static {
 		fc.addChoosableFileFilter(new FileFilter() {
 			@Override
@@ -80,12 +80,12 @@ public class IdeWindow extends JFrame {
 	static List<IdeWindow> windows = new LinkedList<IdeWindow>();
 	private static int untitledCount = 1;
 	
-	private File openFile;
-	private boolean isSaved = true;
-	private IdeWindow that = this;
+	File openFile;
+	boolean isSaved = true;
+	IdeWindow that = this;
 	private File workingDir;
 	private Acl2Parser parser;
-	private Repl repl;
+	Repl repl;
 	Toolbar toolbar;
 
 	final CodePane editor;
@@ -675,7 +675,7 @@ public class IdeWindow extends JFrame {
 		return false;
 	}
 
-	private boolean saveFile() {
+	boolean saveFile() {
 		if (openFile == null) {
 			File file = null;
 			if (isMac) {
@@ -802,7 +802,7 @@ public class IdeWindow extends JFrame {
 				maxWidth + 5, maxHeight + 5)));
 	}
 
-	private void searchFor(String text, boolean forward) {
+	void searchFor(String text, boolean forward) {
 		editor.clearMarkAllHighlights();
 		SearchContext sc = new SearchContext();
 		sc.setSearchFor(text);

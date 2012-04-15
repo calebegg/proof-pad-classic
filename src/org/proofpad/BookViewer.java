@@ -13,8 +13,8 @@ public class BookViewer extends JFrame {
 
 	private static final String SYSTEM_BOOKS_SYMBOL = ":system";
 	private static final String DRACULA_SYMBOL = ":teachpacks";
-	private String draculaPath;
-	private String systemPath;
+	String draculaPath;
+	String systemPath;
 	
 	private static final long serialVersionUID = 1276853161919844567L;
 	

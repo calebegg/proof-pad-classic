@@ -22,7 +22,7 @@ public class ResultWindow extends JDialog {
 
 	private static final long serialVersionUID = -4360856107145207588L;
 	
-	private JScrollPane scroller;
+	JScrollPane scroller;
 
 	public ResultWindow(Frame parent, String string) {
 		// TODO: Hook this up to the parent IdeWindow's JMenu on mac.

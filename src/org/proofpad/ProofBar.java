@@ -45,26 +45,26 @@ public class ProofBar extends JComponent {
 
 	private static final long serialVersionUID = 8267405348010307267L;
 	
-	private java.util.List<Expression> expressions;
-	private java.util.List<Expression> proofQueue;
-	private int my;
-	private boolean hover = false;
+	List<Expression> expressions;
+	List<Expression> proofQueue;
+	int my;
+	boolean hover = false;
 	final private static int width = 25;
-	private static int lineHeight;
-	private final Acl2 acl2;
+	static int lineHeight;
+	final Acl2 acl2;
 	
-	private int numProved;
-	private int numProving;
-	private boolean error;
-	private List<Integer> admissionIndices = new ArrayList<Integer>();
+	int numProved;
+	int numProving;
+	boolean error;
+	List<Integer> admissionIndices = new ArrayList<Integer>();
 	
 	private int readOnlyIndex = -1;
 	private Expression tried;
 	private Image inProgressThrobber = 
 			new ImageIcon(getClass().getResource("/media/in-progress-blue.gif")).getImage();
 	private int flashIndex;
-	private int flashPhase;
-	private Runnable flashTimeout;
+	int flashPhase;
+	Runnable flashTimeout;
 	protected Thread flashThread;
 	public int readOnlyHeight;
 	UndoManager undoManager;
@@ -297,7 +297,7 @@ public class ProofBar extends JComponent {
 		readOnlyHeight = newHeight;
 	}
 
-	private static int pixelHeight(Expression ex) {
+	static int pixelHeight(Expression ex) {
 		if (ex.prev == null) {
 			return (ex.height + ex.prevGapHeight) * lineHeight + ex.nextGapHeight * lineHeight / 2;
 		} else if (ex.firstType == ExpType.FINAL) {
@@ -308,7 +308,7 @@ public class ProofBar extends JComponent {
 		}
 	}
 	
-	public int getLineHeight() {
+	public static int getLineHeight() {
 		return lineHeight;
 	}
 
@@ -329,7 +329,7 @@ public class ProofBar extends JComponent {
 		repaint();
 	}
 	
-	private void proofCallback(boolean success) {
+	void proofCallback(boolean success) {
 		if (tried == null) return;
 		if (success && numProving > 0) {
 			numProved++;
@@ -403,7 +403,7 @@ public class ProofBar extends JComponent {
 		}
 	}
 	
-	private void toLogicMode() {
+	void toLogicMode() {
 		// Undo everything since the last proven form
 		int idx;
 		if (admissionIndices.size() == 0) {
@@ -416,7 +416,7 @@ public class ProofBar extends JComponent {
 		acl2.admit(":logic\n", Acl2.doNothingCallback);
 	}
 
-	private void proveNext() {
+	void proveNext() {
 		if (proofQueue.size() == 0) {
 			numProving = 0;
 			admitUnprovenExps();

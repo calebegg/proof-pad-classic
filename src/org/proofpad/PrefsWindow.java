@@ -15,6 +15,7 @@ public class PrefsWindow extends JFrame {
 
 	private class Separator extends JComponent {
 		private static final long serialVersionUID = 7305509836424390157L;
+		public Separator() { }
 		@Override
 		public void paintComponent(Graphics g) {
 			g.setColor(new Color(.4f, .4f, .4f));
@@ -35,8 +36,8 @@ public class PrefsWindow extends JFrame {
 	}
 
 	private static final long serialVersionUID = -5097145621288246384L;
-	private Font font;
-	private static Preferences prefs = Preferences.userNodeForPackage(Main.class);
+	Font font;
+	static Preferences prefs = Preferences.userNodeForPackage(Main.class);
 	private static List<FontChangeListener> fontChangeListeners =
 			new LinkedList<FontChangeListener>();
 	private static List<WidthGuideChangeListener> widthGuideChangeListeners =
@@ -311,7 +312,7 @@ public class PrefsWindow extends JFrame {
 		tvl.toolbarVisible(prefs.getBoolean("toolbarvisible", true));
 	}
 	
-	protected void fireWidthGuideChangeEvent(int value) {
+	protected static void fireWidthGuideChangeEvent(int value) {
 		for (WidthGuideChangeListener wgcl : widthGuideChangeListeners) {
 			wgcl.widthGuideChanged(value);
 		}
@@ -324,7 +325,7 @@ public class PrefsWindow extends JFrame {
 		prefs.putInt("fontsize", font.getSize());
 		prefs.put("fontfamily", font.getFamily());
 	}
-	protected void fireToolbarVisibleEvent() {
+	protected static void fireToolbarVisibleEvent() {
 		boolean visible = !prefs.getBoolean("toolbarvisible", true);
 		for (ToolbarVisibleListener tvl : toolbarVisibleListeners) {
 			tvl.toolbarVisible(visible);

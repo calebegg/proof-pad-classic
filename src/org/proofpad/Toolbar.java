@@ -17,7 +17,7 @@ public class Toolbar extends JPanel {
 	private static final String modKeyStr = (isMac ? "\u2318" : "Ctrl + ");
 //	private static final boolean isWindows = IdeWindow.isWindows;
 	private static final long serialVersionUID = -333358626303272834L;
-private JButton updateButton;
+	JButton updateButton;
 
 	public Toolbar(final IdeWindow parent) {
 		new JPanel();

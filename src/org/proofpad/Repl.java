@@ -18,8 +18,8 @@ import org.proofpad.SExpUtils.ExpType;
 
 public class Repl extends JPanel {
 
-	private static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/media/info.png"));
-	public static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/media/prompt.png"));
+	static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/media/info.png"));
+	static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/media/prompt.png"));
 
 	public interface HeightChangeListener {
 		public void heightChanged(int delta);
@@ -215,7 +215,7 @@ public class Repl extends JPanel {
 		"ZPF",
 	};
 	
-	private static final String addTrace;
+	static final String addTrace;
 	static {
 		StringBuilder addTraceBuilder = new StringBuilder("(trace");
 		for (String fun : functionsToTrace) {
@@ -224,7 +224,7 @@ public class Repl extends JPanel {
 		addTraceBuilder.append(")");
 		addTrace = addTraceBuilder.toString();
 	}
-	private static final String unTrace;
+	static final String unTrace;
 	static {
 		StringBuilder unTraceBuilder = new StringBuilder("(untrace");
 		for (String fun : functionsToTrace) {
@@ -234,22 +234,22 @@ public class Repl extends JPanel {
 		unTrace = unTraceBuilder.toString();
 	}
 	private static final long serialVersionUID = -4551996064006604257L;
-	private final Acl2 acl2;
+	final Acl2 acl2;
 	private JPanel output;
-	private JScrollBar vertical;
-	private final ArrayList<Pair<String,Integer>> history;
+	JScrollBar vertical;
+	final ArrayList<Pair<String,Integer>> history;
 	private CodePane definitions;
 	protected int historyIndex = 0;
 	private Font font;
 	private List<JComponent> fontChangeList = new LinkedList<JComponent>();
-	private CodePane input;
+	CodePane input;
 	private int inputHeightOneLine = -1;
 	private JScrollPane inputScroller;
 	private JSplitPane split;
 	private HeightChangeListener heightChangeListener;
 	protected int inputLines = 1;
 	private JPanel bottom;
-	private JFrame parent;
+	JFrame parent;
 		
 	enum MsgType {
 		ERROR,
@@ -439,7 +439,7 @@ public class Repl extends JPanel {
 		split.setBottomComponent(bottomWrapper);
 	}
 	
-	private void setBottomLines(int inputLines) {
+	void setBottomLines(int inputLines) {
 		if (inputHeightOneLine == -1) {
 			inputHeightOneLine = input.getHeight();
 		}
@@ -464,7 +464,7 @@ public class Repl extends JPanel {
 		}
 	}
 
-	private void runInputCode() {
+	void runInputCode() {
 		List<Expression> exps = SExpUtils.topLevelExps((RSyntaxDocument) input.getDocument());
 		if (exps.size() > 0 && exps.get(0).firstType == ExpType.UNDOABLE) {
 			displayResult("This event was moved up to the definitions window.", MsgType.INFO);
@@ -488,7 +488,7 @@ public class Repl extends JPanel {
 		return output;
 	}
 	
-	private void resetInput() {
+	void resetInput() {
 		input.setText("");
 		if (inputHeightOneLine == -1) return;
 		inputLines = 1;
