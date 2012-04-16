@@ -49,7 +49,7 @@ public class ProofBar extends JComponent {
 	List<Expression> proofQueue;
 	int my;
 	boolean hover = false;
-	final private static int width = 25;
+	final static int width = 20;
 	static int lineHeight;
 	final Acl2 acl2;
 	

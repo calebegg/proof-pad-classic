@@ -28,7 +28,7 @@ public class Repl extends JPanel {
 
 	public class StatusLabel extends JLabel {
 		private static final long serialVersionUID = -6292618935259682146L;
-		static final int size = 25;
+		static final int size = ProofBar.width;
 		public StatusLabel(MsgType msg) {
 			setHorizontalAlignment(CENTER);
 			setMsgType(msg);
@@ -240,6 +240,7 @@ public class Repl extends JPanel {
 	final ArrayList<Pair<String,Integer>> history;
 	private CodePane definitions;
 	protected int historyIndex = 0;
+	boolean addedInputToHistory = false;
 	private Font font;
 	private List<JComponent> fontChangeList = new LinkedList<JComponent>();
 	CodePane input;
@@ -250,6 +251,8 @@ public class Repl extends JPanel {
 	protected int inputLines = 1;
 	private JPanel bottom;
 	JFrame parent;
+	protected JButton trace;
+	protected JButton run;
 		
 	enum MsgType {
 		ERROR,
@@ -304,13 +307,13 @@ public class Repl extends JPanel {
 		bottom.add(prompt);
 		//input.setFont(font);
 		inputScroller = new JScrollPane(input);
-		inputScroller.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+		inputScroller.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		//final int inputBorder = 4;
 		//input.setBorder(BorderFactory.createEmptyBorder(inputBorder, inputBorder, inputBorder, inputBorder));
-		inputScroller.setMaximumSize(new Dimension(Integer.MAX_VALUE, StatusLabel.size + 4));
+		inputScroller.setMaximumSize(new Dimension(Integer.MAX_VALUE, StatusLabel.size + 6));
 		bottom.add(inputScroller);
-		final JButton run = new JButton("run");
-		final JButton trace = new JButton("trace");
+		run = new JButton("run");
+		trace = new JButton("trace");
 		run.setEnabled(false);
 		trace.setEnabled(false);
 		//run.putClientProperty("JButton.buttonType", "textured");
@@ -350,12 +353,15 @@ public class Repl extends JPanel {
 				acl2.admit("(lp)", Acl2.doNothingCallback);
 				acl2.admit("(untrace$" + funs + ")", Acl2.doNothingCallback);
 				history.add(new Pair<String, Integer>(inputText.trim(), inputLines));
+				historyIndex = history.size();
+				addedInputToHistory = false;
 				resetInput();
 			}
 		});
 		input.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
+				maybeEnableButtons();
 				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.getText().equals("")) {
 					// Prevent that awful backspace beep.
 					e.consume();
@@ -365,9 +371,9 @@ public class Repl extends JPanel {
 						return;
 					}
 					// TODO: Flash background color or something to indicate that the contents has changed? Maybe?
-					if (!input.getText().equals("")) {
-						// TODO: Make this not suck.
-						//history.add(input.getText());
+					if (!input.getText().equals("") && !addedInputToHistory) {
+						history.add(new Pair<String, Integer>(input.getText(), inputLines));
+						addedInputToHistory = true;
 					}
 					if (historyIndex > 0) {
 						historyIndex--;
@@ -419,14 +425,7 @@ public class Repl extends JPanel {
 						}
 					}
 				}
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						boolean enable = input.getLastVisibleOffset() != 0;
-						run.setEnabled(enable);
-						trace.setEnabled(enable);
-					}
-				});
+				maybeEnableButtons();
 			}
 		});
 		bottom.add(run);
@@ -450,10 +449,12 @@ public class Repl extends JPanel {
 		int oldScrollerHeight = inputScroller.getHeight();
 		int newScrollerHeight = inputHeightOneLine +
 				(inputLines - 1) * input.getLineHeight() + 8;
+		newScrollerHeight -= 6;
+		System.out.println(oldScrollerHeight + " / " + newScrollerHeight);
 		Dimension newScrollSize = new Dimension(Short.MAX_VALUE,
 				newScrollerHeight);
 		inputScroller.setMaximumSize(newScrollSize);
-		fireHeightChangedEvent(newScrollerHeight - oldScrollerHeight - 4);
+		fireHeightChangedEvent(newScrollerHeight - oldScrollerHeight);
 	}
 	
 	protected void fireHeightChangedEvent(int delta) {
@@ -480,6 +481,7 @@ public class Repl extends JPanel {
 			}
 		}
 		historyIndex = history.size();
+		addedInputToHistory = false;
 		resetInput();
 	}
 
@@ -641,5 +643,16 @@ public class Repl extends JPanel {
 
 	public int getInputHeight() {
 		return inputScroller.getHeight();
+	}
+
+	void maybeEnableButtons() {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				boolean enable = input.getLastVisibleOffset() != 0;
+				run.setEnabled(enable);
+				trace.setEnabled(enable);
+			}
+		});
 	}
 }
