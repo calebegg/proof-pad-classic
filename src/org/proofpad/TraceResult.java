@@ -43,15 +43,17 @@ public class TraceResult extends JTree {
 				line = line.substring(spaceIdx + 1, line.length()).replaceFirst("\\(.*? (.*)\\)", "$1");
 				node.setUserObject(node.getUserObject() + " = " + line);
 				node = (DefaultMutableTreeNode) node.getParent();
-			} else {
+			} else if (line.indexOf('>') > 0) {
 				// Call line
 				line = line.substring(spaceIdx, line.length());
 				DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(line);
 				node.add(newNode);
 				node = newNode;
+			} else {
+				continue;
 			}
 		}
-		if (node != root) {
+		if (node != root && node.getPath().length > 2) {
 			expandPath(new TreePath(node.getPath()));
 		} else {
 			for (int i = 0; i < getRowCount() /* recalculate every time */; i++) {
