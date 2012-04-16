@@ -653,7 +653,7 @@ public class IdeWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				int paneWidth = previewSplit.getRightComponent().getWidth();
 				Point loc = getLocationOnScreen();
-				setBounds(loc.x, loc.y, getWidth() - paneWidth, getHeight());
+				setBounds(loc.x, loc.y, getWidth() - paneWidth - splitDividerDefaultSize, getHeight());
 				previewSplit.setRightComponent(null);
 				previewSplit.setDividerSize(0);
 				activeTrace = null;
@@ -669,8 +669,8 @@ public class IdeWindow extends JFrame {
 		final int winWidth = getWidth();
 		int newX = (int) Math.min(screenSize.getWidth() - winWidth - paneWidth, loc.x);
 		if (!wasPreviewOpen) {
-			setBounds(newX, loc.y, winWidth + paneWidth, getHeight());
-			previewSplit.setDividerLocation(winWidth);
+			setBounds(newX, loc.y, winWidth + paneWidth + splitDividerDefaultSize, getHeight());
+			previewSplit.setDividerLocation(winWidth + splitDividerDefaultSize);
 		} else {
 			previewSplit.setDividerLocation(winWidth - paneWidth);
 		}
