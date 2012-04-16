@@ -20,6 +20,7 @@ public class Repl extends JPanel {
 
 	static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/media/info.png"));
 	static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/media/prompt.png"));
+	static final Icon moreIcon = new ImageIcon(Repl.class.getResource("/media/more.png"));
 
 	public interface HeightChangeListener {
 		public void heightChanged(int delta);
@@ -582,6 +583,7 @@ public class Repl extends JPanel {
 		}
 		text.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 		line.add(text);
+		line.add(new JLabel(moreIcon));
 		synchronized (this) {
 			getOutput().add(line);
 		}
