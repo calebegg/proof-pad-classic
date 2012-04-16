@@ -46,7 +46,6 @@ public class Main {
 		logtime("Starting main");
 		System.setProperty("apple.awt.brushMetalLook", "true");
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
-		System.setProperty("apple.awt.useSystemHelp", "true");
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -70,6 +69,8 @@ public class Main {
 				errorText.setEditable(false);
 				JFrame errorWindow = new JFrame("Error");
 				errorWindow.add(sp);
+				errorWindow.pack();
+				errorWindow.setLocationRelativeTo(null);
 				errorWindow.setVisible(true);
 			}
 		});
