@@ -200,10 +200,15 @@ public class ProofBar extends JComponent {
 			setReadOnlyHeight(0);
 		}
 		int unprovenIdx = 0;
+		Status expStatus = Status.UNTRIED;
 		for (Expression e: expressions) {
 			int height = pixelHeight(e);
 			height += addToNextHeight;
 			addToNextHeight = 0;
+			if (provedSoFar == 0 && unprovenStates.size() > unprovenIdx) {
+				expStatus = unprovenStates.get(unprovenIdx).status;
+				unprovenIdx++;
+			}
 			if (provedSoFar > 0) {
 				// Drawing proved terms
 				provedSoFar--;
@@ -235,7 +240,7 @@ public class ProofBar extends JComponent {
 					//drawStringCentered(g, begin, height, "\u2713");
 					g.drawImage(successIcon.getImage(), (width - 19) / 2, (height - 19) / 2 + begin, this);
 				}
-			} else if (isError && provedSoFar == 0) {
+			} else if ((isError && provedSoFar == 0) || expStatus == Status.FAILURE) {
 				// Draw error box
 				isError = false;
 				g.setColor(errorColor);
@@ -270,19 +275,6 @@ public class ProofBar extends JComponent {
 					}
 				} else {
 					g.setColor(untriedColor);
-					if (unprovenIdx < unprovenStates.size()) {
-						switch (unprovenStates.get(unprovenIdx).status) {
-						case SUCCESS:
-							g.setColor(new Color(.9f, 1f, .9f));
-							break;
-						case FAILURE:
-							g.setColor(new Color(1f, .9f, .9f));
-							break;
-						case UNTRIED:
-							g.setColor(untriedColor);
-						}
-						unprovenIdx++;
-					}
 					g.fillRect(0, begin, 30, height);
 				}
 			}
