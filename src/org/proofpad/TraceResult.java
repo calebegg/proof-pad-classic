@@ -1,5 +1,6 @@
 package org.proofpad;
 
+import java.awt.Font;
 import java.awt.Frame;
 
 import javax.swing.*;
@@ -59,11 +60,17 @@ public class TraceResult extends ResultWindow {
 				tree.expandRow(i);
 			}
 		}
-		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+		final DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
 		// TODO: icons?
 		renderer.setLeafIcon(null);
 		renderer.setOpenIcon(null);
 		renderer.setClosedIcon(null);
+		PrefsWindow.addFontChangeListener(new PrefsWindow.FontChangeListener() {
+			@Override
+			public void fontChanged(Font font) {
+				renderer.setFont(font);
+			}
+		});
 		tree.setCellRenderer(renderer);
 		setContent(tree);
 	}
