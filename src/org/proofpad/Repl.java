@@ -522,8 +522,8 @@ public class Repl extends JPanel {
 //			}
 		} else if ((match = proved.matcher(joined)).find()) {
 			ret = "Proof successful.";
-		} else if (joined.length() > 80) {
-			ret = joined.substring(0, 75) + " [...]";
+		} else if (joined.length() > 70) {
+			ret = joined.substring(0, 67) + " ...";
 		} else {
 			ret = joined;
 		}
@@ -540,15 +540,6 @@ public class Repl extends JPanel {
 		final JPanel line = new JPanel();
 		line.setPreferredSize(new Dimension(200, 25));
 		line.setMaximumSize(new Dimension(Short.MAX_VALUE, 25));
-		line.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				JTextArea resBox = new JTextArea();
-				resBox.setText(result);
-				resBox.setEditable(false);
-				parent.setPreviewComponent(resBox);
-			}
-		});
 		line.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 		JLabel text = new JLabel(shortResult.trim());
 		text.setBackground(Color.LIGHT_GRAY);
@@ -583,7 +574,18 @@ public class Repl extends JPanel {
 		}
 		text.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 		line.add(text);
-		line.add(new JLabel(moreIcon));
+		if (!shortResult.equals(result.trim())) {
+			line.add(new JLabel(moreIcon));
+			line.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					JTextArea resBox = new JTextArea();
+					resBox.setText(result);
+					resBox.setEditable(false);
+					parent.setPreviewComponent(resBox);
+				}
+			});
+		}
 		synchronized (this) {
 			getOutput().add(line);
 		}
