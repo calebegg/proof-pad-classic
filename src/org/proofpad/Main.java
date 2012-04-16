@@ -68,8 +68,8 @@ public class Main {
 				errorText.setText(stackTrace);
 				errorText.setCaretPosition(0);
 				errorText.setEditable(false);
-				ResultWindow errorWindow = new ResultWindow(null, "Error");
-				errorWindow.setContent(sp);
+				JFrame errorWindow = new JFrame("Error");
+				errorWindow.add(sp);
 				errorWindow.setVisible(true);
 			}
 		});

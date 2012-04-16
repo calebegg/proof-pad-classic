@@ -250,7 +250,7 @@ public class Repl extends JPanel {
 	private HeightChangeListener heightChangeListener;
 	protected int inputLines = 1;
 	private JPanel bottom;
-	JFrame parent;
+	IdeWindow parent;
 	protected JButton trace;
 	protected JButton run;
 		
@@ -261,7 +261,7 @@ public class Repl extends JPanel {
 		SUCCESS
 	}
 	
-	public Repl(final JFrame parent, Acl2 newAcl2, final CodePane definitions) {
+	public Repl(final IdeWindow parent, Acl2 newAcl2, final CodePane definitions) {
 		super();
 		this.parent = parent;
 		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, false);
@@ -278,7 +278,6 @@ public class Repl extends JPanel {
 			}
 		});
 		this.definitions = definitions;
-		final Repl that = this;
 		setBackground(Color.WHITE);
 		setOpaque(true);
 		history = new ArrayList<Pair<String, Integer>>();
@@ -328,30 +327,7 @@ public class Repl extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				final String inputText = input.getText();
 				displayResult(inputText + "\n", MsgType.INPUT);
-				String funs = "";
-				// Add trace to lots of functions
-				for (String fun : ((Acl2Parser) definitions.getParser(0)).functions) {
-					funs += " " + fun;
-				}
-				acl2.admit("(trace$" + funs + ")", Acl2.doNothingCallback);
-				acl2.admit(":q", Acl2.doNothingCallback);
-				acl2.admit(addTrace, Acl2.doNothingCallback);
-				acl2.admit("(lp)", Acl2.doNothingCallback);
-				// Run the code
-				acl2.admit(inputText, new Acl2.Callback() {
-					@Override
-					public boolean run(boolean success, String response) {
-						// Display the results in a nicely-formatted way
-						TraceResult tr = new TraceResult(parent, response, inputText);
-						tr.setLocationRelativeTo(that);
-						tr.setVisible(true);
-						return true;
-					}
-				});
-				acl2.admit(":q", Acl2.doNothingCallback);
-				acl2.admit(unTrace, Acl2.doNothingCallback);
-				acl2.admit("(lp)", Acl2.doNothingCallback);
-				acl2.admit("(untrace$" + funs + ")", Acl2.doNothingCallback);
+				traceExp(inputText);
 				history.add(new Pair<String, Integer>(inputText.trim(), inputLines));
 				historyIndex = history.size();
 				addedInputToHistory = false;
@@ -450,7 +426,6 @@ public class Repl extends JPanel {
 		int newScrollerHeight = inputHeightOneLine +
 				(inputLines - 1) * input.getLineHeight() + 8;
 		newScrollerHeight -= 6;
-		System.out.println(oldScrollerHeight + " / " + newScrollerHeight);
 		Dimension newScrollSize = new Dimension(Short.MAX_VALUE,
 				newScrollerHeight);
 		inputScroller.setMaximumSize(newScrollSize);
@@ -538,12 +513,12 @@ public class Repl extends JPanel {
 			}
 		} else if ((match = undefinedFunc.matcher(joined)).matches()) {
 			String func = match.group(1).toLowerCase();
-			if (functions != null && functions.contains(func)) {
-				ret = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to " +
-						"the left of its definition.</html>";
-			} else {
+//			if (functions != null && functions.contains(func)) {
+//				ret = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to " +
+//						"the left of its definition.</html>";
+//			} else {
 				ret = "The function " + func + " is undefined.";
-			}
+//			}
 		} else if ((match = proved.matcher(joined)).find()) {
 			ret = "Proof successful.";
 		} else if (joined.length() > 80) {
@@ -564,18 +539,13 @@ public class Repl extends JPanel {
 		final JPanel line = new JPanel();
 		line.setPreferredSize(new Dimension(200, 25));
 		line.setMaximumSize(new Dimension(Short.MAX_VALUE, 25));
-		final Repl that = this;
 		line.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				ResultWindow resWin = new ResultWindow(parent, "Full ACL2 output");
 				JTextArea resBox = new JTextArea();
 				resBox.setText(result);
 				resBox.setEditable(false);
-				resWin.setContent(resBox);
-				resWin.setLocationRelativeTo(that);
-				resWin.setVisible(true);
-				//JOptionPane.showMessageDialog(that, result);
+				parent.setPreviewComponent(resBox);
 			}
 		});
 		line.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
@@ -654,5 +624,31 @@ public class Repl extends JPanel {
 				trace.setEnabled(enable);
 			}
 		});
+	}
+
+	void traceExp(final String inputText) {
+		String funs = "";
+		// Add trace to lots of functions
+		for (String fun : ((Acl2Parser) definitions.getParser(0)).functions) {
+			funs += " " + fun;
+		}
+		acl2.admit("(trace$" + funs + ")", Acl2.doNothingCallback);
+		acl2.admit(":q", Acl2.doNothingCallback);
+		acl2.admit(addTrace, Acl2.doNothingCallback);
+		acl2.admit("(lp)", Acl2.doNothingCallback);
+		// Run the code
+		acl2.admit(inputText, new Acl2.Callback() {
+			@Override
+			public boolean run(boolean success, String response) {
+				// Display the results in a nicely-formatted way
+				TraceResult tr = new TraceResult(response, inputText);
+				parent.setPreviewComponent(tr);
+				return true;
+			}
+		});
+		acl2.admit(":q", Acl2.doNothingCallback);
+		acl2.admit(unTrace, Acl2.doNothingCallback);
+		acl2.admit("(lp)", Acl2.doNothingCallback);
+		acl2.admit("(untrace$" + funs + ")", Acl2.doNothingCallback);
 	}
 }

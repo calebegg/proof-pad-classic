@@ -88,6 +88,8 @@ public class IdeWindow extends JFrame {
 	Repl repl;
 	Toolbar toolbar;
 
+	JSplitPane previewSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+	final int splitDividerDefaultSize = previewSplit.getDividerSize();
 	final CodePane editor;
 	JButton undoButton;
 	JButton redoButton;
@@ -95,7 +97,7 @@ public class IdeWindow extends JFrame {
 	Acl2 acl2;
 	ProofBar proofBar;
 	MenuBar menuBar;
-	JScrollPane jsp;
+	JScrollPane editorScroller;
 	JButton saveButton;
 
 	public ActionListener saveAction;
@@ -108,6 +110,7 @@ public class IdeWindow extends JFrame {
 	protected int dY;
 	protected int dX;
 	ActionListener tutorialAction;
+	TraceResult activeTrace;
 
 	public IdeWindow() {
 		this((File)null);
@@ -123,20 +126,27 @@ public class IdeWindow extends JFrame {
 		windows.add(this);
 		openFile = file;
 		workingDir = openFile == null ? null : openFile.getParentFile();
-		setLayout(new BorderLayout());
+		//setLayout(new BorderLayout());
 
-		final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+		previewSplit.setBorder(BorderFactory.createEmptyBorder());
+		previewSplit.setDividerSize(0);
+		previewSplit.setResizeWeight(0);
+		final JPanel splitMain = new JPanel();
+		previewSplit.setLeftComponent(splitMain);
+		splitMain.setLayout(new BorderLayout());
+		add(previewSplit);
 		final JPanel splitTop = new JPanel();
 		splitTop.setLayout(new BorderLayout());
+		final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		split.setTopComponent(splitTop);
 		split.setOneTouchExpandable(true);
 		split.setResizeWeight(1);
-		add(split, BorderLayout.CENTER);
-		jsp = new JScrollPane();
-		jsp.setBorder(BorderFactory.createEmptyBorder());
-		jsp.setViewportBorder(BorderFactory.createEmptyBorder());
+		splitMain.add(split, BorderLayout.CENTER);
+		editorScroller = new JScrollPane();
+		editorScroller.setBorder(BorderFactory.createEmptyBorder());
+		editorScroller.setViewportBorder(BorderFactory.createEmptyBorder());
 		this.getRootPane().setBorder(BorderFactory.createEmptyBorder());
-		splitTop.add(jsp, BorderLayout.CENTER);
+		splitTop.add(editorScroller, BorderLayout.CENTER);
 
 		final Preferences prefs = Preferences.userNodeForPackage(Main.class);
 		
@@ -167,8 +177,8 @@ public class IdeWindow extends JFrame {
 		acl2 = new Acl2(acl2Path, workingDir);
 		proofBar = new ProofBar(acl2);
 		editor = new CodePane(proofBar);
-		jsp.setViewportView(editor);
-		jsp.setRowHeaderView(proofBar);
+		editorScroller.setViewportView(editor);
+		editorScroller.setRowHeaderView(proofBar);
 		repl = new Repl(this, acl2, editor);
 		proofBar.setLineHeight(editor.getLineHeight());
 		final IdeDocument doc = new IdeDocument(proofBar);
@@ -178,6 +188,9 @@ public class IdeWindow extends JFrame {
 			@Override
 			public void wasParsed() {
 				proofBar.admitUnprovenExps();
+				if (activeTrace != null) {
+					repl.traceExp(activeTrace.input);
+				}
 			}
 		});
 		editor.addParser(parser);
@@ -279,7 +292,7 @@ public class IdeWindow extends JFrame {
 //						30, .5f));
 				// More opaque over areas we want to write on
 				g.setColor(new Color(.95f, .95f, .95f, .7f));
-				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(), jsp.getHeight() + 3);
+				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(), editorScroller.getHeight() + 3);
 				g.fillRect(0, getHeight() - repl.getHeight(),
 						getWidth(), repl.getHeight() - repl.getInputHeight() - 10);
 				g.setColor(new Color(.9f, .9f, .9f, .4f));
@@ -290,7 +303,7 @@ public class IdeWindow extends JFrame {
 				g.drawString("1. Write your functions here.",
 						proofBar.getWidth() + 20,
 						toolbar.getHeight() + 30);
-				int step2Y = toolbar.getHeight() + jsp.getHeight() / 6 + 40;
+				int step2Y = toolbar.getHeight() + editorScroller.getHeight() / 6 + 40;
 				g.drawString("2. Click to admit them.",
 						proofBar.getWidth() + 30,
 						step2Y);
@@ -412,7 +425,7 @@ public class IdeWindow extends JFrame {
 		
 		toolbar = new Toolbar(this);
 		menuBar = new MenuBar(this);
-		add(toolbar, BorderLayout.NORTH);
+		splitMain.add(toolbar, BorderLayout.NORTH);
 		setJMenuBar(menuBar);
 		
 		// Preferences
@@ -580,28 +593,28 @@ public class IdeWindow extends JFrame {
 			}
 		});
 		
-		if (isMac) {
-			// Adapted from http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
-			toolbar.addMouseListener(new MouseAdapter() {
-	            @Override
-	            public void mousePressed(MouseEvent e) {
-	                Point clickPoint = new Point(e.getPoint());
-	                SwingUtilities.convertPointToScreen(clickPoint, toolbar);
-
-	                dX = clickPoint.x - that.getX();
-	                dY = clickPoint.y - that.getY();
-	            }
-	        });
-			toolbar.addMouseMotionListener(new MouseMotionAdapter() {
-				@Override
-				public void mouseDragged(MouseEvent e) {
-	                Point dragPoint = new Point(e.getPoint());
-	                SwingUtilities.convertPointToScreen(dragPoint, toolbar);
-
-	                that.setLocation(dragPoint.x - dX, dragPoint.y - dY);
-	            }
-			});
-		}
+//		if (isMac) {
+//			// Adapted from http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
+//			toolbar.addMouseListener(new MouseAdapter() {
+//	            @Override
+//	            public void mousePressed(MouseEvent e) {
+//	                Point clickPoint = new Point(e.getPoint());
+//	                SwingUtilities.convertPointToScreen(clickPoint, toolbar);
+//
+//	                dX = clickPoint.x - that.getX();
+//	                dY = clickPoint.y - that.getY();
+//	            }
+//	        });
+//			toolbar.addMouseMotionListener(new MouseMotionAdapter() {
+//				@Override
+//				public void mouseDragged(MouseEvent e) {
+//	                Point dragPoint = new Point(e.getPoint());
+//	                SwingUtilities.convertPointToScreen(dragPoint, toolbar);
+//
+//	                that.setLocation(dragPoint.x - dX, dragPoint.y - dY);
+//	            }
+//			});
+//		}
 		
 		adjustMaximizedBounds();
 		pack();
@@ -617,6 +630,49 @@ public class IdeWindow extends JFrame {
 			if (bar != null) {
 				bar.updateWindowMenu();
 			}
+		}
+	}
+	
+	public void setPreviewComponent(JComponent c) {
+		if (c instanceof TraceResult) {
+			activeTrace = (TraceResult) c;
+		}
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		previewSplit.setRightComponent(panel);
+		JScrollPane scroller = new JScrollPane();
+		scroller.setViewportView(c);
+		panel.add(scroller, BorderLayout.CENTER);
+		JButton closeButton = new JButton("<<");
+		JPanel bottom = new JPanel();
+		bottom.setLayout(new BoxLayout(bottom, BoxLayout.X_AXIS));
+		bottom.add(Box.createGlue());
+		bottom.add(closeButton);
+		closeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int paneWidth = previewSplit.getRightComponent().getWidth();
+				Point loc = getLocationOnScreen();
+				setBounds(loc.x, loc.y, getWidth() - paneWidth, getHeight());
+				previewSplit.setRightComponent(null);
+				previewSplit.setDividerSize(0);
+				activeTrace = null;
+			}
+		});
+		panel.add(bottom, BorderLayout.SOUTH);
+		boolean wasPreviewOpen = previewSplit.getDividerSize() != 0;
+		previewSplit.setDividerSize(splitDividerDefaultSize);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		Point loc = getLocationOnScreen();
+		int paneWidth = 75 * getFontMetrics(c.getFont()).charWidth('a');
+		final int winWidth = getWidth();
+		int newX = (int) Math.min(screenSize.getWidth() - winWidth - paneWidth, loc.x);
+		if (!wasPreviewOpen) {
+			setBounds(newX, loc.y, winWidth + paneWidth, getHeight());
+			previewSplit.setDividerLocation(winWidth);
+		} else {
+			previewSplit.setDividerLocation(winWidth - paneWidth);
 		}
 	}
 
@@ -792,7 +848,7 @@ public class IdeWindow extends JFrame {
 
 	public void adjustMaximizedBounds() {
 		if (!isMac) return;
-		Dimension visibleSize = jsp.getViewport().getExtentSize();
+		Dimension visibleSize = editorScroller.getViewport().getExtentSize();
 		Dimension textSize = editor.getPreferredScrollableViewportSize();
 		int maxWidth = Math.max(getWidth() - visibleSize.width + textSize.width
 				+ proofBar.getWidth(), 550);
