@@ -9,7 +9,6 @@ import org.proofpad.Acl2Parser.CacheSets;
 
 
 public class GenerateData {
-	// TODO: This will be faster to generate/load with a trimmed down set of system books.
 	public final static String pathToAcl2 = "/Users/calebegg/Code/acl2/";
 	public static void main(String[] args) throws Exception {
 		CacheData cache = new CacheData();
