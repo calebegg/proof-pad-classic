@@ -607,7 +607,6 @@ public class Acl2Parser extends AbstractParser {
 								bookCache = cache.get(key);
 							} else {
 								try {
-									// TODO: Progress indicator.
 									bookCache = parseBook(book, acl2Dir, cache);
 									cache.put(key, bookCache);
 								} catch (FileNotFoundException e) {

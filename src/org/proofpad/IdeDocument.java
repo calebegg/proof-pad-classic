@@ -90,7 +90,7 @@ public class IdeDocument extends RSyntaxDocument {
 						indentLevel = offset + it.name.length();
 					}
 				} else if (it.name.equalsIgnoreCase("mv-let")) {
-					if (it.params >= 3) { // FIXME: parenthesized param getting double counted?
+					if (it.params >= 3) {
 						indentLevel = offset + 1;
 					} else {
 						indentLevel = offset + it.name.length();

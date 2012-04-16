@@ -371,7 +371,6 @@ public class Repl extends JPanel {
 					}
 					if (historyIndex > 0) {
 						historyIndex--;
-						// TODO Prevent the double indentation that might be happening here.
 						Pair<String, Integer> historyEntry = history.get(historyIndex);
 						input.setText(historyEntry.first);
 						inputLines = historyEntry.second;

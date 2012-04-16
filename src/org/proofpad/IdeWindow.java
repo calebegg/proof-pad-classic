@@ -484,7 +484,6 @@ public class IdeWindow extends JFrame {
 		
 		doc.addDocumentListener(new DocumentListener() {
 			private void update(DocumentEvent e) {
-				// TODO: figure out how to change the delay on the parser manager.
 				List<Expression> exps = SExpUtils.topLevelExps(doc);
 				proofBar.adjustHeights((LinkedList<Expression>) exps);
 				fixUndoRedoStatus();

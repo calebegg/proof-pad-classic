@@ -136,8 +136,27 @@ public class PrefsWindow extends JFrame {
 		add(new JLabel("Width guide:"), c);
 		c.gridx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
-		// TODO: -1?
-		final JSpinner guideSpinner = new JSpinner(new SpinnerNumberModel(widthGuide, 40, 120, 10));
+		c.insets = new Insets(formSpacing, formSpacing, 0, formSpacing);
+		final JCheckBox showGuide = new JCheckBox("Show a width guide");
+		final JSpinner guideSpinner = new JSpinner(
+				new SpinnerNumberModel(widthGuide == -1 ? 60 : widthGuide, 40, 120, 10));
+		guideSpinner.setEnabled(widthGuide != -1);
+		showGuide.setSelected(widthGuide != -1);
+		showGuide.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (showGuide.isSelected()) {
+					fireWidthGuideChangeEvent(60);
+					guideSpinner.setEnabled(true);	
+					guideSpinner.setValue(60);
+				} else {
+					fireWidthGuideChangeEvent(-1);
+					guideSpinner.setEnabled(false);
+				}
+			}
+		});
+		add(showGuide, c);
+		c.gridy++;
 		guideSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
