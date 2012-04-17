@@ -3,10 +3,14 @@ package org.proofpad;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 public class BookViewer extends JFrame {
@@ -64,10 +68,12 @@ public class BookViewer extends JFrame {
 		getContentPane().setLayout(bl);
 		getRootPane().setBorder(Main.WINDOW_BORDER);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Books");
-		DefaultMutableTreeNode sysBooks = nodeFromFile(new File(systemPath), SYSTEM_BOOKS_SYMBOL, 10);
+		DefaultMutableTreeNode sysBooks =
+				nodeFromFile(new File(systemPath), SYSTEM_BOOKS_SYMBOL, 10);
 		sysBooks.setUserObject(SYSTEM_BOOKS_SYMBOL);
 		root.add(sysBooks);
-		DefaultMutableTreeNode dracula = nodeFromFile(new File(draculaPath), DRACULA_SYMBOL, 10);
+		DefaultMutableTreeNode dracula =
+				nodeFromFile(new File(draculaPath), DRACULA_SYMBOL, 10);
 		dracula.setUserObject(":teachpacks");
 		root.add(dracula);
 		final JTree tree = new JTree(root);
@@ -76,6 +82,21 @@ public class BookViewer extends JFrame {
 		}
 		tree.setRootVisible(false);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				int selRow = tree.getRowForLocation(e.getX(), e.getY());
+				TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+				DefaultMutableTreeNode last =
+						(DefaultMutableTreeNode) selPath.getLastPathComponent();
+				if(selRow != -1 && e.getClickCount() == 2 && last.getChildCount() == 0) {
+					BookView bv = (BookView) last.getUserObject();
+					if (bv.isBook()) {
+						parent.includeBookAtCursor(bv.getDirSymbol(), bv.getPath());
+					}
+				}
+			}
+		});
 		add(tree);
 		// TODO: Add and remove root directory buttons
 		// button.putClientProperty("JButton.buttonType", "gradient")
@@ -85,12 +106,12 @@ public class BookViewer extends JFrame {
 		include.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+				DefaultMutableTreeNode node =
+						(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 				BookView bv = (BookView) node.getUserObject();
 				if (!bv.isBook()) {
 					return;
 				}
-				System.out.println(bv.getDirSymbol());
 				parent.includeBookAtCursor(bv.getDirSymbol(), bv.getPath());
 			}
 		});
