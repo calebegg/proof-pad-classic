@@ -853,6 +853,9 @@ public class IdeWindow extends JFrame {
 		int maxWidth = Math.max(getWidth() - visibleSize.width + textSize.width
 				+ proofBar.getWidth(), 550);
 		int maxHeight = getHeight() - visibleSize.height + Math.max(textSize.height, 200);
+		if (previewSplit.getDividerSize() > 0) {
+			maxWidth += previewSplit.getRightComponent().getWidth();
+		}
 		setMaximizedBounds(new Rectangle(getLocation(), new Dimension(
 				maxWidth + 5, maxHeight + 5)));
 	}
