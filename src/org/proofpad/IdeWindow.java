@@ -13,6 +13,7 @@ import java.net.URLDecoder;
 import java.util.prefs.Preferences;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.undo.UndoManager;
@@ -670,10 +671,29 @@ public class IdeWindow extends JFrame {
 		int newX = (int) Math.min(screenSize.getWidth() - winWidth - paneWidth, loc.x);
 		if (!wasPreviewOpen) {
 			setBounds(newX, loc.y, winWidth + paneWidth + splitDividerDefaultSize, getHeight());
+			// TODO: This doesn't work well on OS X, but might work on Windows or Linux.
+//			final int steps = 10;
+//			final int dx = (newX - loc.x) / steps;
+//			final int dw = (paneWidth + splitDividerDefaultSize) / steps;
+//			new Timer(30, new ActionListener() {
+//				int i = 0;
+//				@Override
+//				public void actionPerformed(ActionEvent e) {
+//					RepaintManager.currentManager(that.getRootPane()).markCompletelyClean(that.getRootPane());
+//					i++;
+//					Point winLoc = getLocationOnScreen();
+//					if (i == steps) {
+//						((Timer) e.getSource()).stop();
+//					} else {
+//						setBounds(winLoc.x + dx, winLoc.y, getWidth() + dw, getHeight());
+//					}
+//				}
+//			}).start();
 			previewSplit.setDividerLocation(winWidth + splitDividerDefaultSize);
 		} else {
 			previewSplit.setDividerLocation(winWidth - paneWidth);
 		}
+		adjustMaximizedBounds();
 	}
 
 	public void fixUndoRedoStatus() {
