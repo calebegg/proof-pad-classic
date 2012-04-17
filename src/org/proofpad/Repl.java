@@ -473,9 +473,9 @@ public class Repl extends JPanel {
 	}
 
 	private static Pattern welcomeMessage = Pattern.compile(".*ACL2 comes with ABSOLUTELY NO WARRANTY\\..*");
-	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL:  The guard for the function call (.*?), which is (.*?), is violated by the arguments in the call (.*?)\\. See :DOC set-guard-checking for information about suppressing.*");
-	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL:  Global variables, such as (.*?).*?, are not allowed. See :DOC ASSIGN and :DOC @.");
-	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL:  (.*?) takes (.*?) arguments? but in the call (.*?) it is given (.*?) arguments?\\..*");
+	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard for the function call (.*?), which is (.*?), is violated by the arguments in the call (.*?)\\..*");
+	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL: Global variables, such as (.*?).*?, are not allowed. See :DOC ASSIGN and :DOC @.");
+	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL: (.*?) takes (.*?) arguments? but in the call (.*?) it is given (.*?) arguments?\\..*");
 	private static Pattern nonRec = Pattern.compile("Since (.*?) is non-recursive, its admission is trivial\\..*");
 	private static Pattern trivial = Pattern.compile("The admission of (.*?) is trivial, using the relation O< .*");
 	private static Pattern admission = Pattern.compile("For the admission of (.*?) we will use the relation O< .*");
