@@ -50,7 +50,8 @@ public class TraceResult extends JTree {
 				node.add(newNode);
 				node = newNode;
 			} else {
-				continue;
+				// Part of previous line.
+				node.setUserObject(node.getUserObject() + "\n" + line);
 			}
 		}
 		if (node != root && node.getPath().length > 2) {
