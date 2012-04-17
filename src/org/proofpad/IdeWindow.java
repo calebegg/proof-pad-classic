@@ -635,8 +635,11 @@ public class IdeWindow extends JFrame {
 	}
 	
 	public void setPreviewComponent(JComponent c) {
+		if (!isVisible()) return;
 		if (c instanceof TraceResult) {
 			activeTrace = (TraceResult) c;
+		} else {
+			activeTrace = null;
 		}
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
