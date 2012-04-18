@@ -474,7 +474,7 @@ public class Repl extends JPanel {
 
 	private static Pattern welcomeMessage = Pattern.compile(".*ACL2 comes with ABSOLUTELY NO WARRANTY\\..*");
 	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard for the function call (.*?), which is (.*?), is violated by the arguments in the call (.*?)\\..*");
-	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL: Global variables, such as (.*?).*?, are not allowed. See :DOC ASSIGN and :DOC @.");
+	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL: Global variables, such as (.*?), are not allowed. See :DOC ASSIGN and :DOC @.");
 	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL: (.*?) takes (.*?) arguments? but in the call (.*?) it is given (.*?) arguments?\\..*");
 	private static Pattern nonRec = Pattern.compile("Since (.*?) is non-recursive, its admission is trivial\\..*");
 	private static Pattern trivial = Pattern.compile("The admission of (.*?) is trivial, using the relation O< .*");
@@ -483,7 +483,7 @@ public class Repl extends JPanel {
 	// TODO: Add these error messages (and others)
 	// Undefined var
 	// Redefinition of func/reserved name
-	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL:  The symbol (.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in ACL2\\.  Please define it\\..*");
+	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL: The symbol (.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in ACL2\\. Please define it\\..*");
 	public static String cleanUpMsg(String result) {
 		return cleanUpMsg(result, null, null);
 	}
@@ -518,7 +518,7 @@ public class Repl extends JPanel {
 //				ret = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to " +
 //						"the left of its definition.</html>";
 //			} else {
-				ret = "The function " + func + " is undefined.";
+				ret = "<html>The function <b>" + func + "</b> is undefined.</html>";
 //			}
 		} else if ((match = proved.matcher(joined)).find()) {
 			ret = "Proof successful.";
