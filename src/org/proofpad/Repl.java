@@ -581,6 +581,7 @@ public class Repl extends JPanel {
 				public void mouseClicked(MouseEvent arg0) {
 					JTextArea resBox = new JTextArea();
 					resBox.setText(result);
+					resBox.setFont(getFont());
 					resBox.setEditable(false);
 					parent.setPreviewComponent(resBox);
 				}
