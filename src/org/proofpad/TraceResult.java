@@ -40,6 +40,7 @@ public class TraceResult extends JTree {
 				// Call line
 				line = line.substring(beginMarker.length(), line.length());
 				line = line.replaceAll("__TRACE-", "");
+				line = line.toLowerCase();
 				DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(line);
 				node.add(newNode);
 				node = newNode;
@@ -47,11 +48,13 @@ public class TraceResult extends JTree {
 				// Return line
 				line = line.substring(endMarker.length(), line.length());
 				line = line.replaceAll("__TRACE-", "");
+				line = line.toLowerCase();
 				node.setUserObject(node.getUserObject() + line);
 				node = (DefaultMutableTreeNode) node.getParent();
 			} else {
 				// Part of previous line.
 				line = line.replaceAll("__TRACE-", "");
+				line = line.toLowerCase();
 				node.setUserObject(node.getUserObject() + "\n" + line);
 			}
 		}

@@ -633,7 +633,6 @@ public class Acl2 extends Thread {
 		numInitExps = 0;
 		admit("(add-include-book-dir :teachpacks \"" + draculaPath + "\")", doNothingCallback);
 		admit("(set-compile-fns nil)", doNothingCallback);
-		admit("(set-acl2-print-case :downcase)", doNothingCallback);
 		admit("(defmacro __trace-wrap (name args body)\n" +
 				"   `(prog2$ (cw \"__trace-enter-(~x0 ~*1)~%\"\n" +
 				"                (quote ,name)\n" +
@@ -701,7 +700,6 @@ public class Acl2 extends Thread {
 			if (isTracing || trace) {
 				if (t.type == Token.RESERVED_WORD || t.type == Token.RESERVED_WORD_2) {
 					String name = t.getLexeme();
-					System.out.println(name + ": " + functionsToTrace.contains(name));
 					if (functionsToTrace.contains(name.toUpperCase()) || name.equalsIgnoreCase("defun")) {
 						traceExp.append("__trace-" + name);						
 					} else {
@@ -725,7 +723,6 @@ public class Acl2 extends Thread {
 					exps.add(traceIdx, traceExp.toString());
 					traceIdx++;
 				}
-				System.out.println(traceExp);
 				exp = new StringBuilder();
 				traceExp = new StringBuilder();
 			}
