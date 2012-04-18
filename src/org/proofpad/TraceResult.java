@@ -18,7 +18,7 @@ public class TraceResult extends JTree {
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) getModel().getRoot();
 		DefaultMutableTreeNode node = root;
 		
-		String[] lines = trace.split("\\s*\\n\\s*");
+		String[] lines = trace.split("\\n");
 		for (int i = 0; i < lines.length; i++) {
 			String line;
 			if (i >= 1000) {
@@ -34,21 +34,22 @@ public class TraceResult extends JTree {
 				node.add(new DefaultMutableTreeNode(Repl.cleanUpMsg(line)));
 				break;
 			}
-			String uncompiledMarker = "ACL2_\\*1\\*_.*?::";
-			line = line.replaceAll(uncompiledMarker, "");
-			int spaceIdx = line.indexOf(' ');
-			if (spaceIdx == -1) break;
-			if (line.charAt(0) == '<') {
-				// Return line
-				line = line.substring(spaceIdx + 1, line.length()).replaceFirst("\\(.*? (.*)\\)", "$1");
-				node.setUserObject(node.getUserObject() + " = " + line);
-				node = (DefaultMutableTreeNode) node.getParent();
-			} else if (line.indexOf('>') > 0) {
+			final String beginMarker = "__trace-enter-";
+			final String endMarker = "__trace-exit-";
+			if (line.startsWith(beginMarker)) {
 				// Call line
-				line = line.substring(spaceIdx, line.length());
+				line = line.substring(beginMarker.length(), line.length());
+				line = line.replaceAll("__TRACE-", "");
+				System.out.println(line);
 				DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(line);
 				node.add(newNode);
 				node = newNode;
+			} else if (line.startsWith(endMarker)) {
+				// Return line
+				line = line.substring(endMarker.length(), line.length());
+				line = line.replaceAll("__trace-", "");
+				node.setUserObject(node.getUserObject() + line);
+				node = (DefaultMutableTreeNode) node.getParent();
 			} else {
 				// Part of previous line.
 				node.setUserObject(node.getUserObject() + "\n" + line);

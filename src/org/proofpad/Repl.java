@@ -91,149 +91,8 @@ public class Repl extends JPanel {
 //	    print fun
 	
 	// Then I trimmed it down to keep output to a sane level.
-
-	private static final String[] functionsToTrace = new String[] {
-		"*", 
-//		"+", 
-//		"-", 
-		"/", 
-		"/=", 
-		"1+", 
-		"1-", 
-		"<", 
-		"<=", 
-//		"=", 
-		">", 
-		">=", 
-		"ABS", 
-		"ACONS", 
-		"ALLOCATE-FIXNUM-RANGE", 
-		"ALPHORDER", 
-		"APPEND", 
-		"ASSOC", 
-		"ASSOC-STRING-EQUAL", 
-		"ATOM", 
-		"ATOM-LISTP", 
-		"BINARY-*", 
-		"BINARY-+", 
-//		"BINARY-APPEND", 
-		"BOOLEANP", 
-//		"CEILING", 
-		"CHAR-CODE",
-		"CHAR-DOWNCASE", 
-		"CHAR-EQUAL", 
-		"CHAR-UPCASE", 
-		"CHAR<", 
-		"CHAR<=", 
-		"CHAR>", 
-		"CHAR>=", 
-		"CHARACTERP", 
-		"CLOSE-INPUT-CHANNEL", 
-		"CLOSE-OUTPUT-CHANNEL", 
-		"CODE-CHAR", 
-		"COERCE", 
-		"COMPLEX", 
-//		"COMPLEX-RATIONALP", 
-		"CONCATENATE", 
-		"CONJUGATE",
-//		"CONS",
-//		"CONSP", 
-		"COUNT",
-		"DELETE-ASSOC-EQUAL", 
-		"DENOMINATOR", 
-		"EIGHTH", 
-//		"ENDP", 
-		"EVENP", 
-//		"EXPT", 
-		"FIFTH", 
-		"FIRST", 
-//		"FLOOR", 
-		"FOURTH", 
-		"IFF", 
-		"IMAGPART", 
-		"IMPLIES", 
-		"INTEGERP", 
-		"INTERSECTP-EQUAL", 
-//		"LEN", 
-		"LENGTH", 
-		"LIST", 
-		"LIST*", 
-		"MAX", 
-//		"MEMBER", 
-//		"MEMBER-EQUAL", 
-		"MIN", 
-		"MINUSP", 
-		"MOD", 
-//		"MV-NTH", 
-//		"NATP", 
-		"NINTH", 
-//		"NOT", 
-		"NTH", 
-		"NTHCDR", 
-		"NUMERATOR", 
-//		"ODDP", 
-		"PLUSP", 
-		"POSP", 
-		"RATIONAL-LISTP", 
-		"READ-BYTE$", 
-		"READ-CHAR$", 
-//		"READ-OBJECT", 
-		"REALPART", 
-		"REMOVE", 
-		"REST", 
-		"REVAPPEND", 
-		"RFIX", 
-		"SEARCH", 
-		"SECOND", 
-		"SET-DIFFERENCE-EQUAL", 
-		"SETENV$", 
-		"SEVENTH", 
-		"SIGNUM", 
-		"SIXTH", 
-		"STRING-APPEND", 
-		"STRING-DOWNCASE", 
-		"STRING-EQUAL", 
-		"STRING-LISTP", 
-		"STRING-UPCASE", 
-//		"STRING<", 
-		"STRING<=", 
-		"STRING>", 
-		"STRING>=", 
-		"STRINGP", 
-		"SUBSETP", 
-		"SUBSETP-EQUAL", 
-		"SYMBOLP", 
-		"TAKE", 
-		"TENTH", 
-		"THIRD", 
-		"TRUE-LIST-LISTP", 
-//		"TRUE-LISTP", 
-		"UNION-EQUAL", 
-		"XOR", 
-		"ZEROP", 
-		"ZIP", 
-		"ZP", 
-		"ZPF",
-	};
 	
-	static final String addTrace;
-	static {
-		StringBuilder addTraceBuilder = new StringBuilder("(trace");
-		for (String fun : functionsToTrace) {
-			addTraceBuilder.append(" " + fun);
-		}
-		addTraceBuilder.append(")");
-		addTrace = addTraceBuilder.toString();
-	}
-	static final String unTrace;
-	static {
-		StringBuilder unTraceBuilder = new StringBuilder("(untrace");
-		for (String fun : functionsToTrace) {
-			unTraceBuilder.append(" " + fun);
-		}
-		unTraceBuilder.append(")");
-		unTrace = unTraceBuilder.toString();
-	}
+
 	private static final long serialVersionUID = -4551996064006604257L;
 	final Acl2 acl2;
 	private JPanel output;
@@ -529,7 +388,15 @@ public class Repl extends JPanel {
 		}
 		return ret;
 	}
+
+	protected void displayResult(TraceResult tr, MsgType type) {
+		displayResult("(click for trace results)", type);
+	}
 	public void displayResult(final String result, MsgType type) {
+		displayResult(result, null, type);
+	}
+
+	public void displayResult(final String result, final TraceResult tr, MsgType type) {
 		String traceFreeResult = result.replaceAll("\\s*\\d+>.*?\\n", "").replaceAll("\\s*<\\d+.*?\\n", "");
 		String shortResult = cleanUpMsg(traceFreeResult,
 				((Acl2Parser) definitions.getParser(0)).functions,
@@ -549,8 +416,10 @@ public class Repl extends JPanel {
 		line.setBackground(Color.WHITE);
 		StatusLabel status = new StatusLabel();
 		status.setFont(definitions.getFont());
-		fontChangeList.add(status);
-		fontChangeList.add(text);
+		synchronized(fontChangeList) {
+			fontChangeList.add(status);
+			fontChangeList.add(text);
+		}
 
 		text.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 5));
 		line.add(status);
@@ -579,11 +448,15 @@ public class Repl extends JPanel {
 			line.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
-					JTextArea resBox = new JTextArea();
-					resBox.setText(result);
-					resBox.setFont(getFont());
-					resBox.setEditable(false);
-					parent.setPreviewComponent(resBox);
+					if (tr == null) {
+						JTextArea resBox = new JTextArea();
+						resBox.setText(result);
+						resBox.setFont(getFont());
+						resBox.setEditable(false);
+						parent.setPreviewComponent(resBox);
+					} else {
+						parent.setPreviewComponent(tr);
+					}
 				}
 			});
 		}
@@ -604,8 +477,10 @@ public class Repl extends JPanel {
 	public void setFont(Font f) {
 		super.setFont(f);
 		if (fontChangeList == null) return;
-		for (JComponent c : fontChangeList) {
-			c.setFont(f);
+		synchronized (fontChangeList) {
+			for (JComponent c : fontChangeList) {
+				c.setFont(f);
+			}
 		}
 		input.setFont(f);
 		int size = (25 - input.getLineHeight()) / 2;
@@ -632,28 +507,16 @@ public class Repl extends JPanel {
 	}
 
 	void traceExp(final String inputText) {
-		String funs = "";
-		// Add trace to lots of functions
-		for (String fun : ((Acl2Parser) definitions.getParser(0)).functions) {
-			funs += " " + fun;
-		}
-		acl2.admit("(trace$" + funs + ")", Acl2.doNothingCallback);
-		acl2.admit(":q", Acl2.doNothingCallback);
-		acl2.admit(addTrace, Acl2.doNothingCallback);
-		acl2.admit("(lp)", Acl2.doNothingCallback);
 		// Run the code
-		acl2.admit(inputText, new Acl2.Callback() {
+		acl2.trace(inputText, new Acl2.Callback() {
 			@Override
 			public boolean run(boolean success, String response) {
 				// Display the results in a nicely-formatted way
 				TraceResult tr = new TraceResult(response, inputText);
 				parent.setPreviewComponent(tr);
-				return true;
+				displayResult(tr, success ? MsgType.SUCCESS : MsgType.ERROR);
+				return false;
 			}
 		});
-		acl2.admit(":q", Acl2.doNothingCallback);
-		acl2.admit(unTrace, Acl2.doNothingCallback);
-		acl2.admit("(lp)", Acl2.doNothingCallback);
-		acl2.admit("(untrace$" + funs + ")", Acl2.doNothingCallback);
 	}
 }

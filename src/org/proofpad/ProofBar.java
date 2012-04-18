@@ -399,7 +399,7 @@ public class ProofBar extends JComponent {
 		// Undo everything since the last proven form
 		int idx;
 		if (admissionIndices.size() == 0) {
-			idx = 3;
+			idx = acl2.numInitExps + 1;
 		} else {
 			idx = admissionIndices.get(admissionIndices.size() - 1) + 1;
 		}
