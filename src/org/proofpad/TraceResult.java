@@ -21,7 +21,7 @@ public class TraceResult extends JTree {
 		String[] lines = trace.split("\\n");
 		for (int i = 0; i < lines.length; i++) {
 			String line;
-			if (i >= 1000) {
+			if (i >= 10000) {
 				line = "Error: Too much output.";
 				i = lines.length;
 			} else {
@@ -40,18 +40,18 @@ public class TraceResult extends JTree {
 				// Call line
 				line = line.substring(beginMarker.length(), line.length());
 				line = line.replaceAll("__TRACE-", "");
-				System.out.println(line);
 				DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(line);
 				node.add(newNode);
 				node = newNode;
 			} else if (line.startsWith(endMarker)) {
 				// Return line
 				line = line.substring(endMarker.length(), line.length());
-				line = line.replaceAll("__trace-", "");
+				line = line.replaceAll("__TRACE-", "");
 				node.setUserObject(node.getUserObject() + line);
 				node = (DefaultMutableTreeNode) node.getParent();
 			} else {
 				// Part of previous line.
+				line = line.replaceAll("__TRACE-", "");
 				node.setUserObject(node.getUserObject() + "\n" + line);
 			}
 		}

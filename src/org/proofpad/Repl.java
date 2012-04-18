@@ -390,7 +390,7 @@ public class Repl extends JPanel {
 	}
 
 	protected void displayResult(TraceResult tr, MsgType type) {
-		displayResult("(click for trace results)", type);
+		displayResult("(click for trace results)", tr, type);
 	}
 	public void displayResult(final String result, MsgType type) {
 		displayResult(result, null, type);
@@ -443,7 +443,7 @@ public class Repl extends JPanel {
 		}
 		text.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 		line.add(text);
-		if (!shortResult.equals(result.trim())) {
+		if (!shortResult.equals(result.trim()) || tr != null) {
 			line.add(new JLabel(moreIcon));
 			line.addMouseListener(new MouseAdapter() {
 				@Override
