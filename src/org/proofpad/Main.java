@@ -161,9 +161,6 @@ public class Main {
 			//dockMenu.add(defaultMenuBar.recentMenu);
 			dockMenu.add(item);
 			app.setDockMenu(dockMenu);
-
-			// TODO: :-(
-			//com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this, true);
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
