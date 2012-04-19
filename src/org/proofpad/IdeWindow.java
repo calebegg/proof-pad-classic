@@ -13,7 +13,6 @@ import java.net.URLDecoder;
 import java.util.prefs.Preferences;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.undo.UndoManager;
@@ -23,6 +22,10 @@ import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
+
+import com.apple.eawt.FullScreenAdapter;
+import com.apple.eawt.AppEvent.FullScreenEvent;
+import com.apple.eawt.FullScreenUtilities;
 
 
 public class IdeWindow extends JFrame {
@@ -127,6 +130,26 @@ public class IdeWindow extends JFrame {
 		windows.add(this);
 		openFile = file;
 		workingDir = openFile == null ? null : openFile.getParentFile();
+		// TODO: Fix this.
+		//FullScreenUtilities.setWindowCanFullScreen(this, true);
+		FullScreenUtilities.addFullScreenListenerTo(this, new FullScreenAdapter() {
+			@Override
+			public void windowExitingFullScreen(FullScreenEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void windowExitedFullScreen(FullScreenEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void windowEnteringFullScreen(FullScreenEvent arg0) {
+			}
+			@Override
+			public void windowEnteredFullScreen(FullScreenEvent arg0) {
+				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+				setBounds(new Rectangle(new Point(), screenSize));
+			}
+		});
 		//setLayout(new BorderLayout());
 
 		previewSplit.setBorder(BorderFactory.createEmptyBorder());

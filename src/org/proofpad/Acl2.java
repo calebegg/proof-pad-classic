@@ -5,7 +5,6 @@ import java.util.*;
 import javax.swing.text.Segment;
 
 import org.fife.ui.rsyntaxtextarea.Token;
-import org.proofpad.Acl2.Callback;
 import org.proofpad.Repl.MsgType;
 
 
