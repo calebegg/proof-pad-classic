@@ -1,21 +1,32 @@
 package org.proofpad;
 
-import java.awt.Frame;
+import java.awt.Font;
 
 import javax.swing.*;
 import javax.swing.tree.*;
 
-public class TraceResult extends ResultWindow {
+public class TraceResult extends JTree {
 	private static final long serialVersionUID = 2124327473664301528L;
+	
+	public final String input;
 
-	public TraceResult(Frame parent, String trace, String input) {
-		super(parent, "Trace Output for " + input);
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode(input);
-		//int level = 0;
+	public TraceResult(String trace, String input) {
+		super(new DefaultMutableTreeNode(input));
+		
+		this.input = input;
+		
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) getModel().getRoot();
 		DefaultMutableTreeNode node = root;
-		String[] lines = trace.split("\\s*\\n\\s*");
+		
+		String[] lines = trace.split("\\n");
 		for (int i = 0; i < lines.length; i++) {
-			String line = lines[i];
+			String line;
+			if (i >= 10000) {
+				line = "Error: Too much output.";
+				i = lines.length;
+			} else {
+				line = lines[i];
+			}
 			if (Acl2.isError(line)) {
 				for (i++; i < lines.length; i++) {
 					line += " " + lines[i];
@@ -23,48 +34,48 @@ public class TraceResult extends ResultWindow {
 				node.add(new DefaultMutableTreeNode(Repl.cleanUpMsg(line)));
 				break;
 			}
-			String uncompiledMarker = "ACL2_\\*1\\*_.*?::";
-//			if (!line.matches(".*" + uncompiledMarker)) {
-//				System.out.println("Doesn't match: " + line);
-//				continue;
-//			}
-			String oldLine = line;
-			line = line.replaceAll(uncompiledMarker, "");
-			if (line.equals(oldLine)) {
-				continue;
-			}
-			//int oldLevel = level;
-			int spaceIdx = line.indexOf(' ');
-			if (line.indexOf(' ') == -1) break;
-			if (line.charAt(0) == '<') {
-				// Return line
-				// level = Integer.parseInt(line.substring(1, spaceIdx));
-				line = line.substring(spaceIdx + 1, line.length()).replaceFirst("\\(.*? (.*)\\)", "$1");
-				node.setUserObject(node.getUserObject() + " = " + line);
-				node = (DefaultMutableTreeNode) node.getParent();
-			} else {
+			final String beginMarker = "__trace-enter-";
+			final String endMarker = "__trace-exit-";
+			if (line.startsWith(beginMarker)) {
 				// Call line
-				// level = Integer.parseInt(line.substring(0, spaceIdx - 1));		
-				line = line.substring(spaceIdx, line.length());
+				line = line.substring(beginMarker.length(), line.length());
+				line = line.replaceAll("__TRACE-", "");
+				line = line.toLowerCase();
 				DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(line);
 				node.add(newNode);
 				node = newNode;
+			} else if (line.startsWith(endMarker)) {
+				// Return line
+				line = line.substring(endMarker.length(), line.length());
+				line = line.replaceAll("__TRACE-", "");
+				line = line.toLowerCase();
+				node.setUserObject(node.getUserObject() + line);
+				node = (DefaultMutableTreeNode) node.getParent();
+			} else {
+				// Part of previous line.
+				line = line.replaceAll("__TRACE-", "");
+				line = line.toLowerCase();
+				node.setUserObject(node.getUserObject() + "\n" + line);
 			}
 		}
-		JTree tree = new JTree(root);
-		if (node != root) {
-			tree.expandPath(new TreePath(node.getPath()));
+		if (node != root && node.getPath().length > 2) {
+			expandPath(new TreePath(node.getPath()));
 		} else {
-			for (int i = 0; i < tree.getRowCount(); i++) {
-				tree.expandRow(i);
+			for (int i = 0; i < getRowCount() /* recalculate every time */; i++) {
+				expandRow(i);
 			}
 		}
-		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+		final DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
 		// TODO: icons?
 		renderer.setLeafIcon(null);
 		renderer.setOpenIcon(null);
 		renderer.setClosedIcon(null);
-		tree.setCellRenderer(renderer);
-		setContent(tree);
+		PrefsWindow.addFontChangeListener(new PrefsWindow.FontChangeListener() {
+			@Override
+			public void fontChanged(Font font) {
+				renderer.setFont(font);
+			}
+		});
+		setCellRenderer(renderer);
 	}
 }

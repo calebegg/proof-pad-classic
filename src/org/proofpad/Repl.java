@@ -18,8 +18,9 @@ import org.proofpad.SExpUtils.ExpType;
 
 public class Repl extends JPanel {
 
-	private static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/media/info.png"));
-	public static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/media/prompt.png"));
+	static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/media/info.png"));
+	static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/media/prompt.png"));
+	static final Icon moreIcon = new ImageIcon(Repl.class.getResource("/media/more.png"));
 
 	public interface HeightChangeListener {
 		public void heightChanged(int delta);
@@ -28,7 +29,7 @@ public class Repl extends JPanel {
 
 	public class StatusLabel extends JLabel {
 		private static final long serialVersionUID = -6292618935259682146L;
-		static final int size = 25;
+		static final int size = ProofBar.width;
 		public StatusLabel(MsgType msg) {
 			setHorizontalAlignment(CENTER);
 			setMsgType(msg);
@@ -90,168 +91,28 @@ public class Repl extends JPanel {
 //	    print fun
 	
 	// Then I trimmed it down to keep output to a sane level.
-
-	private static final String[] functionsToTrace = new String[] {
-		"*", 
-//		"+", 
-//		"-", 
-		"/", 
-		"/=", 
-		"1+", 
-		"1-", 
-		"<", 
-		"<=", 
-//		"=", 
-		">", 
-		">=", 
-		"ABS", 
-		"ACONS", 
-		"ALLOCATE-FIXNUM-RANGE", 
-		"ALPHORDER", 
-		"APPEND", 
-		"ASSOC", 
-		"ASSOC-STRING-EQUAL", 
-		"ATOM", 
-		"ATOM-LISTP", 
-		"BINARY-*", 
-		"BINARY-+", 
-//		"BINARY-APPEND", 
-		"BOOLEANP", 
-//		"CEILING", 
-		"CHAR-CODE",
-		"CHAR-DOWNCASE", 
-		"CHAR-EQUAL", 
-		"CHAR-UPCASE", 
-		"CHAR<", 
-		"CHAR<=", 
-		"CHAR>", 
-		"CHAR>=", 
-		"CHARACTERP", 
-		"CLOSE-INPUT-CHANNEL", 
-		"CLOSE-OUTPUT-CHANNEL", 
-		"CODE-CHAR", 
-		"COERCE", 
-		"COMPLEX", 
-//		"COMPLEX-RATIONALP", 
-		"CONCATENATE", 
-		"CONJUGATE",
-//		"CONS",
-//		"CONSP", 
-		"COUNT",
-		"DELETE-ASSOC-EQUAL", 
-		"DENOMINATOR", 
-		"EIGHTH", 
-//		"ENDP", 
-		"EVENP", 
-//		"EXPT", 
-		"FIFTH", 
-		"FIRST", 
-//		"FLOOR", 
-		"FOURTH", 
-		"IFF", 
-		"IMAGPART", 
-		"IMPLIES", 
-		"INTEGERP", 
-		"INTERSECTP-EQUAL", 
-//		"LEN", 
-		"LENGTH", 
-		"LIST", 
-		"LIST*", 
-		"MAX", 
-//		"MEMBER", 
-//		"MEMBER-EQUAL", 
-		"MIN", 
-		"MINUSP", 
-		"MOD", 
-//		"MV-NTH", 
-//		"NATP", 
-		"NINTH", 
-//		"NOT", 
-		"NTH", 
-		"NTHCDR", 
-		"NUMERATOR", 
-//		"ODDP", 
-		"PLUSP", 
-		"POSP", 
-		"RATIONAL-LISTP", 
-		"READ-BYTE$", 
-		"READ-CHAR$", 
-//		"READ-OBJECT", 
-		"REALPART", 
-		"REMOVE", 
-		"REST", 
-		"REVAPPEND", 
-		"RFIX", 
-		"SEARCH", 
-		"SECOND", 
-		"SET-DIFFERENCE-EQUAL", 
-		"SETENV$", 
-		"SEVENTH", 
-		"SIGNUM", 
-		"SIXTH", 
-		"STRING-APPEND", 
-		"STRING-DOWNCASE", 
-		"STRING-EQUAL", 
-		"STRING-LISTP", 
-		"STRING-UPCASE", 
-//		"STRING<", 
-		"STRING<=", 
-		"STRING>", 
-		"STRING>=", 
-		"STRINGP", 
-		"SUBSETP", 
-		"SUBSETP-EQUAL", 
-		"SYMBOLP", 
-		"TAKE", 
-		"TENTH", 
-		"THIRD", 
-		"TRUE-LIST-LISTP", 
-//		"TRUE-LISTP", 
-		"UNION-EQUAL", 
-		"XOR", 
-		"ZEROP", 
-		"ZIP", 
-		"ZP", 
-		"ZPF",
-	};
 	
-	private static String buildAddTrace() {
-		StringBuilder addTrace = new StringBuilder("(trace");
-		for (String fun : functionsToTrace) {
-			addTrace.append(" " + fun);
-		}
-		addTrace.append(")");
-		return addTrace.toString();
-	}
 
-	private static String buildUnTrace() {
-		StringBuilder unTrace = new StringBuilder("(untrace");
-		for (String fun : functionsToTrace) {
-			unTrace.append(" " + fun);
-		}
-		unTrace.append(")");
-		return unTrace.toString();
-	}
-
-	private static final String addTrace = buildAddTrace();
-	private static final String unTrace = buildUnTrace();
 	private static final long serialVersionUID = -4551996064006604257L;
-	private final Acl2 acl2;
+	final Acl2 acl2;
 	private JPanel output;
-	private JScrollBar vertical;
-	private final ArrayList<Pair<String,Integer>> history;
+	JScrollBar vertical;
+	final ArrayList<Pair<String,Integer>> history;
 	private CodePane definitions;
 	protected int historyIndex = 0;
+	boolean addedInputToHistory = false;
 	private Font font;
 	private List<JComponent> fontChangeList = new LinkedList<JComponent>();
-	private CodePane input;
+	CodePane input;
 	private int inputHeightOneLine = -1;
 	private JScrollPane inputScroller;
 	private JSplitPane split;
 	private HeightChangeListener heightChangeListener;
 	protected int inputLines = 1;
 	private JPanel bottom;
-	private JFrame parent;
+	IdeWindow parent;
+	protected JButton trace;
+	protected JButton run;
 		
 	enum MsgType {
 		ERROR,
@@ -260,7 +121,7 @@ public class Repl extends JPanel {
 		SUCCESS
 	}
 	
-	public Repl(final JFrame parent, Acl2 newAcl2, final CodePane definitions) {
+	public Repl(final IdeWindow parent, Acl2 newAcl2, final CodePane definitions) {
 		super();
 		this.parent = parent;
 		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, false);
@@ -277,7 +138,6 @@ public class Repl extends JPanel {
 			}
 		});
 		this.definitions = definitions;
-		final Repl that = this;
 		setBackground(Color.WHITE);
 		setOpaque(true);
 		history = new ArrayList<Pair<String, Integer>>();
@@ -306,54 +166,38 @@ public class Repl extends JPanel {
 		bottom.add(prompt);
 		//input.setFont(font);
 		inputScroller = new JScrollPane(input);
-		inputScroller.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+		inputScroller.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		//final int inputBorder = 4;
 		//input.setBorder(BorderFactory.createEmptyBorder(inputBorder, inputBorder, inputBorder, inputBorder));
-		inputScroller.setMaximumSize(new Dimension(Integer.MAX_VALUE, StatusLabel.size + 4));
+		inputScroller.setMaximumSize(new Dimension(Integer.MAX_VALUE, StatusLabel.size + 6));
 		bottom.add(inputScroller);
-		final JButton run = new JButton("run");
-		final JButton trace = new JButton("trace");
+		run = new JButton("run");
+		trace = new JButton("trace");
 		run.setEnabled(false);
 		trace.setEnabled(false);
 		//run.putClientProperty("JButton.buttonType", "textured");
 		run.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
-				runInputCode(input);
+				runInputCode();
 			}
 		});
 		trace.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				final String inputText = input.getText();
 				displayResult(inputText + "\n", MsgType.INPUT);
-				String funs = "";
-				// Add trace to lots of functions
-				for (String fun : ((Acl2Parser) definitions.getParser(0)).functions) {
-					funs += " " + fun;
-				}
-				acl2.admit("(trace$" + funs + ")", Acl2.doNothingCallback);
-				acl2.admit(":q", Acl2.doNothingCallback);
-				acl2.admit(addTrace, Acl2.doNothingCallback);
-				acl2.admit("(lp)", Acl2.doNothingCallback);
-				// Run the code
-				acl2.admit(inputText, new Acl2.Callback() {
-					public boolean run(boolean success, String response) {
-						// Display the results in a nicely-formatted way
-						TraceResult tr = new TraceResult(parent, response, inputText);
-						tr.setLocationRelativeTo(that);
-						tr.setVisible(true);
-						return true;
-					}
-				});
-				acl2.admit(":q", Acl2.doNothingCallback);
-				acl2.admit(unTrace, Acl2.doNothingCallback);
-				acl2.admit("(lp)", Acl2.doNothingCallback);
-				acl2.admit("(untrace$" + funs + ")", Acl2.doNothingCallback);
+				traceExp(inputText);
 				history.add(new Pair<String, Integer>(inputText.trim(), inputLines));
+				historyIndex = history.size();
+				addedInputToHistory = false;
 				resetInput();
 			}
 		});
 		input.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyPressed(KeyEvent e) {
+				maybeEnableButtons();
 				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.getText().equals("")) {
 					// Prevent that awful backspace beep.
 					e.consume();
@@ -363,13 +207,12 @@ public class Repl extends JPanel {
 						return;
 					}
 					// TODO: Flash background color or something to indicate that the contents has changed? Maybe?
-					if (!input.getText().equals("")) {
-						// TODO: Make this not suck.
-						//history.add(input.getText());
+					if (!input.getText().equals("") && !addedInputToHistory) {
+						history.add(new Pair<String, Integer>(input.getText(), inputLines));
+						addedInputToHistory = true;
 					}
 					if (historyIndex > 0) {
 						historyIndex--;
-						// TODO Prevent the double indentation that might be happening here.
 						Pair<String, Integer> historyEntry = history.get(historyIndex);
 						input.setText(historyEntry.first);
 						inputLines = historyEntry.second;
@@ -394,6 +237,7 @@ public class Repl extends JPanel {
 					}
 				}
 			}
+			@Override
 			public void keyTyped(KeyEvent e) {
 				if (e.getKeyChar() == '\n') {
 					int parenLevel = 0;
@@ -409,7 +253,7 @@ public class Repl extends JPanel {
 					}
 					if (parenLevel <= 0) {
 						e.consume();
-						runInputCode(input);
+						runInputCode();
 					} else {
 						inputLines++;
 						if (inputLines <= 6) {
@@ -417,14 +261,7 @@ public class Repl extends JPanel {
 						}
 					}
 				}
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						boolean enable = input.getLastVisibleOffset() != 0;
-						run.setEnabled(enable);
-						trace.setEnabled(enable);
-					}
-				});
+				maybeEnableButtons();
 			}
 		});
 		bottom.add(run);
@@ -436,7 +273,7 @@ public class Repl extends JPanel {
 		split.setBottomComponent(bottomWrapper);
 	}
 	
-	private void setBottomLines(int inputLines) {
+	void setBottomLines(int inputLines) {
 		if (inputHeightOneLine == -1) {
 			inputHeightOneLine = input.getHeight();
 		}
@@ -448,10 +285,11 @@ public class Repl extends JPanel {
 		int oldScrollerHeight = inputScroller.getHeight();
 		int newScrollerHeight = inputHeightOneLine +
 				(inputLines - 1) * input.getLineHeight() + 8;
+		newScrollerHeight -= 6;
 		Dimension newScrollSize = new Dimension(Short.MAX_VALUE,
 				newScrollerHeight);
 		inputScroller.setMaximumSize(newScrollSize);
-		fireHeightChangedEvent(newScrollerHeight - oldScrollerHeight - 4);
+		fireHeightChangedEvent(newScrollerHeight - oldScrollerHeight);
 	}
 	
 	protected void fireHeightChangedEvent(int delta) {
@@ -461,7 +299,7 @@ public class Repl extends JPanel {
 		}
 	}
 
-	private void runInputCode(CodePane input) {
+	void runInputCode() {
 		List<Expression> exps = SExpUtils.topLevelExps((RSyntaxDocument) input.getDocument());
 		if (exps.size() > 0 && exps.get(0).firstType == ExpType.UNDOABLE) {
 			displayResult("This event was moved up to the definitions window.", MsgType.INFO);
@@ -478,6 +316,7 @@ public class Repl extends JPanel {
 			}
 		}
 		historyIndex = history.size();
+		addedInputToHistory = false;
 		resetInput();
 	}
 
@@ -485,7 +324,7 @@ public class Repl extends JPanel {
 		return output;
 	}
 	
-	private void resetInput() {
+	void resetInput() {
 		input.setText("");
 		if (inputHeightOneLine == -1) return;
 		inputLines = 1;
@@ -493,9 +332,9 @@ public class Repl extends JPanel {
 	}
 
 	private static Pattern welcomeMessage = Pattern.compile(".*ACL2 comes with ABSOLUTELY NO WARRANTY\\..*");
-	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL:  The guard for the function call (.*?), which is (.*?), is violated by the arguments in the call (.*?)\\. See :DOC set-guard-checking for information about suppressing.*");
-	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL:  Global variables, such as (.*?).*?, are not allowed. See :DOC ASSIGN and :DOC @.");
-	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL:  (.*?) takes (.*?) arguments? but in the call (.*?) it is given (.*?) arguments?\\..*");
+	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard for the function call (.*?), which is (.*?), is violated by the arguments in the call (.*?)\\..*");
+	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL: Global variables, such as (.*?), are not allowed. See :DOC ASSIGN and :DOC @.");
+	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL: (.*?) takes (.*?) arguments? but in the call (.*?) it is given (.*?) arguments?\\..*");
 	private static Pattern nonRec = Pattern.compile("Since (.*?) is non-recursive, its admission is trivial\\..*");
 	private static Pattern trivial = Pattern.compile("The admission of (.*?) is trivial, using the relation O< .*");
 	private static Pattern admission = Pattern.compile("For the admission of (.*?) we will use the relation O< .*");
@@ -503,7 +342,7 @@ public class Repl extends JPanel {
 	// TODO: Add these error messages (and others)
 	// Undefined var
 	// Redefinition of func/reserved name
-	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL:  The symbol (.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in ACL2\\.  Please define it\\..*");
+	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL: The symbol (.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in ACL2\\. Please define it\\..*");
 	public static String cleanUpMsg(String result) {
 		return cleanUpMsg(result, null, null);
 	}
@@ -534,22 +373,30 @@ public class Repl extends JPanel {
 			}
 		} else if ((match = undefinedFunc.matcher(joined)).matches()) {
 			String func = match.group(1).toLowerCase();
-			if (functions != null && functions.contains(func)) {
-				ret = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to " +
-						"the left of its definition.</html>";
-			} else {
-				ret = "The function " + func + " is undefined.";
-			}
+//			if (functions != null && functions.contains(func)) {
+//				ret = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to " +
+//						"the left of its definition.</html>";
+//			} else {
+				ret = "<html>The function <b>" + func + "</b> is undefined.</html>";
+//			}
 		} else if ((match = proved.matcher(joined)).find()) {
 			ret = "Proof successful.";
-		} else if (joined.length() > 80) {
-			ret = joined.substring(0, 75) + " [...]";
+		} else if (joined.length() > 70) {
+			ret = joined.substring(0, 67) + " ...";
 		} else {
 			ret = joined;
 		}
 		return ret;
 	}
+
+	protected void displayResult(TraceResult tr, MsgType type) {
+		displayResult("(click for trace results)", tr, type);
+	}
 	public void displayResult(final String result, MsgType type) {
+		displayResult(result, null, type);
+	}
+
+	public void displayResult(final String result, final TraceResult tr, MsgType type) {
 		String traceFreeResult = result.replaceAll("\\s*\\d+>.*?\\n", "").replaceAll("\\s*<\\d+.*?\\n", "");
 		String shortResult = cleanUpMsg(traceFreeResult,
 				((Acl2Parser) definitions.getParser(0)).functions,
@@ -560,20 +407,6 @@ public class Repl extends JPanel {
 		final JPanel line = new JPanel();
 		line.setPreferredSize(new Dimension(200, 25));
 		line.setMaximumSize(new Dimension(Short.MAX_VALUE, 25));
-		final Repl that = this;
-		line.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				ResultWindow resWin = new ResultWindow(parent, "Full ACL2 output");
-				JTextArea resBox = new JTextArea();
-				resBox.setText(result);
-				resBox.setEditable(false);
-				resWin.setContent(resBox);
-				resWin.setLocationRelativeTo(that);
-				resWin.setVisible(true);
-				//JOptionPane.showMessageDialog(that, result);
-			}
-		});
 		line.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 		JLabel text = new JLabel(shortResult.trim());
 		text.setBackground(Color.LIGHT_GRAY);
@@ -583,8 +416,10 @@ public class Repl extends JPanel {
 		line.setBackground(Color.WHITE);
 		StatusLabel status = new StatusLabel();
 		status.setFont(definitions.getFont());
-		fontChangeList.add(status);
-		fontChangeList.add(text);
+		synchronized(fontChangeList) {
+			fontChangeList.add(status);
+			fontChangeList.add(text);
+		}
 
 		text.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 5));
 		line.add(status);
@@ -608,6 +443,23 @@ public class Repl extends JPanel {
 		}
 		text.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 		line.add(text);
+		if (!shortResult.equals(result.trim()) || tr != null) {
+			line.add(new JLabel(moreIcon));
+			line.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					if (tr == null) {
+						JTextArea resBox = new JTextArea();
+						resBox.setText(result);
+						resBox.setFont(getFont());
+						resBox.setEditable(false);
+						parent.setPreviewComponent(resBox);
+					} else {
+						parent.setPreviewComponent(tr);
+					}
+				}
+			});
+		}
 		synchronized (this) {
 			getOutput().add(line);
 		}
@@ -621,11 +473,14 @@ public class Repl extends JPanel {
 	}
 	
 
+	@Override
 	public void setFont(Font f) {
 		super.setFont(f);
 		if (fontChangeList == null) return;
-		for (JComponent c : fontChangeList) {
-			c.setFont(f);
+		synchronized (fontChangeList) {
+			for (JComponent c : fontChangeList) {
+				c.setFont(f);
+			}
 		}
 		input.setFont(f);
 		int size = (25 - input.getLineHeight()) / 2;
@@ -638,5 +493,30 @@ public class Repl extends JPanel {
 
 	public int getInputHeight() {
 		return inputScroller.getHeight();
+	}
+
+	void maybeEnableButtons() {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				boolean enable = input.getLastVisibleOffset() != 0;
+				run.setEnabled(enable);
+				trace.setEnabled(enable);
+			}
+		});
+	}
+
+	void traceExp(final String inputText) {
+		// Run the code
+		acl2.trace(inputText, new Acl2.Callback() {
+			@Override
+			public boolean run(boolean success, String response) {
+				// Display the results in a nicely-formatted way
+				TraceResult tr = new TraceResult(response, inputText);
+				parent.setPreviewComponent(tr);
+				displayResult(tr, success ? MsgType.SUCCESS : MsgType.ERROR);
+				return false;
+			}
+		});
 	}
 }

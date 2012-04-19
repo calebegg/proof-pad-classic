@@ -23,13 +23,17 @@ import org.fife.ui.rtextarea.SearchEngine;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
 
+import com.apple.eawt.FullScreenAdapter;
+import com.apple.eawt.AppEvent.FullScreenEvent;
+import com.apple.eawt.FullScreenUtilities;
+
 
 public class IdeWindow extends JFrame {
 	public static final boolean isMac = System.getProperty("os.name").indexOf("Mac") != -1;
 	public static final boolean isWindows =
 			System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
 	public static final Color transparent = new Color(1f, 1f, 1f, 0f);
-	private static JFileChooser fc = new JFileChooser();
+	static JFileChooser fc = new JFileChooser();
 	static {
 		fc.addChoosableFileFilter(new FileFilter() {
 			@Override
@@ -44,20 +48,21 @@ public class IdeWindow extends JFrame {
 		});
 	}
 	public static final ActionListener openAction = new ActionListener() {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			File file;
 			if (isMac) {
-				FileDialog fc = new FileDialog((Frame)null, "Open file");
-				fc.setFilenameFilter(new FilenameFilter() {
+				FileDialog fd = new FileDialog((Frame)null, "Open file");
+				fd.setFilenameFilter(new FilenameFilter() {
 					@Override
 					public boolean accept(File dir, String name) {
 						return name.endsWith(".lisp") || name.endsWith(".lsp")
 								|| name.endsWith(".acl2");
 					}
 				});
-				fc.setVisible(true);
-				String filename = fc.getFile();
-				file = filename == null ? null : new File(fc.getDirectory(), filename);
+				fd.setVisible(true);
+				String filename = fd.getFile();
+				file = filename == null ? null : new File(fd.getDirectory(), filename);
 			} else {
 				int response = fc.showOpenDialog(null);
 				file = response == JFileChooser.APPROVE_OPTION ? fc.getSelectedFile() : null;
@@ -79,14 +84,16 @@ public class IdeWindow extends JFrame {
 	static List<IdeWindow> windows = new LinkedList<IdeWindow>();
 	private static int untitledCount = 1;
 	
-	private File openFile;
-	private boolean isSaved = true;
-	private IdeWindow that = this;
+	File openFile;
+	boolean isSaved = true;
+	IdeWindow that = this;
 	private File workingDir;
 	private Acl2Parser parser;
-	private Repl repl;
+	Repl repl;
 	Toolbar toolbar;
 
+	JSplitPane previewSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+	final int splitDividerDefaultSize = previewSplit.getDividerSize();
 	final CodePane editor;
 	JButton undoButton;
 	JButton redoButton;
@@ -94,7 +101,7 @@ public class IdeWindow extends JFrame {
 	Acl2 acl2;
 	ProofBar proofBar;
 	MenuBar menuBar;
-	JScrollPane jsp;
+	JScrollPane editorScroller;
 	JButton saveButton;
 
 	public ActionListener saveAction;
@@ -107,6 +114,7 @@ public class IdeWindow extends JFrame {
 	protected int dY;
 	protected int dX;
 	ActionListener tutorialAction;
+	TraceResult activeTrace;
 
 	public IdeWindow() {
 		this((File)null);
@@ -122,21 +130,47 @@ public class IdeWindow extends JFrame {
 		windows.add(this);
 		openFile = file;
 		workingDir = openFile == null ? null : openFile.getParentFile();
-		setLayout(new BorderLayout());
-		final IdeWindow that = this;
+		// TODO: Fix this.
+		//FullScreenUtilities.setWindowCanFullScreen(this, true);
+		FullScreenUtilities.addFullScreenListenerTo(this, new FullScreenAdapter() {
+			@Override
+			public void windowExitingFullScreen(FullScreenEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void windowExitedFullScreen(FullScreenEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void windowEnteringFullScreen(FullScreenEvent arg0) {
+			}
+			@Override
+			public void windowEnteredFullScreen(FullScreenEvent arg0) {
+				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+				setBounds(new Rectangle(new Point(), screenSize));
+			}
+		});
+		//setLayout(new BorderLayout());
 
-		final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+		previewSplit.setBorder(BorderFactory.createEmptyBorder());
+		previewSplit.setDividerSize(0);
+		previewSplit.setResizeWeight(0);
+		final JPanel splitMain = new JPanel();
+		previewSplit.setLeftComponent(splitMain);
+		splitMain.setLayout(new BorderLayout());
+		add(previewSplit);
 		final JPanel splitTop = new JPanel();
 		splitTop.setLayout(new BorderLayout());
+		final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		split.setTopComponent(splitTop);
 		split.setOneTouchExpandable(true);
 		split.setResizeWeight(1);
-		add(split, BorderLayout.CENTER);
-		jsp = new JScrollPane();
-		jsp.setBorder(BorderFactory.createEmptyBorder());
-		jsp.setViewportBorder(BorderFactory.createEmptyBorder());
+		splitMain.add(split, BorderLayout.CENTER);
+		editorScroller = new JScrollPane();
+		editorScroller.setBorder(BorderFactory.createEmptyBorder());
+		editorScroller.setViewportBorder(BorderFactory.createEmptyBorder());
 		this.getRootPane().setBorder(BorderFactory.createEmptyBorder());
-		splitTop.add(jsp, BorderLayout.CENTER);
+		splitTop.add(editorScroller, BorderLayout.CENTER);
 
 		final Preferences prefs = Preferences.userNodeForPackage(Main.class);
 		
@@ -163,18 +197,26 @@ public class IdeWindow extends JFrame {
 				acl2Path = maybeAcl2Path;
 			}
 		}
-		System.out.println(acl2Path);
-
+		
 		acl2 = new Acl2(acl2Path, workingDir);
 		proofBar = new ProofBar(acl2);
 		editor = new CodePane(proofBar);
-		jsp.setViewportView(editor);
-		jsp.setRowHeaderView(proofBar);
+		editorScroller.setViewportView(editor);
+		editorScroller.setRowHeaderView(proofBar);
 		repl = new Repl(this, acl2, editor);
 		proofBar.setLineHeight(editor.getLineHeight());
 		final IdeDocument doc = new IdeDocument(proofBar);
 		editor.setDocument(doc);
-		parser = new Acl2Parser(editor, workingDir, new File(acl2Path).getParentFile());
+		parser = new Acl2Parser(workingDir, new File(acl2Path).getParentFile());
+		parser.addParseListener(new Acl2Parser.ParseListener() {
+			@Override
+			public void wasParsed() {
+				proofBar.admitUnprovenExps();
+				if (activeTrace != null) {
+					repl.traceExp(activeTrace.input);
+				}
+			}
+		});
 		editor.addParser(parser);
 		try {
 			acl2.initialize();
@@ -204,6 +246,7 @@ public class IdeWindow extends JFrame {
 		};
 		
 		saveAction = new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				saveFile();
 			}
@@ -273,7 +316,7 @@ public class IdeWindow extends JFrame {
 //						30, .5f));
 				// More opaque over areas we want to write on
 				g.setColor(new Color(.95f, .95f, .95f, .7f));
-				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(), jsp.getHeight() + 3);
+				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(), editorScroller.getHeight() + 3);
 				g.fillRect(0, getHeight() - repl.getHeight(),
 						getWidth(), repl.getHeight() - repl.getInputHeight() - 10);
 				g.setColor(new Color(.9f, .9f, .9f, .4f));
@@ -284,7 +327,7 @@ public class IdeWindow extends JFrame {
 				g.drawString("1. Write your functions here.",
 						proofBar.getWidth() + 20,
 						toolbar.getHeight() + 30);
-				int step2Y = toolbar.getHeight() + jsp.getHeight() / 6 + 40;
+				int step2Y = toolbar.getHeight() + editorScroller.getHeight() / 6 + 40;
 				g.drawString("2. Click to admit them.",
 						proofBar.getWidth() + 30,
 						step2Y);
@@ -357,9 +400,11 @@ public class IdeWindow extends JFrame {
 				}
 			}
 			
+			@Override
 			public void keyReleased(KeyEvent arg0) {
 			}
 			
+			@Override
 			public void keyTyped(KeyEvent e) {
 				char c = e.getKeyChar();
 				if (c == KeyEvent.CHAR_UNDEFINED || c == '\n' || c == '\b'
@@ -378,12 +423,14 @@ public class IdeWindow extends JFrame {
 		findBar.add(searchField);
 		JButton forward = new JButton(new ImageIcon("media/find_down.png"));
 		forward.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				searchFor(searchField.getText(), true);
 			}
 		});
 		JButton back = new JButton(new ImageIcon("media/find_up.png"));
 		back.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				searchFor(searchField.getText(), false);
 			}
@@ -402,7 +449,7 @@ public class IdeWindow extends JFrame {
 		
 		toolbar = new Toolbar(this);
 		menuBar = new MenuBar(this);
-		add(toolbar, BorderLayout.NORTH);
+		splitMain.add(toolbar, BorderLayout.NORTH);
 		setJMenuBar(menuBar);
 		
 		// Preferences
@@ -466,6 +513,7 @@ public class IdeWindow extends JFrame {
 		});
 		
 		editor.SetUndoManagerCreatedListener(new CodePane.UndoManagerCreatedListener() {
+			@Override
 			public void undoManagerCreated(UndoManager undoManager) {
 				proofBar.undoManager = undoManager;
 			}
@@ -473,7 +521,6 @@ public class IdeWindow extends JFrame {
 		
 		doc.addDocumentListener(new DocumentListener() {
 			private void update(DocumentEvent e) {
-				// TODO: figure out how to change the delay on the parser manager.
 				List<Expression> exps = SExpUtils.topLevelExps(doc);
 				proofBar.adjustHeights((LinkedList<Expression>) exps);
 				fixUndoRedoStatus();
@@ -570,28 +617,28 @@ public class IdeWindow extends JFrame {
 			}
 		});
 		
-		if (isMac) {
-			// Adapted from http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
-			toolbar.addMouseListener(new MouseAdapter() {
-	            @Override
-	            public void mousePressed(MouseEvent e) {
-	                Point clickPoint = new Point(e.getPoint());
-	                SwingUtilities.convertPointToScreen(clickPoint, toolbar);
-
-	                dX = clickPoint.x - that.getX();
-	                dY = clickPoint.y - that.getY();
-	            }
-	        });
-			toolbar.addMouseMotionListener(new MouseMotionAdapter() {
-				@Override
-				public void mouseDragged(MouseEvent e) {
-	                Point dragPoint = new Point(e.getPoint());
-	                SwingUtilities.convertPointToScreen(dragPoint, toolbar);
-
-	                that.setLocation(dragPoint.x - dX, dragPoint.y - dY);
-	            }
-			});
-		}
+//		if (isMac) {
+//			// Adapted from http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
+//			toolbar.addMouseListener(new MouseAdapter() {
+//	            @Override
+//	            public void mousePressed(MouseEvent e) {
+//	                Point clickPoint = new Point(e.getPoint());
+//	                SwingUtilities.convertPointToScreen(clickPoint, toolbar);
+//
+//	                dX = clickPoint.x - that.getX();
+//	                dY = clickPoint.y - that.getY();
+//	            }
+//	        });
+//			toolbar.addMouseMotionListener(new MouseMotionAdapter() {
+//				@Override
+//				public void mouseDragged(MouseEvent e) {
+//	                Point dragPoint = new Point(e.getPoint());
+//	                SwingUtilities.convertPointToScreen(dragPoint, toolbar);
+//
+//	                that.setLocation(dragPoint.x - dX, dragPoint.y - dY);
+//	            }
+//			});
+//		}
 		
 		adjustMaximizedBounds();
 		pack();
@@ -608,6 +655,71 @@ public class IdeWindow extends JFrame {
 				bar.updateWindowMenu();
 			}
 		}
+	}
+	
+	public void setPreviewComponent(JComponent c) {
+		if (!isVisible()) return;
+		if (c instanceof TraceResult) {
+			activeTrace = (TraceResult) c;
+		} else {
+			activeTrace = null;
+		}
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		previewSplit.setRightComponent(panel);
+		JScrollPane scroller = new JScrollPane();
+		scroller.setViewportView(c);
+		panel.add(scroller, BorderLayout.CENTER);
+		JButton closeButton = new JButton("<<");
+		JPanel bottom = new JPanel();
+		bottom.setLayout(new BoxLayout(bottom, BoxLayout.X_AXIS));
+		bottom.add(Box.createGlue());
+		bottom.add(closeButton);
+		closeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int paneWidth = previewSplit.getRightComponent().getWidth();
+				Point loc = getLocationOnScreen();
+				setBounds(loc.x, loc.y, getWidth() - paneWidth - splitDividerDefaultSize, getHeight());
+				previewSplit.setRightComponent(null);
+				previewSplit.setDividerSize(0);
+				activeTrace = null;
+			}
+		});
+		panel.add(bottom, BorderLayout.SOUTH);
+		boolean wasPreviewOpen = previewSplit.getDividerSize() != 0;
+		previewSplit.setDividerSize(splitDividerDefaultSize);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		Point loc = getLocationOnScreen();
+		int paneWidth = 75 * getFontMetrics(c.getFont()).charWidth('a');
+		final int winWidth = getWidth();
+		int newX = (int) Math.min(screenSize.getWidth() - winWidth - paneWidth, loc.x);
+		if (!wasPreviewOpen) {
+			setBounds(newX, loc.y, winWidth + paneWidth + splitDividerDefaultSize, getHeight());
+			// TODO: This doesn't work well on OS X, but might work on Windows or Linux.
+//			final int steps = 10;
+//			final int dx = (newX - loc.x) / steps;
+//			final int dw = (paneWidth + splitDividerDefaultSize) / steps;
+//			new Timer(30, new ActionListener() {
+//				int i = 0;
+//				@Override
+//				public void actionPerformed(ActionEvent e) {
+//					RepaintManager.currentManager(that.getRootPane()).markCompletelyClean(that.getRootPane());
+//					i++;
+//					Point winLoc = getLocationOnScreen();
+//					if (i == steps) {
+//						((Timer) e.getSource()).stop();
+//					} else {
+//						setBounds(winLoc.x + dx, winLoc.y, getWidth() + dw, getHeight());
+//					}
+//				}
+//			}).start();
+			previewSplit.setDividerLocation(winWidth + splitDividerDefaultSize);
+		} else {
+			previewSplit.setDividerLocation(winWidth - paneWidth);
+		}
+		adjustMaximizedBounds();
 	}
 
 	public void fixUndoRedoStatus() {
@@ -664,19 +776,19 @@ public class IdeWindow extends JFrame {
 		return false;
 	}
 
-	private boolean saveFile() {
+	boolean saveFile() {
 		if (openFile == null) {
 			File file = null;
 			if (isMac) {
-				FileDialog fc = new FileDialog(this, "Save As...");
-				fc.setMode(FileDialog.SAVE);
-				fc.setVisible(true);
-				String filename = fc.getFile();
+				FileDialog fd = new FileDialog(this, "Save As...");
+				fd.setMode(FileDialog.SAVE);
+				fd.setVisible(true);
+				String filename = fd.getFile();
 				if (filename != null) {
 					if (filename.indexOf('.') == -1) {
 						filename += ".lisp";
 					}
-					file = new File(fc.getDirectory(), filename);
+					file = new File(fd.getDirectory(), filename);
 				}
 			} else {
 				int response = fc.showSaveDialog(this);
@@ -743,6 +855,7 @@ public class IdeWindow extends JFrame {
 			scan = new Scanner(openFile);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
+			return;
 		}
 		String content = scan.useDelimiter("\\Z").next();
 		editor.setText(content);
@@ -781,16 +894,19 @@ public class IdeWindow extends JFrame {
 
 	public void adjustMaximizedBounds() {
 		if (!isMac) return;
-		Dimension visibleSize = jsp.getViewport().getExtentSize();
+		Dimension visibleSize = editorScroller.getViewport().getExtentSize();
 		Dimension textSize = editor.getPreferredScrollableViewportSize();
 		int maxWidth = Math.max(getWidth() - visibleSize.width + textSize.width
 				+ proofBar.getWidth(), 550);
 		int maxHeight = getHeight() - visibleSize.height + Math.max(textSize.height, 200);
+		if (previewSplit.getDividerSize() > 0) {
+			maxWidth += previewSplit.getRightComponent().getWidth();
+		}
 		setMaximizedBounds(new Rectangle(getLocation(), new Dimension(
 				maxWidth + 5, maxHeight + 5)));
 	}
 
-	private void searchFor(String text, boolean forward) {
+	void searchFor(String text, boolean forward) {
 		editor.clearMarkAllHighlights();
 		SearchContext sc = new SearchContext();
 		sc.setSearchFor(text);

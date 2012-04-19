@@ -6,18 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 public class AboutWindow extends JDialog {
 	class License {
@@ -31,6 +20,46 @@ public class AboutWindow extends JDialog {
 	}
 
 	License[] licenses = new License[] {
+			new License("Proof Pad",
+					"Proof Pad: An interactive development environment for ACL2.\n" +
+					"Copyright (C) 2012 Caleb Eggensperger\n" +
+					"\n" +
+					"This program is free software: you can redistribute it and/or modify\n" +
+					"it under the terms of the GNU General Public License as published by\n" +
+					"the Free Software Foundation, either version 3 of the License, or\n" +
+					"(at your option) any later version.\n" +
+					"\n" +
+					"This program is distributed in the hope that it will be useful,\n" +
+					"but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
+					"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" +
+					"GNU General Public License for more details.\n" +
+					"\n" +
+					"You should have received a copy of the GNU General Public License\n" +
+					"along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"),
+			new License("ACL2",
+					"ACL2 Version 4.3 -- A Computational Logic for Applicative Common Lisp\n" +
+					"Copyright (C) 2011 University of Texas at Austin\n" +
+					"This version of ACL2 is a descendent of ACL2 Version 1.9, Copyright (C) 1997\n" +
+					"Computational Logic, Inc.\n" +
+					"\n" +
+					"This program is free software; you can redistribute it and/or modify it under the\n" +
+					"terms of the GNU General Public License as published by the Free Software\n" +
+					"Foundation; either version 2 of the License, or (at your option) any later version.\n" +
+					"\n" +
+					"This program is distributed in the hope that it will be useful, but WITHOUT ANY\n" +
+					"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A\n" +
+					"PARTICULAR PURPOSE. See the GNU General Public License for more details.\n" +
+					"\n" +
+					"You should have received a copy of the GNU General Public License along with this\n" +
+					"program; if not, write to the Free Software Foundation, Inc., 675 Mass Ave,\n" +
+					"Cambridge, MA 02139, USA.\n" +
+					"\n" +
+					"Matt Kaufmann (Kaufmann@cs.utexas.edu)\n" +
+					"J Strother Moore (Moore@cs.utexas.edu)\n" +
+					"\n" +
+					"Department of Computer Sciences\n" +
+					"University of Texas at Austin\n" +
+					"Austin, TX 78712-1188 U.S.A.\n"),
 			new License("RSyntaxTextArea",
 					"Copyright (c) 2012, Robert Futrell\n" +
 					"All rights reserved.\n" +
@@ -56,37 +85,8 @@ public class AboutWindow extends JDialog {
 					"ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n" +
 					"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n" +
 					"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"),
-			new License("ACL2",
-					"ACL2 Version 4.3 -- A Computational Logic for Applicative Common Lisp\n" +
-					"Copyright (C) 2011 University of Texas at Austin\n" +
-					"This version of ACL2 is a descendent of ACL2 Version 1.9, Copyright (C) 1997\n" +
-					"Computational Logic, Inc.\n" +
-					"\n" +
-					"This program is free software; you can redistribute it and/or modify it under the\n" +
-					"terms of the GNU General Public License as published by the Free Software\n" +
-					"Foundation; either version 2 of the License, or (at your option) any later version.\n" +
-					"\n" +
-					"This program is distributed in the hope that it will be useful, but WITHOUT ANY\n" +
-					"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A\n" +
-					"PARTICULAR PURPOSE. See the GNU General Public License for more details.\n" +
-					"\n" +
-					"You should have received a copy of the GNU General Public License along with this\n" +
-					"program; if not, write to the Free Software Foundation, Inc., 675 Mass Ave,\n" +
-					"Cambridge, MA 02139, USA.\n" +
-					"\n" +
-					"Matt Kaufmann (Kaufmann@cs.utexas.edu)\n" +
-					"J Strother Moore (Moore@cs.utexas.edu)\n" +
-					"\n" +
-					"Department of Computer Sciences\n" +
-					"University of Texas at Austin\n" +
-					"Austin, TX 78712-1188 U.S.A.\n"),
-			// TODO: finish these.
-			new License("Proof Pad",
-					""),
 			// TODO: Dracula's license?
 			new License("DrACLua",
-					""),
-			new License("ACL2s",
 					"")};
 
 	private static final long serialVersionUID = 2263577634446940344L;

@@ -14,7 +14,7 @@ public class BuildWindow extends JFrame {
 	private File file;
 	private String acl2Dir;
 	private JProgressBar progress;
-	private Acl2 builder;
+	Acl2 builder;
 
 	public BuildWindow(File file, String acl2Dir) {
 		super("Building " + file.getName() + "...");
@@ -79,6 +79,7 @@ public class BuildWindow extends JFrame {
 					+ "\" :toplevel-function #'__main__\n"
 					+ ":prepend-kernel t)",
 					new Acl2.Callback() {
+						@Override
 						public boolean run(boolean success,
 								String response) {
 							builder.terminate();

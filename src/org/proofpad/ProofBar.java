@@ -1,10 +1,13 @@
 package org.proofpad;
+import java.util.LinkedList;
 import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.undo.UndoManager;
+
+import org.proofpad.ProofBar.UnprovenExp.Status;
 import org.proofpad.SExpUtils.ExpType;
 
 public class ProofBar extends JComponent {
@@ -16,7 +19,7 @@ public class ProofBar extends JComponent {
 	}
 
 	static Color provedColor = new Color(.8f, 1f, .8f);
-	static Color untriedColor = new Color(.82f, .8f, .8f);
+	static Color untriedColor = new Color(.9f, .9f, .9f);
 	static Color provingColor = new Color(.5f, .8f, 1f);
 	static Color errorColor = new Color(1f, .8f, .8f);
 	public static final ImageIcon errorIcon = new ImageIcon(ProofBar.class.getResource("/media/error.png"));
@@ -42,36 +45,44 @@ public class ProofBar extends JComponent {
 
 	private static final long serialVersionUID = 8267405348010307267L;
 	
-	private java.util.List<Expression> expressions;
-	private java.util.List<Expression> proofQueue;
-	private int my;
-	private boolean hover = false;
-	final private static int width = 25;
-	private static int lineHeight;
-	private final Acl2 acl2;
+	List<Expression> expressions;
+	List<Expression> proofQueue;
+	int my;
+	boolean hover = false;
+	final static int width = 20;
+	static int lineHeight;
+	final Acl2 acl2;
 	
-	private int numProved;
-	private int numProving;
-	private boolean error;
-	private List<Integer> admissionIndices = new ArrayList<Integer>();
+	int numProved;
+	int numProving;
+	boolean error;
+	List<Integer> admissionIndices = new ArrayList<Integer>();
 	
 	private int readOnlyIndex = -1;
 	private Expression tried;
 	private Image inProgressThrobber = 
-			new ImageIcon(getClass().getResource("/media/in-progress-blue.gif")).getImage();;
+			new ImageIcon(getClass().getResource("/media/in-progress-blue.gif")).getImage();
 	private int flashIndex;
-	private int flashPhase;
-	private Runnable flashTimeout;
+	int flashPhase;
+	Runnable flashTimeout;
 	protected Thread flashThread;
 	public int readOnlyHeight;
 	UndoManager undoManager;
 	private List<ReadOnlyIndexChangeListener> readOnlyIndexListeners =
 			new LinkedList<ReadOnlyIndexChangeListener>();
+	
+	static class UnprovenExp {
+		enum Status { SUCCESS, FAILURE, UNTRIED }
+		public int hash;
+		public Status status;
+	}
+	private List<UnprovenExp> unprovenStates = new ArrayList<UnprovenExp>();
 
 	public ProofBar(Acl2 acl2) {
 		super();
 		this.acl2 = acl2;
 		acl2.addRestartListener(new Acl2.RestartListener() {
+			@Override
 			public void acl2Restarted() {
 				numProved = 0;
 				numProving = 0;
@@ -94,7 +105,7 @@ public class ProofBar extends JComponent {
 				int addToNextHeight = 0;
 				int admissionIndexSoFar = 2; // Start at 2 because of the 2 events in Acl2.java
 				int i = 0;
-				System.out.println(admissionIndices);
+//				System.out.println(admissionIndices);
 				for (Expression ex : expressions) {
 					//System.out.println(ex.first);
 					int height = pixelHeight(ex);
@@ -109,7 +120,7 @@ public class ProofBar extends JComponent {
 						}
 						if (e.getY() < begin + height) {
 							for (; admissionIndexSoFar < admissionIndex; admissionIndexSoFar++) {
-								System.out.println("Undoing: " + admissionIndexSoFar);
+//								System.out.println("Undoing: " + admissionIndexSoFar);
 								that.acl2.undo();
 							}
 							numProved--;
@@ -134,14 +145,17 @@ public class ProofBar extends JComponent {
 					}
 					begin += height;
 				}
-				that.proveNext();
+				toLogicMode();
+				proveNext();
 				error = false;
-				that.repaint();
+				repaint();
 			}
+			@Override
 			public void mouseEntered(MouseEvent e) {
 				hover = true;
 				that.repaint();
 			}
+			@Override
 			public void mouseExited(MouseEvent e) {
 				hover = false;
 				that.repaint();
@@ -185,10 +199,16 @@ public class ProofBar extends JComponent {
 		if (numProving == 0 && numProved == 0) {
 			setReadOnlyHeight(0);
 		}
+		int unprovenIdx = 0;
+		Status expStatus = Status.UNTRIED;
 		for (Expression e: expressions) {
 			int height = pixelHeight(e);
 			height += addToNextHeight;
 			addToNextHeight = 0;
+			if (provedSoFar == 0 && unprovenStates.size() > unprovenIdx) {
+				expStatus = unprovenStates.get(unprovenIdx).status;
+				unprovenIdx++;
+			}
 			if (provedSoFar > 0) {
 				// Drawing proved terms
 				provedSoFar--;
@@ -220,7 +240,7 @@ public class ProofBar extends JComponent {
 					//drawStringCentered(g, begin, height, "\u2713");
 					g.drawImage(successIcon.getImage(), (width - 19) / 2, (height - 19) / 2 + begin, this);
 				}
-			} else if (isError && provedSoFar == 0) {
+			} else if ((isError && provedSoFar == 0) || expStatus == Status.FAILURE) {
 				// Draw error box
 				isError = false;
 				g.setColor(errorColor);
@@ -242,8 +262,8 @@ public class ProofBar extends JComponent {
 			} else if (e.firstType != SExpUtils.ExpType.FINAL) {
 				// Drawing untried terms
 				if (hover && my > begin && !error && !e.contents.equals("")) {
-					//g.setColor(provedColor.brighter());
-					g.setPaint(prove);
+					g.setColor(provedColor);
+					//g.setPaint(prove);
 					g.fillRect(0, begin, 30, height);
 					if (my <= begin + height) {
 						g.setColor(untriedColor);
@@ -262,14 +282,14 @@ public class ProofBar extends JComponent {
 			g.drawLine(0, begin, width, begin);
 			begin += height;
 		}
-		setPreferredSize(new Dimension(width, begin));
+		setPreferredSize(new Dimension(width, begin + 50));
 	}
 
 	private void setReadOnlyHeight(int newHeight) {
 		readOnlyHeight = newHeight;
 	}
 
-	private static int pixelHeight(Expression ex) {
+	static int pixelHeight(Expression ex) {
 		if (ex.prev == null) {
 			return (ex.height + ex.prevGapHeight) * lineHeight + ex.nextGapHeight * lineHeight / 2;
 		} else if (ex.firstType == ExpType.FINAL) {
@@ -280,7 +300,7 @@ public class ProofBar extends JComponent {
 		}
 	}
 	
-	public int getLineHeight() {
+	public static int getLineHeight() {
 		return lineHeight;
 	}
 
@@ -289,26 +309,27 @@ public class ProofBar extends JComponent {
 		this.repaint();
 	}
 	
-	//@SuppressWarnings("unchecked")
-	public void adjustHeights(java.util.LinkedList<Expression> expressions) {
+	public void adjustHeights(java.util.LinkedList<Expression> newExps) {
 		/*
 		Object o = expressions.clone();
 		if (o instanceof List<?>) {
 			this.expressions = (List<Expression>) o;
 		}
 		*/
-		this.expressions = expressions;
+		this.expressions = newExps;
 		error = false;
 		repaint();
 	}
 	
-	private void proofCallback(boolean success) {
+	void proofCallback(boolean success) {
 		if (tried == null) return;
 		if (success && numProving > 0) {
 			numProved++;
 			numProving--;
 			if (numProving > 0) {
 				proveNext();				
+			} else {
+				admitUnprovenExps();
 			}
 			repaint();
 //			undoManager.addEdit(new AbstractUndoableEdit() {
@@ -373,10 +394,24 @@ public class ProofBar extends JComponent {
 			repaint();
 		}
 	}
+	
+	void toLogicMode() {
+		// Undo everything since the last proven form
+		int idx;
+		if (admissionIndices.size() == 0) {
+			idx = acl2.numInitExps + 1;
+		} else {
+			idx = admissionIndices.get(admissionIndices.size() - 1) + 1;
+		}
+		acl2.admit(":ubt! " + idx + "\n", Acl2.doNothingCallback);
+		// Enter logic mode
+		acl2.admit(":logic\n", Acl2.doNothingCallback);
+	}
 
-	private void proveNext() {
+	void proveNext() {
 		if (proofQueue.size() == 0) {
 			numProving = 0;
+			admitUnprovenExps();
 			repaint();
 			return;
 		}
@@ -388,6 +423,7 @@ public class ProofBar extends JComponent {
 			return;
 		}
 		acl2.admit(tried.contents, new Acl2.Callback() {
+			@Override
 			public boolean run(final boolean outerSuccess, String response) {
 				if (!outerSuccess) {
 					proofCallback(outerSuccess);
@@ -421,6 +457,7 @@ public class ProofBar extends JComponent {
 				numProving++;
 				setReadOnlyIndex(Math.max(getReadOnlyIndex(), ex.nextIndex - 1));
 				proofQueue.add(ex);
+				toLogicMode();
 				proveNext();
 				break;
 			}
@@ -440,6 +477,7 @@ public class ProofBar extends JComponent {
 		flashIndex = offs;
 		flashPhase = 1;
 		flashTimeout = new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Thread.sleep(100);
@@ -478,5 +516,43 @@ public class ProofBar extends JComponent {
 	
 	public void addReadOnlyIndexChangeListener(ReadOnlyIndexChangeListener roil) {
 		readOnlyIndexListeners.add(roil);
+	}
+
+
+	public void admitUnprovenExps() {
+		if (numProving > 0) return;
+		int provedSoFar = numProved;
+		acl2.admit(":program", Acl2.doNothingCallback);
+		acl2.admit("(set-ld-redefinition-action '(:doit . :erase) state)", Acl2.doNothingCallback);
+		unprovenStates = new ArrayList<UnprovenExp>();
+		int unprovenIdx = 0;
+		for (Expression ex : expressions) {
+			if (provedSoFar > 0) {
+				provedSoFar--;
+			} else {
+				final UnprovenExp ue;
+				if (unprovenIdx < unprovenStates.size()) {
+					ue = unprovenStates.get(unprovenIdx);
+					unprovenIdx++;
+					if (ue.hash == ex.contents.hashCode()) {
+						continue;
+					}
+				} else {
+					unprovenIdx++;
+					ue = new UnprovenExp();
+					unprovenStates.add(ue);
+				}
+				ue.status = Status.UNTRIED;
+				ue.hash = ex.contents.hashCode();
+				acl2.admit(ex.contents, new Acl2.Callback() {
+					@Override
+					public boolean run(boolean success, String response) {
+						repaint();
+						ue.status = success ? Status.SUCCESS : Status.FAILURE;
+						return false;
+					}
+				});
+			}
+		}
 	}
 }

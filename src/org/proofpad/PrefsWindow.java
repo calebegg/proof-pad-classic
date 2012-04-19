@@ -15,6 +15,7 @@ public class PrefsWindow extends JFrame {
 
 	private class Separator extends JComponent {
 		private static final long serialVersionUID = 7305509836424390157L;
+		public Separator() { }
 		@Override
 		public void paintComponent(Graphics g) {
 			g.setColor(new Color(.4f, .4f, .4f));
@@ -35,8 +36,8 @@ public class PrefsWindow extends JFrame {
 	}
 
 	private static final long serialVersionUID = -5097145621288246384L;
-	private Font font;
-	private static Preferences prefs = Preferences.userNodeForPackage(Main.class);
+	Font font;
+	static Preferences prefs = Preferences.userNodeForPackage(Main.class);
 	private static List<FontChangeListener> fontChangeListeners =
 			new LinkedList<FontChangeListener>();
 	private static List<WidthGuideChangeListener> widthGuideChangeListeners =
@@ -104,8 +105,8 @@ public class PrefsWindow extends JFrame {
 		((JTextField) fontSizeComboBox.getEditor().getEditorComponent()).setInputVerifier(
 				new InputVerifier() {
 					@Override
-					public boolean verify(JComponent c) {
-						JTextField tf = (JTextField) c;
+					public boolean verify(JComponent cmp) {
+						JTextField tf = (JTextField) cmp;
 						try {
 							Float.parseFloat(tf.getText());
 							return true;
@@ -135,8 +136,27 @@ public class PrefsWindow extends JFrame {
 		add(new JLabel("Width guide:"), c);
 		c.gridx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
-		// TODO: -1?
-		final JSpinner guideSpinner = new JSpinner(new SpinnerNumberModel(widthGuide, 40, 120, 10));
+		c.insets = new Insets(formSpacing, formSpacing, 0, formSpacing);
+		final JCheckBox showGuide = new JCheckBox("Show a width guide");
+		final JSpinner guideSpinner = new JSpinner(
+				new SpinnerNumberModel(widthGuide == -1 ? 60 : widthGuide, 40, 120, 10));
+		guideSpinner.setEnabled(widthGuide != -1);
+		showGuide.setSelected(widthGuide != -1);
+		showGuide.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (showGuide.isSelected()) {
+					fireWidthGuideChangeEvent(60);
+					guideSpinner.setEnabled(true);	
+					guideSpinner.setValue(60);
+				} else {
+					fireWidthGuideChangeEvent(-1);
+					guideSpinner.setEnabled(false);
+				}
+			}
+		});
+		add(showGuide, c);
+		c.gridy++;
 		guideSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -273,6 +293,7 @@ public class PrefsWindow extends JFrame {
 		c.anchor = GridBagConstraints.EAST;
 		final JButton closeButton = new JButton("Close");
 		closeButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				that.setVisible(false);
 			}
@@ -310,7 +331,7 @@ public class PrefsWindow extends JFrame {
 		tvl.toolbarVisible(prefs.getBoolean("toolbarvisible", true));
 	}
 	
-	protected void fireWidthGuideChangeEvent(int value) {
+	protected static void fireWidthGuideChangeEvent(int value) {
 		for (WidthGuideChangeListener wgcl : widthGuideChangeListeners) {
 			wgcl.widthGuideChanged(value);
 		}
@@ -323,7 +344,7 @@ public class PrefsWindow extends JFrame {
 		prefs.putInt("fontsize", font.getSize());
 		prefs.put("fontfamily", font.getFamily());
 	}
-	protected void fireToolbarVisibleEvent() {
+	protected static void fireToolbarVisibleEvent() {
 		boolean visible = !prefs.getBoolean("toolbarvisible", true);
 		for (ToolbarVisibleListener tvl : toolbarVisibleListeners) {
 			tvl.toolbarVisible(visible);

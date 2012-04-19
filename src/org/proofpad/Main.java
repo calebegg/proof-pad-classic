@@ -46,7 +46,6 @@ public class Main {
 		logtime("Starting main");
 		System.setProperty("apple.awt.brushMetalLook", "true");
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
-		System.setProperty("apple.awt.useSystemHelp", "true");
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -68,8 +67,10 @@ public class Main {
 				errorText.setText(stackTrace);
 				errorText.setCaretPosition(0);
 				errorText.setEditable(false);
-				ResultWindow errorWindow = new ResultWindow(null, "Error");
-				errorWindow.setContent(sp);
+				JFrame errorWindow = new JFrame("Error");
+				errorWindow.add(sp);
+				errorWindow.pack();
+				errorWindow.setLocationRelativeTo(null);
 				errorWindow.setVisible(true);
 			}
 		});
@@ -130,6 +131,7 @@ public class Main {
 						System.exit(0);
 					}
 				}
+				@Override
 				public void appRaisedToForeground(com.apple.eawt.AppEvent.AppForegroundEvent arg0) {}
 			});
 			app.addAppEventListener(new com.apple.eawt.AppReOpenedListener() {
@@ -137,6 +139,7 @@ public class Main {
 				public void appReOpened(com.apple.eawt.AppEvent.AppReOpenedEvent arg0) {
 					if (IdeWindow.windows.size() == 0 && !startingUp) {
 						SwingUtilities.invokeLater(new Runnable() {
+							@Override
 							public void run() {
 								new IdeWindow().setVisible(true);
 							}
@@ -149,6 +152,7 @@ public class Main {
 			PopupMenu dockMenu = new PopupMenu();
 			MenuItem item = new MenuItem("New");
 			item.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					IdeWindow ide = new IdeWindow();
 					ide.setVisible(true);
@@ -157,11 +161,9 @@ public class Main {
 			//dockMenu.add(defaultMenuBar.recentMenu);
 			dockMenu.add(item);
 			app.setDockMenu(dockMenu);
-
-			// TODO: :-(
-			//com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this, true);
 		}
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				logtime("Start creating main window");
 				IdeWindow win = new IdeWindow();
