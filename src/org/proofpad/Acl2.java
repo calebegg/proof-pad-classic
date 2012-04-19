@@ -733,11 +733,15 @@ public class Acl2 extends Thread {
 			if (initializing) {
 				numInitExps++;
 			}
-			callbacks.add(callback);
+			if (!current.contains("__trace")) {
+				callbacks.add(callback);
+			}
 			current = current.replaceAll("\\(q\\)", ":q\n"); // The only :command that has no function equivalent
 			try {
 				out.write(current + "\n");
-				out.write("(cw \"" + marker + "\")\n");
+				if (!current.contains("__trace")) {
+					out.write("(cw \"" + marker + "\")\n");
+				}
 				out.flush();
 			} catch (IOException e) { }
 			synchronized (this) {
