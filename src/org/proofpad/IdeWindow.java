@@ -104,13 +104,14 @@ public class IdeWindow extends JFrame {
 	JScrollPane editorScroller;
 	JButton saveButton;
 
-	public ActionListener saveAction;
-	public ActionListener undoAction;
-	public ActionListener redoAction;
-	public ActionListener printAction;
-	public ActionListener findAction;
-	public ActionListener buildAction;
-	public ActionListener includeBookAction;
+	ActionListener saveAction;
+	ActionListener undoAction;
+	ActionListener redoAction;
+	ActionListener printAction;
+	ActionListener findAction;
+	ActionListener buildAction;
+	ActionListener includeBookAction;
+	ActionListener helpAction;
 	protected int dY;
 	protected int dX;
 	ActionListener tutorialAction;
@@ -203,6 +204,7 @@ public class IdeWindow extends JFrame {
 		editor = new CodePane(proofBar);
 		editorScroller.setViewportView(editor);
 		editorScroller.setRowHeaderView(proofBar);
+		helpAction = editor.getHelpAction();
 		repl = new Repl(this, acl2, editor);
 		proofBar.setLineHeight(editor.getLineHeight());
 		final IdeDocument doc = new IdeDocument(proofBar);

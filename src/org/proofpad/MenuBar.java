@@ -292,6 +292,14 @@ public class MenuBar extends JMenuBar {
 		menu = new JMenu(isMac ? "Help " : "Help");
 		item = new JMenuItem("Index");
 		item = new JMenuItem("Quick " + (titleCase ? 'G' : 'g') + "uide");
+		item = new JMenuItem("Look up...");
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey));
+		if (parent == null) {
+			item.setEnabled(false);
+		} else {
+			item.addActionListener(parent.helpAction);
+		}
+		menu.add(item);
 		item = new JMenuItem("Tutorial");
 		if (parent == null) {
 			item.setEnabled(false);
