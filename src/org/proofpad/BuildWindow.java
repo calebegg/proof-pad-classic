@@ -44,7 +44,7 @@ public class BuildWindow extends JFrame {
 	}
 	
 	public void build() {
-		builder = new Acl2(acl2Dir, file.getParentFile());
+		builder = new Acl2(acl2Dir, file.getParentFile(), null);
 		try {
 			builder.initialize();
 			builder.start();
