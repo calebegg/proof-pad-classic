@@ -491,13 +491,16 @@ public class Acl2 extends Thread {
 		"ZPF",
 	}));
 
+	private Acl2Parser parser;
+
 	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
 	private final static List<Character> markerChars = stringToCharacterList(marker);
 
-	public Acl2(String acl2Path, File workingDir) {
-		this(acl2Path, workingDir, null);
+	public Acl2(String acl2Path, File workingDir, Acl2Parser parser) {
+		this(acl2Path, workingDir, null, parser);
 	}
-	public Acl2(String acl2Path, File workingDir, Callback callback) {
+	public Acl2(String acl2Path, File workingDir, Callback callback, Acl2Parser parser) {
+		this.parser = parser;
 		this.acl2Path = acl2Path;
 		sb = new StringBuilder();
 		this.workingDir = workingDir;
@@ -548,7 +551,7 @@ public class Acl2 extends Thread {
 							if (buffer.size() > p.size() &&
 									buffer.subList(buffer.size() - p.size(), buffer.size()).equals(p)) {
 								String response = sb.toString().substring(0, sb.length() - p.size());
-								if (outputQueue.size() > 0) {
+								if (outputQueue.size() > 0 && !response.contains("DEFUN __TRACE-")) {
 									fullSuccess &= !errorOccured;
 									fullOutput += response;
 								}
@@ -703,10 +706,13 @@ public class Acl2 extends Thread {
 					} else {
 						traceExp.append(name);
 					}
-				} else if (t.type == Token.IDENTIFIER) {
+				} else if (t.type == Token.IDENTIFIER && parser.functions.contains(t.getLexeme())) {
 					traceExp.append("__trace-" + t.getLexeme());
 				} else {
 					traceExp.append(t.getLexeme());
+				}
+				if (t.getLexeme().equalsIgnoreCase("state")) {
+					isTracing = false;
 				}
 			}
 			exp.append(t.getLexeme());
@@ -732,11 +738,15 @@ public class Acl2 extends Thread {
 			if (initializing) {
 				numInitExps++;
 			}
-			callbacks.add(callback);
+			if (!current.contains("__trace") || trace) {
+				callbacks.add(callback);
+			}
 			current = current.replaceAll("\\(q\\)", ":q\n"); // The only :command that has no function equivalent
 			try {
 				out.write(current + "\n");
-				out.write("(cw \"" + marker + "\")\n");
+				if (!current.contains("__trace") || trace) {
+					out.write("(cw \"" + marker + "\")\n");
+				}
 				out.flush();
 			} catch (IOException e) { }
 			synchronized (this) {

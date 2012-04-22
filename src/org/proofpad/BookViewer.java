@@ -84,6 +84,7 @@ public class BookViewer extends JFrame {
 			public void mousePressed(MouseEvent e) {
 				int selRow = tree.getRowForLocation(e.getX(), e.getY());
 				TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+				if (selPath == null) return;
 				DefaultMutableTreeNode last =
 						(DefaultMutableTreeNode) selPath.getLastPathComponent();
 				if(selRow != -1 && e.getClickCount() == 2 && last.getChildCount() == 0) {

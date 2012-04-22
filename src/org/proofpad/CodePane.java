@@ -1,11 +1,16 @@
 package org.proofpad;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.BorderFactory;
+import javax.swing.ToolTipManager;
 import javax.swing.event.CaretEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.undo.UndoManager;
@@ -30,9 +35,11 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	int widthGuide = -1;
 	private UndoManagerCreatedListener undoManagerCreatedListener;
 	private RUndoManager undoManager;
+	private ActionListener helpAction;
 	
 	public CodePane(final ProofBar pb) {
 		this.pb = pb;
+		final CodePane that = this;
 		setAntiAliasingEnabled(true);
 		setAutoIndentEnabled(false);
 		setHighlightCurrentLine(false);
@@ -49,6 +56,51 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		setBorder(BorderFactory.createEmptyBorder(0, leftMargin, 0, 0));
 		setTabSize(4);
 		setBackground(IdeWindow.transparent);
+		helpAction = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// First, check for a visible tooltip.
+//				Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
+//				String text = getToolTipText(new MouseEvent(that, 0, 0, 0, mouseLoc.x, mouseLoc.y, 0, false, 0));
+		        ToolTipManager ttManager = ToolTipManager.sharedInstance();
+		        boolean tipShowing = false;
+		        int loc = -1;
+		        try {
+		        	Field f = ttManager.getClass().getDeclaredField("tipShowing");
+		        	f.setAccessible(true);
+		        	tipShowing = f.getBoolean(ttManager);
+		        } catch (Exception ex) {
+		        }
+		        if (tipShowing) {
+		        	Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
+		        	Point compLoc = getLocationOnScreen();
+					loc = viewToModel(new Point(mouseLoc.x - compLoc.x, mouseLoc.y - compLoc.y));
+		        } else {
+		        	loc = getCaretPosition();
+		        }
+		        if (loc == -1) {
+		        	return;
+		        }
+		        int line = 0;
+		        try {
+		        	line = getLineOfOffset(loc);
+		        } catch (BadLocationException e1) { }
+		        Token t = getTokenListForLine(line);
+		        while (t != null && t.textOffset + t.textCount < loc) {
+		        	t = t.getNextToken();
+		        }
+		        if (t != null) {
+		        	String name = t.getLexeme();
+		        	if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
+		        		try {
+		        			Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
+		        					+ name.toUpperCase() + ".html"));
+		        		} catch (IOException e1) {
+		        		} catch (URISyntaxException e1) { }
+		        	}
+		        }
+			}
+		};
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -281,5 +333,10 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		if (undoManager != null) {
 			umcl.undoManagerCreated(undoManager);
 		}
+	}
+
+	public ActionListener getHelpAction() {
+		// TODO Auto-generated method stub
+		return helpAction;
 	}
 }

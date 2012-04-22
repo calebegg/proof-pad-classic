@@ -223,6 +223,14 @@ public class MenuBar extends JMenuBar {
 		item.addActionListener(new RSyntaxTextAreaEditorKit.ToggleCommentAction());
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, modKey));
 		menu.add(item);
+		item = new JMenuItem("Reindent");
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, modKey));
+		if (parent == null) {
+			item.setEnabled(false);
+		} else {
+			item.addActionListener(parent.reindentAction);
+		}
+		menu.add(item);
 		if (!isMac) {
 			menu.addSeparator();
 			item = new JMenuItem("Preferences...");
@@ -292,6 +300,14 @@ public class MenuBar extends JMenuBar {
 		menu = new JMenu(isMac ? "Help " : "Help");
 		item = new JMenuItem("Index");
 		item = new JMenuItem("Quick " + (titleCase ? 'G' : 'g') + "uide");
+		item = new JMenuItem("Look up...");
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey));
+		if (parent == null) {
+			item.setEnabled(false);
+		} else {
+			item.addActionListener(parent.helpAction);
+		}
+		menu.add(item);
 		item = new JMenuItem("Tutorial");
 		if (parent == null) {
 			item.setEnabled(false);

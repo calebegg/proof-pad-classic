@@ -11,10 +11,13 @@ import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URLDecoder;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.text.BadLocationException;
 import javax.swing.undo.UndoManager;
 
 import org.fife.ui.rsyntaxtextarea.Token;
@@ -104,13 +107,15 @@ public class IdeWindow extends JFrame {
 	JScrollPane editorScroller;
 	JButton saveButton;
 
-	public ActionListener saveAction;
-	public ActionListener undoAction;
-	public ActionListener redoAction;
-	public ActionListener printAction;
-	public ActionListener findAction;
-	public ActionListener buildAction;
-	public ActionListener includeBookAction;
+	ActionListener saveAction;
+	ActionListener undoAction;
+	ActionListener redoAction;
+	ActionListener printAction;
+	ActionListener findAction;
+	ActionListener buildAction;
+	ActionListener includeBookAction;
+	ActionListener helpAction;
+	ActionListener reindentAction;
 	protected int dY;
 	protected int dX;
 	ActionListener tutorialAction;
@@ -198,16 +203,17 @@ public class IdeWindow extends JFrame {
 			}
 		}
 		
-		acl2 = new Acl2(acl2Path, workingDir);
+		parser = new Acl2Parser(workingDir, new File(acl2Path).getParentFile());
+		acl2 = new Acl2(acl2Path, workingDir, parser);
 		proofBar = new ProofBar(acl2);
 		editor = new CodePane(proofBar);
 		editorScroller.setViewportView(editor);
 		editorScroller.setRowHeaderView(proofBar);
+		helpAction = editor.getHelpAction();
 		repl = new Repl(this, acl2, editor);
 		proofBar.setLineHeight(editor.getLineHeight());
 		final IdeDocument doc = new IdeDocument(proofBar);
 		editor.setDocument(doc);
-		parser = new Acl2Parser(workingDir, new File(acl2Path).getParentFile());
 		parser.addParseListener(new Acl2Parser.ParseListener() {
 			@Override
 			public void wasParsed() {
@@ -288,6 +294,38 @@ public class IdeWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				BookViewer viewer = new BookViewer(that);
 				viewer.setVisible(true);
+			}
+		};
+		
+		reindentAction = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int beginLine, endLine;
+				try {
+					beginLine = editor.getLineOfOffset(editor.getSelectionStart());
+					endLine = editor.getLineOfOffset(editor.getSelectionEnd());
+				} catch (BadLocationException e) {
+					return;
+				}
+				for (int line = beginLine; line <= endLine; line++) {
+					int offset;
+					try {
+						offset = editor.getLineStartOffset(line);
+					} catch (BadLocationException e) {
+						return;
+					}
+					String eol = System.getProperty("line.separator");
+					int eolLen = eol.length();
+					try {
+						String lineStr = editor.getText(offset, editor.getLineEndOffset(line) - offset);
+						Matcher whitespace = Pattern.compile("^[ \t]*").matcher(lineStr);
+						whitespace.find();
+						int whitespaceLen = whitespace.group().length();
+						System.out.println(whitespaceLen);
+						doc.remove(offset - eolLen, eolLen + whitespaceLen);
+						doc.insertString(offset - eolLen, eol, null);
+					} catch (BadLocationException e) { }
+				}
 			}
 		};
 
