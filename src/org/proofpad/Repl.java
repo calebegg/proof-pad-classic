@@ -365,20 +365,14 @@ public class Repl extends JPanel {
 				   (match = nonRec.matcher(joined)).matches() ||
 				   (match = admission.matcher(joined)).matches()) {
 			if (msgtype == MsgType.ERROR) {
-				ret = "<html>Admission of <b>" + match.group(1).toLowerCase() + "</b> failed. " +
-						"Click for details.</html>";
+				ret = "Admission of " + match.group(1).toLowerCase() + " failed. " +
+						"Click for details.";
 			} else {
-				ret = "<html><b>" + match.group(1).toLowerCase() + "</b> was admitted successfully." +
-						"</html>";
+				ret = match.group(1).toLowerCase() + " was admitted successfully.";
 			}
 		} else if ((match = undefinedFunc.matcher(joined)).matches()) {
 			String func = match.group(1).toLowerCase();
-//			if (functions != null && functions.contains(func)) {
-//				ret = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to " +
-//						"the left of its definition.</html>";
-//			} else {
-				ret = "<html>The function <b>" + func + "</b> is undefined.</html>";
-//			}
+			ret = "The function " + func + " is undefined.";
 		} else if ((match = proved.matcher(joined)).find()) {
 			ret = "Proof successful.";
 		} else if (joined.length() > 70) {
