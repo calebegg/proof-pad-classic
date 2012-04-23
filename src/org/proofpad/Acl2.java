@@ -675,7 +675,7 @@ public class Acl2 extends Thread {
 		code = code + '\n';
 		code = code
 				.replaceAll(";.*?\r?\n", "")
-				.replaceAll("^\\:(.*?)\r?\n", "\\($1\\)")
+				.replaceAll("(^|\r?\n)\\:(.*?)(\r?\n|$)", "\\($2\\)")
 				.replaceAll("\r?\n", " ")
 				.replaceAll("#\\|.*?\\|#", "")
 				.trim();

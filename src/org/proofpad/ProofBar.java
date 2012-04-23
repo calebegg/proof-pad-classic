@@ -78,7 +78,7 @@ public class ProofBar extends JComponent {
 	}
 	private List<UnprovenExp> unprovenStates = new ArrayList<UnprovenExp>();
 
-	public ProofBar(Acl2 acl2) {
+	public ProofBar(final Acl2 acl2) {
 		super();
 		this.acl2 = acl2;
 		acl2.addRestartListener(new Acl2.RestartListener() {
@@ -103,7 +103,7 @@ public class ProofBar extends JComponent {
 				int begin = 0;
 				int provedSoFar = numProved;
 				int addToNextHeight = 0;
-				int admissionIndexSoFar = 2; // Start at 2 because of the 2 events in Acl2.java
+				int admissionIndexSoFar = acl2.numInitExps;
 				int i = 0;
 //				System.out.println(admissionIndices);
 				for (Expression ex : expressions) {
