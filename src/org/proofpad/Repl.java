@@ -47,18 +47,15 @@ public class Repl extends JPanel {
 			if (m == null) return;
 			switch(m) {
 			case ERROR:
-				//setText("\u2715");
 				setIcon(ProofBar.errorIcon);
 				break;
 			case INPUT:
 				setIcon(promptIcon);
 				break;
 			case INFO:
-				//setText("i");
 				setIcon(infoIcon);
 				break;
 			case SUCCESS:
-				//setText("\u2713");
 				setIcon(ProofBar.successIcon);
 				break;
 			}
@@ -75,24 +72,6 @@ public class Repl extends JPanel {
 		}
 	}
 	
-	// Python script to generate this:
-	
-//	from subprocess import Popen, PIPE
-//
-//	functions = [
-//	  # Functins go here
-//	]
-//
-//	for fun in functions:
-//	  acl2 = Popen(['/Users/calebegg/Code/acl2/run_acl2'],
-//	      stdin=PIPE, stdout=PIPE);
-//	  result = acl2.communicate('(trace! (' + fun + ' :native t))')[0];
-//	  if 'ACL2 Error' not in result and 'ABORTING' not in result:
-//	    print fun
-	
-	// Then I trimmed it down to keep output to a sane level.
-	
-
 	private static final long serialVersionUID = -4551996064006604257L;
 	final Acl2 acl2;
 	private JPanel output;
@@ -164,18 +143,14 @@ public class Repl extends JPanel {
 			}
 		});
 		bottom.add(prompt);
-		//input.setFont(font);
 		inputScroller = new JScrollPane(input);
 		inputScroller.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-		//final int inputBorder = 4;
-		//input.setBorder(BorderFactory.createEmptyBorder(inputBorder, inputBorder, inputBorder, inputBorder));
 		inputScroller.setMaximumSize(new Dimension(Integer.MAX_VALUE, StatusLabel.size + 6));
 		bottom.add(inputScroller);
 		run = new JButton("run");
 		trace = new JButton("trace");
 		run.setEnabled(false);
 		trace.setEnabled(false);
-		//run.putClientProperty("JButton.buttonType", "textured");
 		run.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {

@@ -140,11 +140,9 @@ public class IdeWindow extends JFrame {
 		FullScreenUtilities.addFullScreenListenerTo(this, new FullScreenAdapter() {
 			@Override
 			public void windowExitingFullScreen(FullScreenEvent arg0) {
-				// TODO Auto-generated method stub
 			}
 			@Override
 			public void windowExitedFullScreen(FullScreenEvent arg0) {
-				// TODO Auto-generated method stub
 			}
 			@Override
 			public void windowEnteringFullScreen(FullScreenEvent arg0) {
@@ -155,7 +153,6 @@ public class IdeWindow extends JFrame {
 				setBounds(new Rectangle(new Point(), screenSize));
 			}
 		});
-		//setLayout(new BorderLayout());
 
 		previewSplit.setBorder(BorderFactory.createEmptyBorder());
 		previewSplit.setDividerSize(0);
@@ -346,12 +343,6 @@ public class IdeWindow extends JFrame {
 			}
 			@Override
 			public void paintComponent(Graphics g) {
-//				g.setColor(new Color(.8f, .8f, .8f, .6f));
-//				g.setColor(new Color(1f, 1f, 1f, .6f));
-//				((Graphics2D) g).setPaint(ProofBar.diagonalPaint(
-//						new Color(.9f, .9f, .9f, .9f),
-//						new Color(1f, 1f, 1f, .7f),
-//						30, .5f));
 				// More opaque over areas we want to write on
 				g.setColor(new Color(.95f, .95f, .95f, .7f));
 				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(), editorScroller.getHeight() + 3);
@@ -452,8 +443,6 @@ public class IdeWindow extends JFrame {
 				if (prefs.getBoolean("incsearch", true)) {
 					editor.markAll(searchField.getText() + c, false, false,
 							false);
-					// textarea.setCaretPosition(textarea.getSelectionStart());
-					// searchFor(searchField.getText() + c, true);
 				}
 			}
 		});
@@ -655,34 +644,10 @@ public class IdeWindow extends JFrame {
 			}
 		});
 		
-//		if (isMac) {
-//			// Adapted from http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
-//			toolbar.addMouseListener(new MouseAdapter() {
-//	            @Override
-//	            public void mousePressed(MouseEvent e) {
-//	                Point clickPoint = new Point(e.getPoint());
-//	                SwingUtilities.convertPointToScreen(clickPoint, toolbar);
-//
-//	                dX = clickPoint.x - that.getX();
-//	                dY = clickPoint.y - that.getY();
-//	            }
-//	        });
-//			toolbar.addMouseMotionListener(new MouseMotionAdapter() {
-//				@Override
-//				public void mouseDragged(MouseEvent e) {
-//	                Point dragPoint = new Point(e.getPoint());
-//	                SwingUtilities.convertPointToScreen(dragPoint, toolbar);
-//
-//	                that.setLocation(dragPoint.x - dX, dragPoint.y - dY);
-//	            }
-//			});
-//		}
-		
 		adjustMaximizedBounds();
 		pack();
 		editor.requestFocus();
 		split.setDividerLocation(.65);
-		// System.out.println(jsp.getViewport().getExtentSize());
 
 	}
 
@@ -886,8 +851,6 @@ public class IdeWindow extends JFrame {
 		getRootPane().putClientProperty("Window.documentFile", file);
 		setTitle(file.getName() + (!isMac ? " - Proof Pad" : ""));
 		openFile = file;
-		// build.setToolTipText("Create an executable from " +
-		// openFile.getName());
 		Scanner scan = null;
 		try {
 			scan = new Scanner(openFile);

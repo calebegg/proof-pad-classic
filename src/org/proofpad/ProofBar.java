@@ -33,15 +33,7 @@ public class ProofBar extends JComponent {
 	}
 	
 	static Paint prove = diagonalPaint(provedColor, untriedColor, 8, .8f);
-//			new LinearGradientPaint(0, 0, 8, 10,
-//					new float[] {0f, .8f, .81f, 1f},
-//					new Color[] {provedColor, provedColor, untriedColor, untriedColor},
-//					MultipleGradientPaint.CycleMethod.REPEAT);
 	static Paint unprove = diagonalPaint(provedColor, untriedColor, 8, .2f);
-//			new LinearGradientPaint(0, 0, 8, 10,
-//					new float[] {0f, .2f, .21f, 1f},
-//					new Color[] {provedColor, provedColor, untriedColor, untriedColor},
-//					MultipleGradientPaint.CycleMethod.REPEAT);
 
 	private static final long serialVersionUID = 8267405348010307267L;
 	
@@ -105,9 +97,7 @@ public class ProofBar extends JComponent {
 				int addToNextHeight = 0;
 				int admissionIndexSoFar = acl2.numInitExps;
 				int i = 0;
-//				System.out.println(admissionIndices);
 				for (Expression ex : expressions) {
-					//System.out.println(ex.first);
 					int height = pixelHeight(ex);
 					height += addToNextHeight;
 					addToNextHeight = 0;
@@ -120,7 +110,6 @@ public class ProofBar extends JComponent {
 						}
 						if (e.getY() < begin + height) {
 							for (; admissionIndexSoFar < admissionIndex; admissionIndexSoFar++) {
-//								System.out.println("Undoing: " + admissionIndexSoFar);
 								that.acl2.undo();
 							}
 							numProved--;
@@ -218,9 +207,7 @@ public class ProofBar extends JComponent {
 					setReadOnlyHeight(begin + height);
 				}
 				if (hover && my < begin + height) {
-					//g.setColor(untriedColor.brighter());
 					g.setPaint(unprove);
-					//g.setPaint(new GradientPaint(0, 0, new Color(.7f, .7f, .7f), width, 0, new Color(.8f, .8f, .8f)));
 					g.fillRect(0, begin, 30, height);
 					if (my >= begin) {
 						g.setColor(provedColor);
@@ -237,7 +224,6 @@ public class ProofBar extends JComponent {
 					}
 					flashStartIndex = flashEndIndex;
 					g.fillRect(0, begin, 30, height);
-					//drawStringCentered(g, begin, height, "\u2713");
 					g.drawImage(successIcon.getImage(), (width - 19) / 2, (height - 19) / 2 + begin, this);
 				}
 			} else if ((isError && provedSoFar == 0) || expStatus == Status.FAILURE) {
@@ -248,7 +234,6 @@ public class ProofBar extends JComponent {
 				if (hover && my > begin && my <= begin + height) {
 					setToolTipText("An error occured. See the log below for details.");
 				}
-				//drawStringCentered(g, begin, height, "\u2715");
 				g.drawImage(errorIcon.getImage(), (width - 19) / 2, (height - 19) / 2 + begin, this); 
 			} else if (provingSoFar > 0) {
 				// Drawing in-progress terms
@@ -263,7 +248,6 @@ public class ProofBar extends JComponent {
 				// Drawing untried terms
 				if (hover && my > begin && !error && !e.contents.equals("")) {
 					g.setColor(provedColor);
-					//g.setPaint(prove);
 					g.fillRect(0, begin, 30, height);
 					if (my <= begin + height) {
 						g.setColor(untriedColor);
@@ -310,12 +294,6 @@ public class ProofBar extends JComponent {
 	}
 	
 	public void adjustHeights(java.util.LinkedList<Expression> newExps) {
-		/*
-		Object o = expressions.clone();
-		if (o instanceof List<?>) {
-			this.expressions = (List<Expression>) o;
-		}
-		*/
 		this.expressions = newExps;
 		error = false;
 		repaint();
@@ -332,60 +310,6 @@ public class ProofBar extends JComponent {
 				admitUnprovenExps();
 			}
 			repaint();
-//			undoManager.addEdit(new AbstractUndoableEdit() {
-//				private static final long serialVersionUID = -8089563163417075830L;
-//				@Override
-//				public void undo() {
-//					int provedSoFar = numProved;
-//					int admissionIndexSoFar = 2;
-//					for (Expression ex : expressions) {
-//						provedSoFar--;
-//						if (provedSoFar > 1) continue;
-//						if (ex.admissionIndex != -1) {
-//							for (; admissionIndexSoFar < ex.admissionIndex; admissionIndexSoFar++) {
-//								acl2.undo();
-//							}
-//						}
-//						admissionIndexSoFar = ex.admissionIndex;
-//						setReadOnlyIndex(Math.min(getReadOnlyIndex(), ex.prev == null ? -1 : ex.prev.nextIndex));
-//						numProved--;
-//						repaint();
-//						break;
-//					}
-//				}
-//				@Override
-//				public void redo() {
-//					int ignore = numProved + numProving;
-//					for (Expression ex : expressions) {
-//						ignore--;
-//						if (ignore > 0) continue;
-//						acl2.admit(ex.contents, new Acl2.Callback() {
-//							@Override
-//							public boolean run(boolean success,
-//									String response) {
-//								numProving--;
-//								if (success) {
-//									numProved++;
-//								} else {
-//									error = true;
-//									setReadOnlyIndex(tried == null || tried.prev == null ?
-//											-1 : tried.prev.nextIndex - 1);
-//									proofQueue.clear();
-//								}
-//								repaint();
-//								return true;
-//							}
-//							
-//						});
-//						numProving++;
-//						return;
-//					}
-//				}
-//				@Override
-//				public String getPresentationName() {
-//					return "Admission";
-//				}
-//			});
 		} else if (!success) {
 			numProving = 0;
 			setReadOnlyIndex(tried.prev == null ? -1 : tried.prev.nextIndex - 1);
