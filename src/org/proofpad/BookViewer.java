@@ -121,7 +121,7 @@ public class BookViewer extends JFrame {
 			}
 		});
 		buttons.add(Box.createGlue());
-		if (IdeWindow.isMac) {
+		if (IdeWindow.OSX) {
 			buttons.add(cancel);
 			buttons.add(include);
 		} else {

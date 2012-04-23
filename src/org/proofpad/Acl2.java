@@ -607,7 +607,7 @@ public class Acl2 extends Thread {
 
 	public void initialize() throws IOException {
 		ProcessBuilder processBuilder;
-		if (IdeWindow.isWindows) {
+		if (IdeWindow.WIN) {
 			processBuilder = new ProcessBuilder(acl2Path);
 			//processBuilder = new ProcessBuilder("hiddencon.exe", acl2Path);
 		} else {
@@ -616,13 +616,13 @@ public class Acl2 extends Thread {
 		processBuilder.directory(workingDir);
 		acl2 = processBuilder.start();
 		in = new BufferedReader(new InputStreamReader(acl2.getInputStream()));
-		if (!IdeWindow.isWindows) {
+		if (!IdeWindow.WIN) {
 			procId = Integer.parseInt(in.readLine());
 		}
 		out = new BufferedWriter(new OutputStreamWriter(acl2.getOutputStream()));
 		out.write("(cw \"" + marker + "\")\n");
 		String draculaPath;
-		if (IdeWindow.isWindows) {
+		if (IdeWindow.WIN) {
 			draculaPath = "/PROGRA~1/PROOFP~1/acl2/dracula";
 		} else {
 			try {
@@ -774,7 +774,7 @@ public class Acl2 extends Thread {
 		}
 	}
 	public void terminate() {
-		if (IdeWindow.isWindows) {
+		if (IdeWindow.WIN) {
 			try {
 				Runtime.getRuntime().exec(new String[] {"sendbreak.exe", Integer.toString(procId)});
 				//acl2.waitFor();
@@ -786,7 +786,7 @@ public class Acl2 extends Thread {
 	@Override
 	public void interrupt() {
 		backoff = 0;
-		if (IdeWindow.isWindows) {
+		if (IdeWindow.WIN) {
 			try {
 				Runtime.getRuntime().exec(new String[] {"sendctrlc.exe", Integer.toString(procId)});
 			} catch (IOException e) { }

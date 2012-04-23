@@ -152,7 +152,7 @@ public class AboutWindow extends JDialog {
 		
 		add(Box.createVerticalStrut(6));
 		
-		if (!IdeWindow.isMac) {
+		if (!IdeWindow.OSX) {
 			JButton close = new JButton("OK");
 			close.setAlignmentX(RIGHT_ALIGNMENT);
 			close.addActionListener(new ActionListener() {

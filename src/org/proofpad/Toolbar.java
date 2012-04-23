@@ -14,14 +14,14 @@ import javax.swing.*;
 
 public class Toolbar extends JPanel {
 	private static final int BUTTON_GAP = 4;
-	private static final boolean isMac = IdeWindow.isMac;
-	private static final String modKeyStr = (isMac ? "\u2318" : "Ctrl + ");
+	private static final boolean OSX = IdeWindow.OSX;
+	private static final String modKeyStr = (OSX ? "\u2318" : "Ctrl + ");
 	private static final long serialVersionUID = -333358626303272834L;
 	JButton updateButton;
 
 	public Toolbar(final IdeWindow parent) {
 		new JPanel();
-		if (isMac) {
+		if (OSX) {
 			setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		} else {
 			setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
@@ -50,7 +50,7 @@ public class Toolbar extends JPanel {
 		button.setEnabled(false);
 		add(button);
 		button = new JButton(new ImageIcon(getClass().getResource("/media/redo.png")));
-		button.setToolTipText("Redo the last action. (" + modKeyStr + (isMac ? "\u21e7Z" : "Y" ) + ")");
+		button.setToolTipText("Redo the last action. (" + modKeyStr + (OSX ? "\u21e7Z" : "Y" ) + ")");
 		parent.redoButton = button;
 		button.addActionListener(parent.redoAction);
 		button.putClientProperty("JButton.buttonType", "segmentedTextured");
@@ -91,7 +91,7 @@ public class Toolbar extends JPanel {
 		add(Box.createHorizontalStrut(BUTTON_GAP));
 		button = new JButton();
 		button.putClientProperty("JButton.buttonType", "help");
-		if (!isMac) {
+		if (!OSX) {
 			button.setText("Tutorial");
 		}
 		button.addActionListener(parent.tutorialAction);
