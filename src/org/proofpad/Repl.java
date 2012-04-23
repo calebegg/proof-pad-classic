@@ -408,7 +408,9 @@ public class Repl extends JPanel {
 		line.setPreferredSize(new Dimension(200, 25));
 		line.setMaximumSize(new Dimension(Short.MAX_VALUE, 25));
 		line.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-		JLabel text = new JLabel(shortResult.trim());
+		JTextArea text = new JTextArea(shortResult.trim());
+		text.setBorder(null);
+		text.setEditable(false);
 		text.setBackground(Color.LIGHT_GRAY);
 		text.setOpaque(false);
 		text.setFont(definitions.getFont());
@@ -445,7 +447,7 @@ public class Repl extends JPanel {
 		line.add(text);
 		if (!shortResult.equals(result.trim()) || tr != null) {
 			line.add(new JLabel(moreIcon));
-			line.addMouseListener(new MouseAdapter() {
+			MouseListener ml = new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
 					if (tr == null) {
@@ -458,7 +460,9 @@ public class Repl extends JPanel {
 						parent.setPreviewComponent(tr);
 					}
 				}
-			});
+			};
+			line.addMouseListener(ml);
+			text.addMouseListener(ml);
 		}
 		synchronized (this) {
 			getOutput().add(line);
