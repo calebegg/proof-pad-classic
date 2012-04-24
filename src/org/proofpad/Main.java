@@ -38,6 +38,7 @@ public class Main {
 	public static long startTime = System.currentTimeMillis();
 	public static CacheData cache;
 	
+	public static final boolean FAKE_WINDOWS = false;
 
 	public static MenuBar menuBar;
 	
@@ -45,7 +46,9 @@ public class Main {
 			ClassNotFoundException {
 		logtime("Starting main");
 		System.setProperty("apple.awt.brushMetalLook", "true");
-		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		if (!FAKE_WINDOWS) {
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+		}
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -147,20 +150,22 @@ public class Main {
 					}
 				}
 			});
-			menuBar = new MenuBar(null);
-			app.setDefaultMenuBar(menuBar);
-			PopupMenu dockMenu = new PopupMenu();
-			MenuItem item = new MenuItem("New");
-			item.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					IdeWindow ide = new IdeWindow();
-					ide.setVisible(true);
-				}
-			});
-			//dockMenu.add(defaultMenuBar.recentMenu);
-			dockMenu.add(item);
-			app.setDockMenu(dockMenu);
+			if (!FAKE_WINDOWS) {
+				menuBar = new MenuBar(null);
+				app.setDefaultMenuBar(menuBar);
+				PopupMenu dockMenu = new PopupMenu();
+				MenuItem item = new MenuItem("New");
+				item.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						IdeWindow ide = new IdeWindow();
+						ide.setVisible(true);
+					}
+				});
+				//dockMenu.add(defaultMenuBar.recentMenu);
+				dockMenu.add(item);
+				app.setDockMenu(dockMenu);
+			}
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
