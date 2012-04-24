@@ -69,7 +69,7 @@
       ;; (my-random-thing! 42) does that.
       (defmacro ,call-name ,args
         `(mv-let (seed state)
-                 (random$ *random-seed-ceiling* state)
+                 (random$ #xffffffff state)
                  (mv nil (,',fn-name ,@(list ,@args) seed) state))))))
 
 (defmacro% defrandom (name args expr)
@@ -160,7 +160,7 @@
   (%string-of-length (%random-occurrence-count 300 0 6)))
 
 (defrandom% random-symbol ()
-  (intern (%string-of-length (%random-char-list (%random-occurrence-count 300 1 6))) "ACL2"))
+  (intern (string-upcase (%string-of-length (%random-occurrence-count 300 1 6))) "ACL2"))
 
 (defun% %number-cases (cases n)
   (if (endp cases)
@@ -171,7 +171,7 @@
 
 (defmacro% random-case (&rest cases)
   `(case (random-between 1 ,(length cases))
-     ,@(number-cases cases 1)))
+     ,@(%number-cases cases 1)))
 
 
 (defrandom% %random-diminishing-interp (steps low high)
