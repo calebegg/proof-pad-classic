@@ -1,47 +1,45 @@
 ; Random data generating functions using the same API as DrRacket's doublecheck.
 (in-package "ACL2")
+(include-book "namespace")
 
-; 0 <= seeds < *random-seed-ceiling*
-(defconst *random-seed-ceiling* 
-  #xffffffff)
+(push-namespace defrandom)
 
-
-(defmacro scramble-step (n magic op1 op2 shift)
+(defmacro% %scramble-step (n magic op1 op2 shift)
   `(logand #xffffffff (,op2 (,op1 ,n ,magic) (ash ,n ,shift))))
 
-
 ;; Robert Jenkins' 32 bit integer hash function. http://www.concentric.net/~ttwang/tech/inthash.htm
-(defun scramble (n)
-  (let* ((n (scramble-step n #x7ed55d16 + + 12))
-         (n (scramble-step n #xc761c23c logxor logxor -19))
-         (n (scramble-step n #x165667b1 + + 5))
-         (n (scramble-step n #xd3a2646c + logxor 9))
-         (n (scramble-step n #xfd7046c5 + + 3))
-         (n (scramble-step n #xb55a4f09 logxor logxor -16)) )
+(defun% %scramble (n)
+  (let* ((n (%scramble-step n #x7ed55d16 + + 12))
+         (n (%scramble-step n #xc761c23c logxor logxor -19))
+         (n (%scramble-step n #x165667b1 + + 5))
+         (n (%scramble-step n #xd3a2646c + logxor 9))
+         (n (%scramble-step n #xfd7046c5 + + 3))
+         (n (%scramble-step n #xb55a4f09 logxor logxor -16)) )
     n))
 
-(defun hash (x y)
-  (scramble (logxor x y)))
+(defun% %hash (x y)
+  (%scramble (logxor x y)))
 
 
-(defun symbol-append (prefix suffix)
+(defun% %symbol-append (prefix suffix)
   (intern (concatenate 'string
                        (symbol-name prefix)
                        (symbol-name suffix))
           "ACL2"))
 
-(defun call-with-random-seed (name args)
+(defun% %call-with-random-seed (name args)
   `(,name ,@args random-seed))
+
+
+(defun% %replace-placeholders (tree so-far)
+  (if (consp tree)
+      (cons (%replace-placeholders (car tree) (ash so-far 1))
+            (%replace-placeholders (cdr tree) (1+ (ash so-far 1))))
+      (if (equal tree :defrandom-placement) so-far tree)))
 
 (set-state-ok t)
 
-(defun replace-placeholders (tree so-far)
-  (if (consp tree)
-      (cons (replace-placeholders (car tree) (ash so-far 1))
-            (replace-placeholders (cdr tree) (1+ (ash so-far 1))))
-      (if (equal tree :defrandom-placement) so-far tree)))
-
-(defun expand (form state)
+(defun% %expand (form state)
   (declare (xargs :mode :program))
   (mv-let
    (flg val bindings state)
@@ -49,16 +47,16 @@
    (declare (ignore bindings))
    (mv flg val state)))
 
-(defun placify (x state)
+(defun% %placify (x state)
   (declare (xargs :mode :program))
   (mv-let (er x-prime state)
-          (expand x state)
-          (mv er (replace-placeholders x-prime 1) state)))
+          (%expand x state)
+          (mv er (%replace-placeholders x-prime 1) state)))
 
 
-(defun defrandom-fn (name args expr)
-  (let ((fn-name (symbol-append name '-fn))
-        (call-name (symbol-append name '!)))
+(defun% %defrandom-fn (name args expr)
+  (let ((fn-name (%symbol-append name '-fn))
+        (call-name (%symbol-append name '!)))
     `(progn
       
       
@@ -74,8 +72,8 @@
                  (random$ *random-seed-ceiling* state)
                  (mv nil (,',fn-name ,@(list ,@args) seed) state))))))
 
-(defmacro defrandom (name args expr)
-  (let ((fn-name (symbol-append name '-fn)))
+(defmacro% defrandom (name args expr)
+  (let ((fn-name (%symbol-append name '-fn)))
     `(progn
       ;; The macro that other defrandoms will call passes on whatever arguments
       ;; were given as well as the seed, updated based on this call's placement.
@@ -83,124 +81,123 @@
       ;; function - the function body will need to macroexpand the macro entry 
       ;; point, in that case.
       (defmacro ,name ,args
-        `(,',fn-name ,@(list ,@args) (hash random-seed :defrandom-placement)))
+        `(,',fn-name ,@(list ,@args) (%hash random-seed :defrandom-placement)))
       
       (make-event
        (er-let* (;; Make a stub so that a if it macroexpands MY-RANDOM and finds
                  ;; MY-RANDOM-FN, it will not complain.
                  (defun-result (defun-fn '(,fn-name (,@args random-seed-arg) (list ,@args random-seed-arg)) state nil))
                  ;; Actually macroexpand
-                 (placed-expr (placify ',expr state)))
-                (mv nil (defrandom-fn ',name ',args placed-expr) state))))))
+                 (placed-expr (%placify ',expr state)))
+                (mv nil (%defrandom-fn ',name ',args placed-expr) state))))))
 
-
+(def-namespace-form defrandom)
 ; For when you want to deal with the seed directly. A user of this library will typically
 ; not do this. The call will look like
 ; (defrandom-raw my-raw-random-function
 ;   (+ seed 5))
-(defmacro defrandom-raw (name expr)
-  (let ((fn-name (symbol-append name '-fn))
-        (call-name (symbol-append name '!)))
+(defmacro% defrandom-raw (name expr)
+  (let ((fn-name (%symbol-append name '-fn))
+        (call-name (%symbol-append name '!)))
     `(progn (defun ,fn-name (seed)
               ,expr)
             (defmacro ,name () 
-              `(,',fn-name (hash random-seed :defrandom-placement)))
+              `(,',fn-name (%hash random-seed :defrandom-placement)))
             
             (defmacro ,call-name ()
               `(mv-let (seed state)
                        (random$ *random-seed-ceiling* state)
                        (mv nil (,',fn-name seed) state))))))
 
-
-(defrandom-raw random-byte
-  (mod seed 256))
-
 (defrandom-raw random-boolean
   (logtest seed #x004000))
 
-(defrandom random-below-2^n (pow so-far)
+(defrandom% %random-below-2^n (pow so-far)
   (if (zp pow) so-far
-      (random-below-2^n (- pow 1)
+      (%random-below-2^n (- pow 1)
                         (logior (ash so-far 1) 
                                 (if (random-boolean) 1 0))))) 
 
-(defrandom random-below-attempts (n bits tries)
+(defrandom% %random-below-attempts (n bits tries)
   (if (zp tries)
       0
-      (let ((try (random-below-2^n bits 0)))
+      (let ((try (%random-below-2^n bits 0)))
         (if (< try n)
             try
-            (random-below-attempts n bits (- tries 1))))))
+            (%random-below-attempts n bits (- tries 1))))))
 
 
-(defrandom random-below (n)
-  (random-below-attempts n (integer-length n) 50))
+(defrandom% %random-below (n)
+  (%random-below-attempts n (integer-length n) 50))
 
 ; low <= result <= high
-(defrandom random-between (low high)
-  (+ low (random-below (+ high (- low) 1))))
+(defrandom% random-between (low high)
+  (+ low (%random-below (+ high (- low) 1))))
 
-(defrandom random-element-of (xs)
+(defrandom% random-element-of (xs)
   (nth (random-between 0 (- (length xs) 1)) xs))
 
-(defrandom random-char ()
+(defrandom% random-char ()
   (code-char (random-between (char-code #\a) (char-code #\z))))
 
-(defrandom random-char-list (n)
+(defrandom% %random-char-list (n)
   (if (zp n)
       nil
-      (cons (random-char) (random-char-list (1- n)))))
+      (cons (random-char) (%random-char-list (1- n)))))
 
-(defrandom random-occurrence-count (tries occurred improb-power)
+(defrandom% %random-occurrence-count (tries occurred improb-power)
   (if (zp tries)
       occurred
-      (random-occurrence-count 
+      (%random-occurrence-count 
        (1- tries) 
-       (+ occurred (if (equal (random-below-2^n improb-power 0) 0) 1 0))
+       (+ occurred (if (equal (%random-below-2^n improb-power 0) 0) 1 0))
        improb-power)))
 
-(defrandom random-string ()
-  (coerce (random-char-list (random-occurrence-count 300 0 6)) 'string))
+(defrandom% %string-of-length (n)
+   (coerce (%random-char-list n) 'string))
 
-(defrandom random-symbol ()
-  (intern (string-upcase (coerce (random-char-list (random-occurrence-count 300 1 6)) 'string)) "ACL2"))
+(defrandom% random-string ()
+  (%string-of-length (%random-occurrence-count 300 0 6)))
 
-(defun number-cases (cases n)
+(defrandom% random-symbol ()
+  (intern (%string-of-length (%random-char-list (%random-occurrence-count 300 1 6))) "ACL2"))
+
+(defun% %number-cases (cases n)
   (if (endp cases)
       nil
       (cons (list n (first cases))
-            (number-cases (rest cases) (1+ n)))))
+            (%number-cases (rest cases) (1+ n)))))
 
 
-(defmacro random-case (&rest cases)
+(defmacro% random-case (&rest cases)
   `(case (random-between 1 ,(length cases))
      ,@(number-cases cases 1)))
 
 
-(defrandom random-diminishing-interp (steps low high)
+(defrandom% %random-diminishing-interp (steps low high)
   (if (or (zp steps)
           (<= high low))
       low
       (let ((cut (+ low (ash (- high low) -2))))
         (if (random-boolean)
-            (random-diminishing-interp (- steps 1) low cut)
-            (random-diminishing-interp (- steps 1) (1+ cut) high)))))
+            (%random-diminishing-interp (- steps 1) low cut)
+            (%random-diminishing-interp (- steps 1) (1+ cut) high)))))
 
-(defrandom random-diminishing-doubling (steps sust so-far)
+(defrandom% %random-diminishing-doubling (steps sust so-far)
   (if (or (zp steps)
           (random-boolean))
       (+ so-far
-         (random-diminishing-interp steps 1 sust))
-      (random-diminishing-doubling (- steps 1) sust (+ so-far sust))))
+         (%random-diminishing-interp steps 1 sust))
+      (%random-diminishing-doubling (- steps 1) sust (+ so-far sust))))
 
 ; This is not any nice mathematical distribution, but in general larger numbers
 ; are less likely than smaller numbers. It generates at least 1. sust controls
 ; how quickly it falls off; higher sust means higher numbers.
-(defrandom random-diminishing (sust)
-  (random-diminishing-doubling 1000 sust 0))
+(defrandom% %random-diminishing (sust)
+  (%random-diminishing-doubling 1000 sust 0))
 
-(defrandom random-positive-integer ()
-  (random-diminishing 512))
+(defrandom% random-positive-integer ()
+  (%random-diminishing 512))
 
 (defrandom random-natural ()
   (- (random-positive-integer) 1))
@@ -228,34 +225,35 @@
    (random-char)
    (random-number)))
 
-(defrandom random-data-size ()
-  (random-diminishing 4))
+(defrandom% random-data-size ()
+  (%random-diminishing 4))
 
-(defun ensure-less (x upper-bound)
+(defun% %ensure-less (x upper-bound)
   (nfix (if (< x upper-bound)
             x
             0)))
 
-(encapsulate
+(encapsulate%
  nil
  (local 
    (defthm ensure-less-works
      (implies (not (zp upper-bound))
-              (< (ensure-less x upper-bound)
+              (< (%ensure-less x upper-bound)
                  upper-bound))))
  
  
- (local (in-theory (disable binary-logxor hash lognot ensure-less)))
+ (local (in-theory (disable binary-logxor %hash lognot %ensure-less)))
  
- (defrandom random-sexp-of-size (size)
+ (defrandom %random-sexp-of-size (size)
    (if (zp size)
        (random-atom)
        (let* ((left (random-between 0 (- size 1)))
               (right (+ size (- left)  -1)))
-         (cons (random-sexp-of-size (ensure-less left size))
-               (random-sexp-of-size (ensure-less right size)))))))
+         (cons (%random-sexp-of-size (%ensure-less left size))
+               (%random-sexp-of-size (%ensure-less right size)))))))
 
-(defrandom random-sexp ()
-  (random-sexp-of-size (random-data-size)))
+(defrandom% random-sexp ()
+  (%random-sexp-of-size (random-data-size)))
 
+(pop-namespace defrandom)
 
