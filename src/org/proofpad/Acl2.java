@@ -607,21 +607,22 @@ public class Acl2 extends Thread {
 
 	public void initialize() throws IOException {
 		ProcessBuilder processBuilder;
-		if (IdeWindow.isWindows) {
-			processBuilder = new ProcessBuilder("ctrlc-windows.exe", acl2Path);
+		if (IdeWindow.WIN) {
+			processBuilder = new ProcessBuilder(acl2Path);
+			//processBuilder = new ProcessBuilder("hiddencon.exe", acl2Path);
 		} else {
 			processBuilder = new ProcessBuilder("sh", "-c", "echo \"$$\"; exec \"$0\" \"$@\"" + acl2Path);
 		}
 		processBuilder.directory(workingDir);
 		acl2 = processBuilder.start();
 		in = new BufferedReader(new InputStreamReader(acl2.getInputStream()));
-		if (!IdeWindow.isWindows) {
+		if (!IdeWindow.WIN) {
 			procId = Integer.parseInt(in.readLine());
 		}
 		out = new BufferedWriter(new OutputStreamWriter(acl2.getOutputStream()));
 		out.write("(cw \"" + marker + "\")\n");
 		String draculaPath;
-		if (IdeWindow.isWindows) {
+		if (IdeWindow.WIN) {
 			draculaPath = "/PROGRA~1/PROOFP~1/acl2/dracula";
 		} else {
 			try {
@@ -674,7 +675,7 @@ public class Acl2 extends Thread {
 		code = code + '\n';
 		code = code
 				.replaceAll(";.*?\r?\n", "")
-				.replaceAll("^\\:(.*?)\r?\n", "\\($1\\)")
+				.replaceAll("(^|\r?\n)\\:(.*?)(\r?\n|$)", "\\($2\\)")
 				.replaceAll("\r?\n", " ")
 				.replaceAll("#\\|.*?\\|#", "")
 				.trim();
@@ -782,20 +783,21 @@ public class Acl2 extends Thread {
 	}
 	
 	public void terminate() {
-		if (acl2 != null) {
-			if (IdeWindow.isWindows) {
-				writeByte(0);
-			} else {
-				acl2.destroy();
-			}
+		if (IdeWindow.WIN) {
+			try {
+				Runtime.getRuntime().exec(new String[] {"sendbreak.exe", Integer.toString(procId)});
+				//acl2.waitFor();
+			} catch (IOException e) { }
 		}
 	}
 	
 	@Override
 	public void interrupt() {
 		backoff = 0;
-		if (IdeWindow.isWindows) {
-			writeByte(1);
+		if (IdeWindow.WIN) {
+			try {
+				Runtime.getRuntime().exec(new String[] {"sendctrlc.exe", Integer.toString(procId)});
+			} catch (IOException e) { }
 		} else {
 			try {
 				Runtime.getRuntime().exec(new String[] {"kill", "-s", "INT", Integer.toString(procId)});
