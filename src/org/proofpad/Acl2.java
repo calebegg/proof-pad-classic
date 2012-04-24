@@ -707,7 +707,7 @@ public class Acl2 extends Thread {
 					} else {
 						traceExp.append(name);
 					}
-				} else if (t.type == Token.IDENTIFIER && parser.functions.contains(t.getLexeme())) {
+				} else if (t.type == Token.IDENTIFIER && parser != null && parser.functions.contains(t.getLexeme())) {
 					traceExp.append("__trace-" + t.getLexeme());
 				} else {
 					traceExp.append(t.getLexeme());
