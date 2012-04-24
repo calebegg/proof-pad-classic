@@ -640,7 +640,7 @@ public class Acl2Parser extends AbstractParser {
 						Map<String, String> docs = Main.cache.getDocs();
 						String upperToken = token.getLexeme().toUpperCase();
 						if (docs.containsKey(upperToken)) {
-							String modKey = IdeWindow.isMac ? "\u2318" : "Ctrl + ";
+							String modKey = IdeWindow.OSX ? "\u2318" : "Ctrl + ";
 							String msg = "<html>" + docs.get(upperToken) + "<br><font " +
 									"color=\"gray\" size=\"2\">" + modKey + "L for more.</font></html>";
 							result.addNotice(new Acl2ParserNotice(this,

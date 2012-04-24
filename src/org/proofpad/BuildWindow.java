@@ -9,8 +9,8 @@ import javax.swing.*;
 public class BuildWindow extends JFrame {
 
 	private static final long serialVersionUID = 8394742808899908090L;
-	private static final boolean isMac = IdeWindow.isMac;
-	private static final boolean isWindows = IdeWindow.isWindows;
+	private static final boolean OSX = IdeWindow.OSX;
+	private static final boolean WIN = IdeWindow.WIN;
 	private File file;
 	private String acl2Dir;
 	private JProgressBar progress;
@@ -56,12 +56,12 @@ public class BuildWindow extends JFrame {
 					"(defun __main__ () (main state))",
 					null);
 			final String filename;
-			if (isMac) {
+			if (OSX) {
 				FileDialog fc = new FileDialog(this, "Save Executable...");
 				fc.setMode(FileDialog.SAVE);
 				fc.setDirectory(file.getPath());
 				fc.setFile(file.getName().split("\\.")[0]
-						+ (isWindows ? ".exe" : ""));
+						+ (WIN ? ".exe" : ""));
 				fc.setVisible(true);
 				filename = fc.getDirectory() + fc.getFile();
 			} else {

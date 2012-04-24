@@ -80,7 +80,7 @@ public class Main {
 		cache = (CacheData) ois.readObject();
 		logtime("Loaded cache");
 		
-		if (IdeWindow.isMac) {
+		if (IdeWindow.OSX) {
 			com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
 			app.setOpenFileHandler(new com.apple.eawt.OpenFilesHandler() {
 				@Override

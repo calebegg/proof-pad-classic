@@ -1,9 +1,14 @@
 package org.proofpad;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import javax.swing.*;
@@ -114,11 +119,22 @@ public class AboutWindow extends JDialog {
 		label.setAlignmentX(CENTER_ALIGNMENT);
 		label.setFont(label.getFont().deriveFont(Font.BOLD, 16));
 		add(label);
-		
-		label = new JLabel("\u00A9 2012 Caleb Eggensperger");
+		label = new JLabel("\u00A9 2012 Caleb Eggensperger and others.");
 		label.setAlignmentX(CENTER_ALIGNMENT);
 		add(label);
-		
+		JButton button = new JButton("<html><a href=\"\">View on Github</a></html>");
+		button.setAlignmentX(CENTER_ALIGNMENT);
+		button.setBorder(null);
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					Desktop.getDesktop().browse(new URI("https://github.com/calebegg/proof-pad/"));
+				} catch (IOException e) {
+				} catch (URISyntaxException e) { }
+			}
+		});
+		add(button);
 		
 		Font f = new Font("Monospaced", Font.PLAIN, 12);
 		int licenseWidth = widthFor(f, 89);
@@ -130,14 +146,13 @@ public class AboutWindow extends JDialog {
 			licenseText.setEditable(false);
 			final JScrollPane textScroller = new JScrollPane(licenseText);
 			textScroller.setPreferredSize(new Dimension(licenseWidth, 200));
-			
 			licenseTabs.addTab(license.title, textScroller);
 		}
 		add(licenseTabs);
 		
 		add(Box.createVerticalStrut(6));
 		
-		if (!IdeWindow.isMac) {
+		if (!IdeWindow.OSX) {
 			JButton close = new JButton("OK");
 			close.setAlignmentX(RIGHT_ALIGNMENT);
 			close.addActionListener(new ActionListener() {

@@ -47,18 +47,15 @@ public class Repl extends JPanel {
 			if (m == null) return;
 			switch(m) {
 			case ERROR:
-				//setText("\u2715");
 				setIcon(ProofBar.errorIcon);
 				break;
 			case INPUT:
 				setIcon(promptIcon);
 				break;
 			case INFO:
-				//setText("i");
 				setIcon(infoIcon);
 				break;
 			case SUCCESS:
-				//setText("\u2713");
 				setIcon(ProofBar.successIcon);
 				break;
 			}
@@ -75,24 +72,6 @@ public class Repl extends JPanel {
 		}
 	}
 	
-	// Python script to generate this:
-	
-//	from subprocess import Popen, PIPE
-//
-//	functions = [
-//	  # Functins go here
-//	]
-//
-//	for fun in functions:
-//	  acl2 = Popen(['/Users/calebegg/Code/acl2/run_acl2'],
-//	      stdin=PIPE, stdout=PIPE);
-//	  result = acl2.communicate('(trace! (' + fun + ' :native t))')[0];
-//	  if 'ACL2 Error' not in result and 'ABORTING' not in result:
-//	    print fun
-	
-	// Then I trimmed it down to keep output to a sane level.
-	
-
 	private static final long serialVersionUID = -4551996064006604257L;
 	final Acl2 acl2;
 	private JPanel output;
@@ -164,18 +143,14 @@ public class Repl extends JPanel {
 			}
 		});
 		bottom.add(prompt);
-		//input.setFont(font);
 		inputScroller = new JScrollPane(input);
 		inputScroller.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-		//final int inputBorder = 4;
-		//input.setBorder(BorderFactory.createEmptyBorder(inputBorder, inputBorder, inputBorder, inputBorder));
 		inputScroller.setMaximumSize(new Dimension(Integer.MAX_VALUE, StatusLabel.size + 6));
 		bottom.add(inputScroller);
 		run = new JButton("run");
 		trace = new JButton("trace");
 		run.setEnabled(false);
 		trace.setEnabled(false);
-		//run.putClientProperty("JButton.buttonType", "textured");
 		run.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -365,20 +340,14 @@ public class Repl extends JPanel {
 				   (match = nonRec.matcher(joined)).matches() ||
 				   (match = admission.matcher(joined)).matches()) {
 			if (msgtype == MsgType.ERROR) {
-				ret = "<html>Admission of <b>" + match.group(1).toLowerCase() + "</b> failed. " +
-						"Click for details.</html>";
+				ret = "Admission of " + match.group(1).toLowerCase() + " failed. " +
+						"Click for details.";
 			} else {
-				ret = "<html><b>" + match.group(1).toLowerCase() + "</b> was admitted successfully." +
-						"</html>";
+				ret = match.group(1).toLowerCase() + " was admitted successfully.";
 			}
 		} else if ((match = undefinedFunc.matcher(joined)).matches()) {
 			String func = match.group(1).toLowerCase();
-//			if (functions != null && functions.contains(func)) {
-//				ret = "<html><b>" + func + "</b> must be admitted first. Click the grey bar to " +
-//						"the left of its definition.</html>";
-//			} else {
-				ret = "<html>The function <b>" + func + "</b> is undefined.</html>";
-//			}
+			ret = "The function " + func + " is undefined.";
 		} else if ((match = proved.matcher(joined)).find()) {
 			ret = "Proof successful.";
 		} else if (joined.length() > 70) {
@@ -408,7 +377,9 @@ public class Repl extends JPanel {
 		line.setPreferredSize(new Dimension(200, 25));
 		line.setMaximumSize(new Dimension(Short.MAX_VALUE, 25));
 		line.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-		JLabel text = new JLabel(shortResult.trim());
+		JTextArea text = new JTextArea(shortResult.trim());
+		text.setBorder(null);
+		text.setEditable(false);
 		text.setBackground(Color.LIGHT_GRAY);
 		text.setOpaque(false);
 		text.setFont(definitions.getFont());
@@ -445,7 +416,7 @@ public class Repl extends JPanel {
 		line.add(text);
 		if (!shortResult.equals(result.trim()) || tr != null) {
 			line.add(new JLabel(moreIcon));
-			line.addMouseListener(new MouseAdapter() {
+			MouseListener ml = new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
 					if (tr == null) {
@@ -458,7 +429,9 @@ public class Repl extends JPanel {
 						parent.setPreviewComponent(tr);
 					}
 				}
-			});
+			};
+			line.addMouseListener(ml);
+			text.addMouseListener(ml);
 		}
 		synchronized (this) {
 			getOutput().add(line);

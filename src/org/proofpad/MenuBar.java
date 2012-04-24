@@ -23,9 +23,9 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
 
 public class MenuBar extends JMenuBar {
 	static final int RECENT_MENU_ITEMS = 10;
-	private static final boolean isWindows = IdeWindow.isWindows;
-	private static final boolean isMac = IdeWindow.isMac;
-	private static final boolean titleCase = !isWindows;
+	private static final boolean WIN = IdeWindow.WIN;
+	private static final boolean OSX = IdeWindow.OSX;
+	private static final boolean TITLE_CASE = !WIN;
 	private static final long serialVersionUID = -3469258243341307842L;
 	static final int modKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 	public JMenuItem undo;
@@ -54,7 +54,7 @@ public class MenuBar extends JMenuBar {
 		item.addActionListener(IdeWindow.openAction);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, modKey));
 		menu.add(item);
-		recentMenu = new JMenu("Open " + (titleCase  ? 'r' : 'R') + "ecent");
+		recentMenu = new JMenu("Open " + (TITLE_CASE  ? 'r' : 'R') + "ecent");
 		updateRecentMenu();
 		menu.add(recentMenu);
 		
@@ -110,9 +110,9 @@ public class MenuBar extends JMenuBar {
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, modKey));
 		menu.add(item);
 		
-		if (!isMac) {
+		if (!OSX) {
 			menu.addSeparator();
-			item = new JMenuItem(isWindows ? "Exit" : "Quit");
+			item = new JMenuItem(WIN ? "Exit" : "Quit");
 			item.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -121,7 +121,7 @@ public class MenuBar extends JMenuBar {
 					}
 				}
 			});
-			if (!isWindows) {
+			if (!WIN) {
 				item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, modKey));
 			}
 			menu.add(item);
@@ -148,7 +148,7 @@ public class MenuBar extends JMenuBar {
 		} else {
 			item.addActionListener(parent.redoAction);
 		}
-		if (isMac) {
+		if (OSX) {
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, modKey | KeyEvent.SHIFT_DOWN_MASK));
 		} else {
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, modKey));
@@ -192,7 +192,7 @@ public class MenuBar extends JMenuBar {
 		}
 		menu.add(item);
 		
-		item = new JMenuItem("Select " + (titleCase ? 'A' : 'a') + "ll");
+		item = new JMenuItem("Select " + (TITLE_CASE ? 'A' : 'a') + "ll");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, modKey));
 		if (parent == null) {
 			item.setEnabled(false);
@@ -218,7 +218,7 @@ public class MenuBar extends JMenuBar {
 		
 		menu.addSeparator();
 		
-		item = new JMenuItem("Toggle " + (titleCase ? 'C' : 'c') + "omment");
+		item = new JMenuItem("Toggle " + (TITLE_CASE ? 'C' : 'c') + "omment");
 		item.setEnabled(parent != null);
 		item.addActionListener(new RSyntaxTextAreaEditorKit.ToggleCommentAction());
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, modKey));
@@ -231,7 +231,7 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(parent.reindentAction);
 		}
 		menu.add(item);
-		if (!isMac) {
+		if (!OSX) {
 			menu.addSeparator();
 			item = new JMenuItem("Preferences...");
 			item.addActionListener(new ActionListener() {
@@ -290,16 +290,16 @@ public class MenuBar extends JMenuBar {
 		menu.add(item);
 		add(menu);
 		/* ******* Window Menu (Mac only) ******* */
-		if (isMac) {
+		if (OSX) {
 			menu = new JMenu("Window");
 			windowMenu = menu;
 			add(menu);
 			updateWindowMenu();
 		}
 		/* ******* */
-		menu = new JMenu(isMac ? "Help " : "Help");
+		menu = new JMenu(OSX ? "Help " : "Help");
 		item = new JMenuItem("Index");
-		item = new JMenuItem("Quick " + (titleCase ? 'G' : 'g') + "uide");
+		item = new JMenuItem("Quick " + (TITLE_CASE ? 'G' : 'g') + "uide");
 		item = new JMenuItem("Look up...");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey));
 		if (parent == null) {
@@ -315,7 +315,7 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(parent.tutorialAction);
 		}
 		menu.add(item);
-		if (!isMac) {
+		if (!OSX) {
 			item = new JMenuItem("About");
 			item.addActionListener(new ActionListener() {
 				@Override
@@ -368,7 +368,7 @@ public class MenuBar extends JMenuBar {
 	}
 
 	public void updateWindowMenu() {
-		if (!isMac) return;
+		if (!OSX) return;
 		windowMenu.removeAll();
 		JMenuItem item = new JMenuItem();
 		item = new JMenuItem("Minimize");

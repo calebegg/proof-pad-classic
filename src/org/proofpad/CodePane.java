@@ -39,7 +39,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	
 	public CodePane(final ProofBar pb) {
 		this.pb = pb;
-		final CodePane that = this;
 		setAntiAliasingEnabled(true);
 		setAutoIndentEnabled(false);
 		setHighlightCurrentLine(false);
@@ -60,8 +59,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// First, check for a visible tooltip.
-//				Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
-//				String text = getToolTipText(new MouseEvent(that, 0, 0, 0, mouseLoc.x, mouseLoc.y, 0, false, 0));
 		        ToolTipManager ttManager = ToolTipManager.sharedInstance();
 		        boolean tipShowing = false;
 		        int loc = -1;
@@ -144,7 +141,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 				}
 				if (getCaretColor() == IdeWindow.transparent) {
 					e.consume();
-					// jsp.keyDown(null, e.getKeyCode());
 				}
 				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 					if (getCaretPosition() - 3 < pb.getReadOnlyIndex()) {
@@ -158,7 +154,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 				if (pb == null) return;
 				if (pb.getReadOnlyIndex() >= 0
 						&& getCaretPosition() < pb.getReadOnlyIndex() + 2) {
-					// textarea.setCaretPosition(0);
 					setCaretColor(IdeWindow.transparent);
 				} else {
 					setCaretColor(Color.BLACK);
@@ -209,8 +204,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 					ySoFar);
 			ySoFar += (int) bigFm.getLineMetrics(Main.displayName, g).getHeight() + 1;
 			g.setFont(originalFont);
-//			AboutWindow.icon64.paintIcon(this, g, 0, ySoFar);
-//			ySoFar += AboutWindow.icon64.getIconHeight();
 			for (String line : welcomeMessage) {
 				ySoFar += lineHeight;
 				g.drawString(line, (getWidth() - fm.stringWidth(line) - pb.getWidth()) / 2,

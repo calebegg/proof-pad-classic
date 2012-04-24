@@ -32,8 +32,8 @@ import com.apple.eawt.FullScreenUtilities;
 
 
 public class IdeWindow extends JFrame {
-	public static final boolean isMac = System.getProperty("os.name").indexOf("Mac") != -1;
-	public static final boolean isWindows =
+	public static final boolean OSX = System.getProperty("os.name").indexOf("Mac") != -1;
+	public static final boolean WIN =
 			System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
 	public static final Color transparent = new Color(1f, 1f, 1f, 0f);
 	static JFileChooser fc = new JFileChooser();
@@ -54,7 +54,7 @@ public class IdeWindow extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			File file;
-			if (isMac) {
+			if (OSX) {
 				FileDialog fd = new FileDialog((Frame)null, "Open file");
 				fd.setFilenameFilter(new FilenameFilter() {
 					@Override
@@ -140,11 +140,9 @@ public class IdeWindow extends JFrame {
 		FullScreenUtilities.addFullScreenListenerTo(this, new FullScreenAdapter() {
 			@Override
 			public void windowExitingFullScreen(FullScreenEvent arg0) {
-				// TODO Auto-generated method stub
 			}
 			@Override
 			public void windowExitedFullScreen(FullScreenEvent arg0) {
-				// TODO Auto-generated method stub
 			}
 			@Override
 			public void windowEnteringFullScreen(FullScreenEvent arg0) {
@@ -155,7 +153,6 @@ public class IdeWindow extends JFrame {
 				setBounds(new Rectangle(new Point(), screenSize));
 			}
 		});
-		//setLayout(new BorderLayout());
 
 		previewSplit.setBorder(BorderFactory.createEmptyBorder());
 		previewSplit.setDividerSize(0);
@@ -183,7 +180,7 @@ public class IdeWindow extends JFrame {
 		if (prefs.getBoolean("customacl2", false)) {
 			acl2Path = prefs.get("acl2Path", "");
 		} else {
-			if (isWindows) {
+			if (WIN) {
 				// HACK: oh no oh no oh no
 				acl2Path = "C:\\PROGRA~1\\PROOFP~1\\acl2\\run_acl2.exe";
 			} else {
@@ -346,12 +343,6 @@ public class IdeWindow extends JFrame {
 			}
 			@Override
 			public void paintComponent(Graphics g) {
-//				g.setColor(new Color(.8f, .8f, .8f, .6f));
-//				g.setColor(new Color(1f, 1f, 1f, .6f));
-//				((Graphics2D) g).setPaint(ProofBar.diagonalPaint(
-//						new Color(.9f, .9f, .9f, .9f),
-//						new Color(1f, 1f, 1f, .7f),
-//						30, .5f));
 				// More opaque over areas we want to write on
 				g.setColor(new Color(.95f, .95f, .95f, .7f));
 				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(), editorScroller.getHeight() + 3);
@@ -417,7 +408,7 @@ public class IdeWindow extends JFrame {
 				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK),
 				BorderFactory.createEmptyBorder(0, 5, 0, 5)));
 		findBar.setBackground(new Color(.9f, .9f, .9f));
-		if (isMac) {
+		if (OSX) {
 			// TODO: make this look more like safari?
 			// findBar.add(Box.createGlue());
 			// searchField.setPreferredSize(new Dimension(300, 0));
@@ -452,8 +443,6 @@ public class IdeWindow extends JFrame {
 				if (prefs.getBoolean("incsearch", true)) {
 					editor.markAll(searchField.getText() + c, false, false,
 							false);
-					// textarea.setCaretPosition(textarea.getSelectionStart());
-					// searchFor(searchField.getText() + c, true);
 				}
 			}
 		});
@@ -616,7 +605,7 @@ public class IdeWindow extends JFrame {
 		} else {
 			setTitle("untitled"
 				+ (untitledCount == 1 ? "" : " " + (untitledCount))
-				+ (!isMac ? " - Proof Pad" : ""));
+				+ (!OSX ? " - Proof Pad" : ""));
 			untitledCount++;
 		}
 		updateWindowMenu();
@@ -626,7 +615,7 @@ public class IdeWindow extends JFrame {
 		setMinimumSize(new Dimension(550, 300));
 
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-		if (isWindows || isMac) {
+		if (WIN || OSX) {
 			setLocation((screen.width - 600) / 2 + 50 * windows.size(),
 					(screen.height - 800) / 2 + 50 * windows.size());
 		}
@@ -655,34 +644,10 @@ public class IdeWindow extends JFrame {
 			}
 		});
 		
-//		if (isMac) {
-//			// Adapted from http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
-//			toolbar.addMouseListener(new MouseAdapter() {
-//	            @Override
-//	            public void mousePressed(MouseEvent e) {
-//	                Point clickPoint = new Point(e.getPoint());
-//	                SwingUtilities.convertPointToScreen(clickPoint, toolbar);
-//
-//	                dX = clickPoint.x - that.getX();
-//	                dY = clickPoint.y - that.getY();
-//	            }
-//	        });
-//			toolbar.addMouseMotionListener(new MouseMotionAdapter() {
-//				@Override
-//				public void mouseDragged(MouseEvent e) {
-//	                Point dragPoint = new Point(e.getPoint());
-//	                SwingUtilities.convertPointToScreen(dragPoint, toolbar);
-//
-//	                that.setLocation(dragPoint.x - dX, dragPoint.y - dY);
-//	            }
-//			});
-//		}
-		
 		adjustMaximizedBounds();
 		pack();
 		editor.requestFocus();
 		split.setDividerLocation(.65);
-		// System.out.println(jsp.getViewport().getExtentSize());
 
 	}
 
@@ -806,7 +771,7 @@ public class IdeWindow extends JFrame {
 			} else {
 				windows.remove(that);
 			}
-			if (windows.size() == 0 && !isMac) {
+			if (windows.size() == 0 && !OSX) {
 				System.exit(0);
 			}
 			return true;
@@ -817,7 +782,7 @@ public class IdeWindow extends JFrame {
 	boolean saveFile() {
 		if (openFile == null) {
 			File file = null;
-			if (isMac) {
+			if (OSX) {
 				FileDialog fd = new FileDialog(this, "Save As...");
 				fd.setMode(FileDialog.SAVE);
 				fd.setVisible(true);
@@ -867,7 +832,7 @@ public class IdeWindow extends JFrame {
 			bw.close();
 			setSaved(true);
 			getRootPane().putClientProperty("Window.documentFile", openFile);
-			setTitle(openFile.getName() + (!isMac ? " - Proof Pad" : ""));
+			setTitle(openFile.getName() + (!OSX ? " - Proof Pad" : ""));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -884,10 +849,8 @@ public class IdeWindow extends JFrame {
 
 	protected void openAndDisplay(File file) {
 		getRootPane().putClientProperty("Window.documentFile", file);
-		setTitle(file.getName() + (!isMac ? " - Proof Pad" : ""));
+		setTitle(file.getName() + (!OSX ? " - Proof Pad" : ""));
 		openFile = file;
-		// build.setToolTipText("Create an executable from " +
-		// openFile.getName());
 		Scanner scan = null;
 		try {
 			scan = new Scanner(openFile);
@@ -924,14 +887,14 @@ public class IdeWindow extends JFrame {
 		for (IdeWindow w : windows) {
 			w.menuBar.updateRecentMenu();
 		}
-		if (isMac) {
+		if (OSX) {
 			Main.menuBar.updateRecentMenu();
 		}
 
 	}
 
 	public void adjustMaximizedBounds() {
-		if (!isMac) return;
+		if (!OSX) return;
 		Dimension visibleSize = editorScroller.getViewport().getExtentSize();
 		Dimension textSize = editor.getPreferredScrollableViewportSize();
 		int maxWidth = Math.max(getWidth() - visibleSize.width + textSize.width
