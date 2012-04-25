@@ -192,7 +192,7 @@ Digit						= ("0"|{NonzeroDigit})
 HexDigit					= [0-9A-Fa-f]
 IdentifierStart				= ([^\t\f\r\n\ \(\)\;\|\.&\"\':,`])
 IdentifierPart				= ([^\t\f\r\n\ \(\)\;\|\.\"\':,`])
-Identifier					= ({IdentifierStart}{IdentifierPart}*)|"|"[^|]"|"
+Identifier					= ({IdentifierStart}{IdentifierPart}*)|"|"[^|]*"|"
 
 LineTerminator				= (\n)
 WhiteSpace					= ([ \t\f])
