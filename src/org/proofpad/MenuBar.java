@@ -223,7 +223,8 @@ public class MenuBar extends JMenuBar {
 		item.addActionListener(new RSyntaxTextAreaEditorKit.ToggleCommentAction());
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, modKey));
 		menu.add(item);
-		item = new JMenuItem("Reindent");
+		item = new JMenuItem("Reindent " + (TITLE_CASE? 'S' : 's') + "elected " +
+				(TITLE_CASE ? 'L' : 'l') + "ines");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, modKey));
 		if (parent == null) {
 			item.setEnabled(false);
@@ -247,7 +248,7 @@ public class MenuBar extends JMenuBar {
 		}
 		add(menu);
 		/* ******* ACL2 Menu ******* */
-		menu = new JMenu("ACL2");
+		menu = new JMenu("Tools");
 		item = new JMenuItem("Restart ACL2");
 		item.setEnabled(parent != null);
 		item.addActionListener(new ActionListener() {
