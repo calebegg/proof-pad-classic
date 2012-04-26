@@ -318,7 +318,6 @@ public class IdeWindow extends JFrame {
 						Matcher whitespace = Pattern.compile("^[ \t]*").matcher(lineStr);
 						whitespace.find();
 						int whitespaceLen = whitespace.group().length();
-						System.out.println(whitespaceLen);
 						doc.remove(offset - eolLen, eolLen + whitespaceLen);
 						doc.insertString(offset - eolLen, eol, null);
 					} catch (BadLocationException e) { }
@@ -366,7 +365,7 @@ public class IdeWindow extends JFrame {
 						   step2Y - lineHeight / 4);
 				g.drawString("3. Test them here.",
 						proofBar.getWidth() + 20,
-						getHeight() - repl.inputLines * lineHeight - 30);
+						getHeight() - (int) repl.input.getPreferredScrollableViewportSize().getHeight() - 30);
 			}
 		});
 		tutorialAction = new ActionListener() {

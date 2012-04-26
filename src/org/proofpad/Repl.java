@@ -76,22 +76,21 @@ public class Repl extends JPanel {
 	final Acl2 acl2;
 	private JPanel output;
 	JScrollBar vertical;
-	final ArrayList<Pair<String,Integer>> history;
+	final ArrayList<String> history;
 	private CodePane definitions;
 	protected int historyIndex = 0;
 	boolean addedInputToHistory = false;
 	private Font font;
 	private List<JComponent> fontChangeList = new LinkedList<JComponent>();
 	CodePane input;
-	private int inputHeightOneLine = -1;
-	private JScrollPane inputScroller;
+	JScrollPane inputScroller;
 	private JSplitPane split;
 	private HeightChangeListener heightChangeListener;
-	protected int inputLines = 1;
 	private JPanel bottom;
 	IdeWindow parent;
 	protected JButton trace;
 	protected JButton run;
+	private int oldNeededHeight = 24;
 		
 	enum MsgType {
 		ERROR,
@@ -119,7 +118,7 @@ public class Repl extends JPanel {
 		this.definitions = definitions;
 		setBackground(Color.WHITE);
 		setOpaque(true);
-		history = new ArrayList<Pair<String, Integer>>();
+		history = new ArrayList<String>();
 		output = new JPanel();
 		output.setLayout(new BoxLayout(output, BoxLayout.Y_AXIS));
 		output.setBackground(Color.WHITE);
@@ -163,7 +162,7 @@ public class Repl extends JPanel {
 				final String inputText = input.getText();
 				displayResult(inputText + "\n", MsgType.INPUT);
 				traceExp(inputText);
-				history.add(new Pair<String, Integer>(inputText.trim(), inputLines));
+				history.add(inputText.trim());
 				historyIndex = history.size();
 				addedInputToHistory = false;
 				resetInput();
@@ -183,15 +182,13 @@ public class Repl extends JPanel {
 					}
 					// TODO: Flash background color or something to indicate that the contents has changed? Maybe?
 					if (!input.getText().equals("") && !addedInputToHistory) {
-						history.add(new Pair<String, Integer>(input.getText(), inputLines));
+						history.add(input.getText());
 						addedInputToHistory = true;
 					}
 					if (historyIndex > 0) {
 						historyIndex--;
-						Pair<String, Integer> historyEntry = history.get(historyIndex);
-						input.setText(historyEntry.first);
-						inputLines = historyEntry.second;
-						setBottomLines(Math.min(historyEntry.second, 5));
+						String historyEntry = history.get(historyIndex);
+						input.setText(historyEntry);
 						input.setCaretPosition(0);
 					}
 				} else if (e.getKeyCode() == KeyEvent.VK_DOWN){
@@ -203,10 +200,9 @@ public class Repl extends JPanel {
 						if (historyIndex == history.size()) {
 							resetInput();
 						} else {
-							Pair<String, Integer> historyEntry = history.get(historyIndex);
-							input.setText(historyEntry.first);
-							inputLines = historyEntry.second;
-							setBottomLines(Math.min(historyEntry.second, 5));
+							String historyEntry = history.get(historyIndex);
+							input.setText(historyEntry);
+							adjustBottomHeight();
 							input.setCaretPosition(input.getText().length());
 						}
 					}
@@ -214,6 +210,7 @@ public class Repl extends JPanel {
 			}
 			@Override
 			public void keyTyped(KeyEvent e) {
+				adjustBottomHeight();
 				if (e.getKeyChar() == '\n') {
 					int parenLevel = 0;
 					for (Token t : input) {
@@ -229,11 +226,6 @@ public class Repl extends JPanel {
 					if (parenLevel <= 0) {
 						e.consume();
 						runInputCode();
-					} else {
-						inputLines++;
-						if (inputLines <= 6) {
-							setBottomLines(inputLines);
-						}
 					}
 				}
 				maybeEnableButtons();
@@ -245,26 +237,22 @@ public class Repl extends JPanel {
 		bottomWrapper.setLayout(new BorderLayout());
 		bottomWrapper.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
 		bottomWrapper.add(bottom, BorderLayout.CENTER);
+		adjustBottomHeight();
 		split.setBottomComponent(bottomWrapper);
 	}
 	
-	void setBottomLines(int inputLines) {
-		if (inputHeightOneLine == -1) {
-			inputHeightOneLine = input.getHeight();
+	protected void adjustBottomHeight() {
+		int neededHeight = (int)input.getPreferredScrollableViewportSize().getHeight() + 2;
+		if (inputScroller.getHorizontalScrollBar().isVisible()) {
+			neededHeight += inputScroller.getHorizontalScrollBar().getHeight();
 		}
-		int oldDividerLoc = split.getDividerLocation();
-		int oldBottomDivisionHeight = split.getHeight() - oldDividerLoc;
-		split.setDividerLocation(split.getHeight() - (inputHeightOneLine + 
-				(oldBottomDivisionHeight - input.getHeight()) + (inputLines - 1) * input.getLineHeight()));
-		bottom.setSize(bottom.getWidth(), inputHeightOneLine + (inputLines - 1) * input.getLineHeight());
-		int oldScrollerHeight = inputScroller.getHeight();
-		int newScrollerHeight = inputHeightOneLine +
-				(inputLines - 1) * input.getLineHeight() + 8;
-		newScrollerHeight -= 6;
-		Dimension newScrollSize = new Dimension(Short.MAX_VALUE,
-				newScrollerHeight);
+		split.setDividerLocation(split.getHeight() - neededHeight - 12);
+//		bottom.setSize(bottom.getWidth(), neededHeight);
+//		int oldScrollerHeight = inputScroller.getHeight();
+		Dimension newScrollSize = new Dimension(Short.MAX_VALUE, neededHeight);
 		inputScroller.setMaximumSize(newScrollSize);
-		fireHeightChangedEvent(newScrollerHeight - oldScrollerHeight);
+		fireHeightChangedEvent(neededHeight - oldNeededHeight);
+		oldNeededHeight = neededHeight;
 	}
 	
 	protected void fireHeightChangedEvent(int delta) {
@@ -284,7 +272,7 @@ public class Repl extends JPanel {
 		}
 		displayResult(input.getText() + "\n", MsgType.INPUT);
 		acl2.admit(input.getText(), null);
-		history.add(new Pair<String, Integer>(input.getText().trim(), inputLines));
+		history.add(input.getText().trim());
 		if (history.size() > 500) {
 			for (int i = history.size(); i > 400; i--) {
 				history.remove(i);
@@ -301,9 +289,7 @@ public class Repl extends JPanel {
 	
 	void resetInput() {
 		input.setText("");
-		if (inputHeightOneLine == -1) return;
-		inputLines = 1;
-		setBottomLines(1);
+		adjustBottomHeight();
 	}
 
 	private static Pattern welcomeMessage = Pattern.compile(".*ACL2 comes with ABSOLUTELY NO WARRANTY\\..*");
