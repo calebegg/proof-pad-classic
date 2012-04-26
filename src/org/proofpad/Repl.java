@@ -73,6 +73,7 @@ public class Repl extends JPanel {
 	}
 	
 	private static final long serialVersionUID = -4551996064006604257L;
+	private static final int MAX_BOTTOM_HEIGHT = 100;
 	final Acl2 acl2;
 	private JPanel output;
 	JScrollBar vertical;
@@ -90,7 +91,7 @@ public class Repl extends JPanel {
 	IdeWindow parent;
 	protected JButton trace;
 	protected JButton run;
-	private int oldNeededHeight = 24;
+	private int oldNeededHeight = 26;
 		
 	enum MsgType {
 		ERROR,
@@ -180,7 +181,8 @@ public class Repl extends JPanel {
 					if (input.getCaretLineNumber() != 0) {
 						return;
 					}
-					// TODO: Flash background color or something to indicate that the contents has changed? Maybe?
+					// TODO: Flash background color or something to indicate that the contents has
+					// changed? Maybe?
 					if (!input.getText().equals("") && !addedInputToHistory) {
 						history.add(input.getText());
 						addedInputToHistory = true;
@@ -189,6 +191,7 @@ public class Repl extends JPanel {
 						historyIndex--;
 						String historyEntry = history.get(historyIndex);
 						input.setText(historyEntry);
+						adjustBottomHeight();
 						input.setCaretPosition(0);
 					}
 				} else if (e.getKeyCode() == KeyEvent.VK_DOWN){
@@ -237,15 +240,16 @@ public class Repl extends JPanel {
 		bottomWrapper.setLayout(new BorderLayout());
 		bottomWrapper.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
 		bottomWrapper.add(bottom, BorderLayout.CENTER);
-		adjustBottomHeight();
 		split.setBottomComponent(bottomWrapper);
 	}
 	
 	protected void adjustBottomHeight() {
+		System.out.println(oldNeededHeight);
 		int neededHeight = (int)input.getPreferredScrollableViewportSize().getHeight() + 2;
 		if (inputScroller.getHorizontalScrollBar().isVisible()) {
 			neededHeight += inputScroller.getHorizontalScrollBar().getHeight();
 		}
+		neededHeight = (neededHeight < MAX_BOTTOM_HEIGHT ? neededHeight : MAX_BOTTOM_HEIGHT);
 		split.setDividerLocation(split.getHeight() - neededHeight - 12);
 //		bottom.setSize(bottom.getWidth(), neededHeight);
 //		int oldScrollerHeight = inputScroller.getHeight();
@@ -292,18 +296,27 @@ public class Repl extends JPanel {
 		adjustBottomHeight();
 	}
 
-	private static Pattern welcomeMessage = Pattern.compile(".*ACL2 comes with ABSOLUTELY NO WARRANTY\\..*");
-	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard for the function call (.*?), which is (.*?), is violated by the arguments in the call (.*?)\\..*");
-	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL: Global variables, such as (.*?), are not allowed. See :DOC ASSIGN and :DOC @.");
-	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL: (.*?) takes (.*?) arguments? but in the call (.*?) it is given (.*?) arguments?\\..*");
-	private static Pattern nonRec = Pattern.compile("Since (.*?) is non-recursive, its admission is trivial\\..*");
-	private static Pattern trivial = Pattern.compile("The admission of (.*?) is trivial, using the relation O< .*");
-	private static Pattern admission = Pattern.compile("For the admission of (.*?) we will use the relation O< .*");
+	private static Pattern welcomeMessage = Pattern.compile(".*ACL2 comes with ABSOLUTELY NO " +
+			"WARRANTY\\..*");
+	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard " +
+			"for the function call (.*?), which is (.*?), is violated by the arguments in the " +
+			"call (.*?)\\..*");
+	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL: Global " +
+			"variables, such as (.*?), are not allowed. See :DOC ASSIGN and :DOC @.");
+	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL: (.*?) " +
+			"takes (.*?) arguments? but in the call (.*?) it is given (.*?) arguments?\\..*");
+	private static Pattern nonRec = Pattern.compile("Since (.*?) is non-recursive, its admission " +
+			"is trivial\\..*");
+	private static Pattern trivial = Pattern.compile("The admission of (.*?) is trivial, using " +
+			"the relation O< .*");
+	private static Pattern admission = Pattern.compile("For the admission of (.*?) we will use " +
+			"the relation O< .*");
 	private static Pattern proved = Pattern.compile("Q.E.D.");
 	// TODO: Add these error messages (and others)
-	// Undefined var
 	// Redefinition of func/reserved name
-	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL: The symbol (.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in ACL2\\. Please define it\\..*");
+	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL: The symbol " +
+			"(.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in " +
+			"ACL2\\. Please define it\\..*");
 	public static String cleanUpMsg(String result) {
 		return cleanUpMsg(result, null, null);
 	}
