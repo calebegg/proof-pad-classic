@@ -38,6 +38,17 @@ public class MenuBar extends JMenuBar {
 
 	public MenuBar(final IdeWindow parent) {
 		this.parent = parent;
+		
+		final ActionListener prefsAction = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (IdeWindow.prefsWindow == null) {
+					IdeWindow.prefsWindow = new PrefsWindow();
+				}
+				IdeWindow.prefsWindow.setVisible(true);
+			}
+		};
+		
 		JMenu menu = new JMenu("File");
 		JMenuItem item = new JMenuItem("New");
 		item.addActionListener(new ActionListener() {
@@ -223,7 +234,8 @@ public class MenuBar extends JMenuBar {
 		item.addActionListener(new RSyntaxTextAreaEditorKit.ToggleCommentAction());
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, modKey));
 		menu.add(item);
-		item = new JMenuItem("Reindent");
+		item = new JMenuItem("Reindent " + (TITLE_CASE? 'S' : 's') + "elected " +
+				(TITLE_CASE ? 'L' : 'l') + "ines");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, modKey));
 		if (parent == null) {
 			item.setEnabled(false);
@@ -231,23 +243,15 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(parent.reindentAction);
 		}
 		menu.add(item);
-		if (!OSX) {
+		if (!OSX && !WIN) {
 			menu.addSeparator();
 			item = new JMenuItem("Preferences...");
-			item.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (IdeWindow.prefsWindow == null) {
-						IdeWindow.prefsWindow = new PrefsWindow();
-					}
-					IdeWindow.prefsWindow.setVisible(true);
-				}
-			});
+			item.addActionListener(prefsAction);
 			menu.add(item);
 		}
 		add(menu);
 		/* ******* ACL2 Menu ******* */
-		menu = new JMenu("ACL2");
+		menu = new JMenu("Tools");
 		item = new JMenuItem("Restart ACL2");
 		item.setEnabled(parent != null);
 		item.addActionListener(new ActionListener() {
@@ -279,7 +283,6 @@ public class MenuBar extends JMenuBar {
 		}
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
-		menu.addSeparator();
 		item = new JMenuItem("Build");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, modKey));
 		if (parent == null) {
@@ -288,7 +291,21 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(parent.buildAction);
 		}
 		menu.add(item);
+		menu.addSeparator();
+		item = new JMenuItem("Include " + (TITLE_CASE ? 'B' : 'b') + "ook...");
+		if (parent == null) {
+			item.setEnabled(false);
+		} else {
+			item.addActionListener(parent.includeBookAction);
+		}
+		menu.add(item);
 		add(menu);
+		if (WIN) {
+			item = new JMenuItem("Options...");
+			item.addActionListener(prefsAction);
+			menu.addSeparator();
+			menu.add(item);
+		}
 		/* ******* Window Menu (Mac only) ******* */
 		if (OSX) {
 			menu = new JMenu("Window");

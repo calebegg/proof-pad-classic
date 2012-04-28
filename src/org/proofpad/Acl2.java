@@ -555,9 +555,10 @@ public class Acl2 extends Thread {
 									fullSuccess &= !errorOccured;
 									fullOutput += response;
 								}
-								outputQueue.add(new OutputEvent(response,
-										errorOccured ? Repl.MsgType.ERROR : Repl.MsgType.SUCCESS));
-//								System.out.println("RESPONSE: [[[" + response + "]]]");
+								if (!response.contains("DEFUN __TRACE-")) {
+									outputQueue.add(new OutputEvent(response,
+											errorOccured ? Repl.MsgType.ERROR : Repl.MsgType.SUCCESS));
+								}
 								sb = new StringBuilder();
 								errorOccured = false;
 								break;
@@ -707,7 +708,7 @@ public class Acl2 extends Thread {
 					} else {
 						traceExp.append(name);
 					}
-				} else if (t.type == Token.IDENTIFIER && parser.functions.contains(t.getLexeme())) {
+				} else if (t.type == Token.IDENTIFIER && parser != null && parser.functions.contains(t.getLexeme())) {
 					traceExp.append("__trace-" + t.getLexeme());
 				} else {
 					traceExp.append(t.getLexeme());

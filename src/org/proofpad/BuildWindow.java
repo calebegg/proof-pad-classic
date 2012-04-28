@@ -76,8 +76,7 @@ public class BuildWindow extends JFrame {
 			builder.admit(
 					"(ccl:save-application \""
 					+ filename
-					+ "\" :toplevel-function #'__main__\n"
-					+ ":prepend-kernel t)",
+					+ "\" :toplevel-function #'__main__ :prepend-kernel t)",
 					new Acl2.Callback() {
 						@Override
 						public boolean run(boolean success,

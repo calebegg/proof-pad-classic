@@ -7,7 +7,8 @@ import java.util.Iterator;
 import javax.swing.*;
 import javax.swing.border.Border;
 
-import com.apple.eawt.AppEvent.OpenFilesEvent;
+import com.apple.eawt.*;
+import com.apple.eawt.AppEvent.*;
 
 /*  Proof Pad: An IDE for ACL2.
  *  Copyright (C) 2012 Caleb Eggensperger
@@ -84,8 +85,8 @@ public class Main {
 		logtime("Loaded cache");
 		
 		if (IdeWindow.OSX) {
-			com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
-			app.setOpenFileHandler(new com.apple.eawt.OpenFilesHandler() {
+			Application app = Application.getApplication();
+			app.setOpenFileHandler(new OpenFilesHandler() {
 				@Override
 				public void openFiles(OpenFilesEvent e) {
 					for (Object file : e.getFiles()) {
@@ -94,16 +95,16 @@ public class Main {
 					}
 				}
 			});
-			app.setAboutHandler(new com.apple.eawt.AboutHandler() {
+			app.setAboutHandler(new AboutHandler() {
 				@Override
-				public void handleAbout(com.apple.eawt.AppEvent.AboutEvent e) {
+				public void handleAbout(AboutEvent e) {
 					new AboutWindow().setVisible(true);
 				}
 			});
-			app.setQuitHandler(new com.apple.eawt.QuitHandler() {
+			app.setQuitHandler(new QuitHandler() {
 				@Override
-				public void handleQuitRequestWith(com.apple.eawt.AppEvent.QuitEvent qe,
-						com.apple.eawt.QuitResponse qr) {
+				public void handleQuitRequestWith(QuitEvent qe,
+						QuitResponse qr) {
 					for (Iterator<IdeWindow> ii = IdeWindow.windows.iterator(); ii.hasNext();) {
 						IdeWindow win = ii.next();
 						if (!win.promptIfUnsavedAndQuit(ii)) {
@@ -118,28 +119,28 @@ public class Main {
 					}
 				}
 			});
-			app.setPreferencesHandler(new com.apple.eawt.PreferencesHandler() {
+			app.setPreferencesHandler(new PreferencesHandler() {
 				@Override
-				public void handlePreferences(com.apple.eawt.AppEvent.PreferencesEvent arg0) {
+				public void handlePreferences(PreferencesEvent arg0) {
 					if (IdeWindow.prefsWindow == null) {
 						IdeWindow.prefsWindow = new PrefsWindow();
 					}
 					IdeWindow.prefsWindow.setVisible(true);
 				}
 			});
-			app.addAppEventListener(new com.apple.eawt.AppForegroundListener() {
+			app.addAppEventListener(new AppForegroundListener() {
 				@Override
-				public void appMovedToBackground(com.apple.eawt.AppEvent.AppForegroundEvent arg0) {
+				public void appMovedToBackground(AppForegroundEvent arg0) {
 					if (IdeWindow.windows.size() == 0 && !startingUp) {
 						System.exit(0);
 					}
 				}
 				@Override
-				public void appRaisedToForeground(com.apple.eawt.AppEvent.AppForegroundEvent arg0) {}
+				public void appRaisedToForeground(AppForegroundEvent arg0) {}
 			});
-			app.addAppEventListener(new com.apple.eawt.AppReOpenedListener() {
+			app.addAppEventListener(new AppReOpenedListener() {
 				@Override
-				public void appReOpened(com.apple.eawt.AppEvent.AppReOpenedEvent arg0) {
+				public void appReOpened(AppReOpenedEvent arg0) {
 					if (IdeWindow.windows.size() == 0 && !startingUp) {
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override

@@ -296,6 +296,9 @@ public class ProofBar extends JComponent {
 	public void adjustHeights(java.util.LinkedList<Expression> newExps) {
 		this.expressions = newExps;
 		error = false;
+		for (UnprovenExp e : unprovenStates) {
+			e.status = Status.UNTRIED;
+		}
 		repaint();
 	}
 	

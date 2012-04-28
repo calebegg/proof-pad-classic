@@ -35,7 +35,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	int widthGuide = -1;
 	private UndoManagerCreatedListener undoManagerCreatedListener;
 	private RUndoManager undoManager;
-	private ActionListener helpAction;
+	private ActionListener lookUpAction;
 	
 	public CodePane(final ProofBar pb) {
 		this.pb = pb;
@@ -55,7 +55,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		setBorder(BorderFactory.createEmptyBorder(0, leftMargin, 0, 0));
 		setTabSize(4);
 		setBackground(IdeWindow.transparent);
-		helpAction = new ActionListener() {
+		lookUpAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// First, check for a visible tooltip.
@@ -87,7 +87,12 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		        	t = t.getNextToken();
 		        }
 		        if (t != null) {
-		        	String name = t.getLexeme();
+		        	String name;
+		        	try {
+		        		name = t.getLexeme();
+		        	} catch (NullPointerException ex) {
+		        		return;
+		        	}
 		        	if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
 		        		try {
 		        			Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
@@ -330,6 +335,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
 	public ActionListener getHelpAction() {
 		// TODO Auto-generated method stub
-		return helpAction;
+		return lookUpAction;
 	}
 }
