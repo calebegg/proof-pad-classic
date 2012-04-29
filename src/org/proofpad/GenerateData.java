@@ -56,7 +56,6 @@ public class GenerateData {
 			}
 			docs.put(fun, shortdoc);
 		}
-		// TODO: Improve documentation for these.
 		docs.put("DEFUN", "Defines a new function and adds it to the logical world so it can be " +
 				"used in other functions and in the console.");
 		cache.setDocs(docs);

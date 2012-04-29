@@ -135,25 +135,6 @@ public class IdeWindow extends JFrame {
 		windows.add(this);
 		openFile = file;
 		workingDir = openFile == null ? null : openFile.getParentFile();
-		// TODO: Fix this.
-		//FullScreenUtilities.setWindowCanFullScreen(this, true);
-		FullScreenUtilities.addFullScreenListenerTo(this, new FullScreenAdapter() {
-			@Override
-			public void windowExitingFullScreen(FullScreenEvent arg0) {
-			}
-			@Override
-			public void windowExitedFullScreen(FullScreenEvent arg0) {
-			}
-			@Override
-			public void windowEnteringFullScreen(FullScreenEvent arg0) {
-			}
-			@Override
-			public void windowEnteredFullScreen(FullScreenEvent arg0) {
-				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-				setBounds(new Rectangle(new Point(), screenSize));
-			}
-		});
-
 		previewSplit.setBorder(BorderFactory.createEmptyBorder());
 		previewSplit.setDividerSize(0);
 		previewSplit.setResizeWeight(0);
@@ -393,15 +374,6 @@ public class IdeWindow extends JFrame {
 			}
 		};
 
-		/*
-		 * TODO: "Provide a Find submenu, if appropriate. You might want to
-		 * include a Find submenu if find is important functionality in your
-		 * app. Typically, a Find submenu contains Find (Command-F), Find Next
-		 * (Command-G), Find Previous (Command-Shift-G), Use Selection for Find
-		 * (Command-E), and Jump to Selection (Command-J). If you include a Find
-		 * submenu, the Find menu item name should not include an ellipsis
-		 * character." -- Apple HIG
-		 */
 		findBar.setLayout(new BoxLayout(findBar, BoxLayout.X_AXIS));
 		findBar.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK),
@@ -750,8 +722,6 @@ public class IdeWindow extends JFrame {
 	boolean promptIfUnsavedAndQuit(Iterator<IdeWindow> ii) {
 		int response = -1;
 		if (!isSaved) {
-			// TODO: Man it would be awesome if this could be more like the Mac
-			// version of this function.
 			response = JOptionPane.showOptionDialog(this,
 					"You have unsaved changes. Do"
 							+ " you want to save before closing?",

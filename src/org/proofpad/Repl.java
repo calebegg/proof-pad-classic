@@ -312,8 +312,6 @@ public class Repl extends JPanel {
 	private static Pattern admission = Pattern.compile("For the admission of (.*?) we will use " +
 			"the relation O< .*");
 	private static Pattern proved = Pattern.compile("Q.E.D.");
-	// TODO: Add these error messages (and others)
-	// Redefinition of func/reserved name
 	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL: The symbol " +
 			"(.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in " +
 			"ACL2\\. Please define it\\..*");
