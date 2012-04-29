@@ -45,6 +45,9 @@ public class BookViewer extends JFrame {
 			} else {
 				pathLen = 0;
 			}
+			if (IdeWindow.WIN) {
+				path = path.replace("\\", "/");
+			}
 			return path.substring(pathLen, path.length() - 5);
 		}
 		public boolean isBook() {
