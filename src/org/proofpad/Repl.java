@@ -244,7 +244,6 @@ public class Repl extends JPanel {
 	}
 	
 	protected void adjustBottomHeight() {
-		System.out.println(oldNeededHeight);
 		int neededHeight = (int)input.getPreferredScrollableViewportSize().getHeight() + 2;
 		if (inputScroller.getHorizontalScrollBar().isVisible()) {
 			neededHeight += inputScroller.getHorizontalScrollBar().getHeight();
@@ -300,7 +299,7 @@ public class Repl extends JPanel {
 			"WARRANTY\\..*");
 	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard " +
 			"for the function call (.*?), which is (.*?), is violated by the arguments in the " +
-			"call (.*?)\\..*");
+			"call (.*?)\\. See :DOC set-guard-checking for information.*");
 	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL: Global " +
 			"variables, such as (.*?), are not allowed. See :DOC ASSIGN and :DOC @.");
 	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL: (.*?) " +
