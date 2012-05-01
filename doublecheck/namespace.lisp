@@ -18,7 +18,7 @@
                     (intern-in-package-of-symbol 
                      (concatenate 'string 
                                   "*" 
-                                  (symbol-name prefix)
+                                  prefix
                                   (subseq name 1 (- (length name) 1))
                                   "*") x))
                    
@@ -73,6 +73,7 @@
    `(defmacro ,form-name% (&rest args)
      `(in-namespace (,',form-name ,@args)))))
 
+(def-namespace-form defconst)
 (def-namespace-form defun)
 (def-namespace-form defmacro)
 (def-namespace-form encapsulate)
