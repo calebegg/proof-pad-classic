@@ -475,8 +475,8 @@ public class Acl2 extends Thread {
 		"TRUNCATE",
 		"TYPE",
 		"TYPE-SPEC",
-		"UNARY--",
-		"UNARY-/",
+//		"UNARY--",
+//		"UNARY-/",
 		"UNION$",
 		"UNION-EQ",
 		"UNION-EQUAL",
@@ -646,17 +646,19 @@ public class Acl2 extends Thread {
 				"                          __value)\n" +
 				"                      __value))))\n" +
 				"\n" +
-				"(defmacro __trace-defun (name args body)\n" +
-				"   `(defun ,name ,args\n" +
-				"      (declare (xargs :mode :program))\n" +
-				"       (__trace-wrap ,name\n" +
-				"                     (list ,@args)\n" +
-				"                     ,body)))\n" +
+				"(defmacro __trace-defun (name &rest rst)\n" +
+				"   `(er-progn (defun ,name ,@rst)\n" +
+				"              (trace$\n" +
+				"                (,name :entry (:fmt (msg \"__trace-enter-~x0\"\n" +
+				"                                         (cons traced-fn\n" +
+				"                                               arglist)))\n" +
+				"                 :exit (:fmt (msg \"__trace-exit- = ~x0\"\n" +
+				"                                  values))))))\n" +
 				"\n" +
 				"(defmacro __trace-builtin (trace-name name)\n" +
 				"   `(defmacro ,trace-name (&rest args)\n" +
 				"       `(__trace-wrap ,(quote ,name)\n" +
-				"                      (quote (,@args))\n" +
+				"                      (list ,@args)\n" +
 				"                      (,(quote ,name)\n" +
 				"                        ,@args))))\n"
 , doNothingCallback);
@@ -704,7 +706,7 @@ public class Acl2 extends Thread {
 				if (t.type == Token.RESERVED_WORD || t.type == Token.RESERVED_WORD_2) {
 					String name = t.getLexeme();
 					if (functionsToTrace.contains(name.toUpperCase()) || name.equalsIgnoreCase("defun")) {
-						traceExp.append("__trace-" + name);						
+						traceExp.append("__trace-" + name);
 					} else {
 						traceExp.append(name);
 					}
