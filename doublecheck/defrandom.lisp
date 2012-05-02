@@ -145,22 +145,32 @@
       nil
       (cons (random-char) (%random-char-list (1- n)))))
 
-(defrandom% %random-occurrence-count (tries occurred improb-power)
-  (if (zp tries)
-      occurred
-      (%random-occurrence-count 
-       (1- tries) 
-       (+ occurred (if (equal (%random-below-2^n improb-power 0) 0) 1 0))
-       improb-power)))
+(defconst% *%string-length-distribution*
+   '(179 879 1120 952 559 289 87 19 11 1))
+
+(make-event
+   `(defconst% *%string-length-distribution-sum*
+   		(+ ,@*defrandom%string-length-distribution* )))
+
+(defun% %pick-from-distribution (distribution n idx )
+   (if (or (endp distribution) (< idx (first distribution)))
+       n
+       (%pick-from-distribution (rest distribution)
+                                (1+ n)
+                                (- idx (first distribution)))))
+
+(defrandom% %random-string-length ()
+   (%pick-from-distribution *%string-length-distribution* 0 
+                            (%random-below *%string-length-distribution-sum*)))
 
 (defrandom% %string-of-length (n)
    (coerce (%random-char-list n) 'string))
 
 (defrandom% random-string ()
-  (%string-of-length (%random-occurrence-count 300 0 6)))
+  (%string-of-length (%random-string-length)))
 
 (defrandom% random-symbol ()
-  (intern (string-upcase (%string-of-length (%random-occurrence-count 300 1 6))) "ACL2"))
+  (intern (string-upcase (%string-of-length (1+ (%random-string-length)))) "ACL2"))
 
 (defun% %number-cases (cases n)
   (if (endp cases)
