@@ -791,6 +791,8 @@ public class IdeWindow extends JFrame {
 					}
 				}
 				parser.workingDir = workingDir;
+				
+				markOpenFileAsRecent();
 			} else {
 				return false;
 			}
@@ -836,6 +838,11 @@ public class IdeWindow extends JFrame {
 		setSaved(true);
 		adjustMaximizedBounds();
 		updateWindowMenu();
+		
+		markOpenFileAsRecent();
+	}
+	
+	private void markOpenFileAsRecent() {
 		// Update recent files
 		Preferences prefs = Preferences.userNodeForPackage(Main.class);
 		int downTo = 10;
@@ -852,14 +859,13 @@ public class IdeWindow extends JFrame {
 				continue;
 			prefs.put("recent" + i, maybeNext);
 		}
-		prefs.put("recent1", file.getAbsolutePath());
+		prefs.put("recent1", openFile.getAbsolutePath());
 		for (IdeWindow w : windows) {
 			w.menuBar.updateRecentMenu();
 		}
 		if (OSX && !Main.FAKE_WINDOWS) {
 			Main.menuBar.updateRecentMenu();
 		}
-
 	}
 
 	public void adjustMaximizedBounds() {
