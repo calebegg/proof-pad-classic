@@ -365,9 +365,9 @@ public class MenuBar extends JMenuBar {
 			});
 			recentMenu.add(item);
 		}
-		if (recentMenu.getItemCount() == 0) {
-			recentMenu.setEnabled(false);
-		}
+		
+		recentMenu.setEnabled(recentMenu.getItemCount() > 0);
+		
 		JMenuItem clearItem = new JMenuItem("Clear Menu");
 		clearItem.addActionListener(new ActionListener() {
 			@Override
