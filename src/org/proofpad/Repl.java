@@ -244,7 +244,6 @@ public class Repl extends JPanel {
 	}
 	
 	protected void adjustBottomHeight() {
-		System.out.println(oldNeededHeight);
 		int neededHeight = (int)input.getPreferredScrollableViewportSize().getHeight() + 2;
 		if (inputScroller.getHorizontalScrollBar().isVisible()) {
 			neededHeight += inputScroller.getHorizontalScrollBar().getHeight();
@@ -300,7 +299,7 @@ public class Repl extends JPanel {
 			"WARRANTY\\..*");
 	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard " +
 			"for the function call (.*?), which is (.*?), is violated by the arguments in the " +
-			"call (.*?)\\..*");
+			"call (.*?)\\. See :DOC set-guard-checking for information.*");
 	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL: Global " +
 			"variables, such as (.*?), are not allowed. See :DOC ASSIGN and :DOC @.");
 	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL: (.*?) " +
@@ -312,8 +311,6 @@ public class Repl extends JPanel {
 	private static Pattern admission = Pattern.compile("For the admission of (.*?) we will use " +
 			"the relation O< .*");
 	private static Pattern proved = Pattern.compile("Q.E.D.");
-	// TODO: Add these error messages (and others)
-	// Redefinition of func/reserved name
 	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL: The symbol " +
 			"(.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in " +
 			"ACL2\\. Please define it\\..*");

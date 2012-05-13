@@ -99,8 +99,6 @@ public class BookViewer extends JFrame {
 			}
 		});
 		add(new JScrollPane(tree));
-		// TODO: Add and remove root directory buttons
-		// button.putClientProperty("JButton.buttonType", "gradient")
 		JPanel buttons = new JPanel();
 		buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
 		JButton include = new JButton("Include");

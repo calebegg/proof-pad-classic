@@ -21,12 +21,11 @@ public class TraceResult extends JTree {
 		String[] lines = trace.split("\\n");
 		for (int i = 0; i < lines.length; i++) {
 			String line;
-			if (i >= 10000) {
-				line = "Error: Too much output.";
-				i = lines.length;
-			} else {
-				line = lines[i];
-			}
+			line = lines[i];
+			System.out.println(line);
+			line = line.replaceAll("^\\s*<\\d+\\s", "")
+					   .replaceAll("^\\s*\\d+>\\s", "")
+					   .replaceAll("ACL2_\\*1\\*_ACL2::", "");
 			if (Acl2.isError(line)) {
 				for (i++; i < lines.length; i++) {
 					line += " " + lines[i];
@@ -41,24 +40,30 @@ public class TraceResult extends JTree {
 				line = line.substring(beginMarker.length(), line.length());
 				line = line.replaceAll("__TRACE-", "");
 				line = line.toLowerCase();
-				DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(line);
-				node.add(newNode);
-				node = newNode;
+				if (node != null) {
+					DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(line);
+					node.add(newNode);
+					node = newNode;
+				}
 			} else if (line.startsWith(endMarker)) {
 				// Return line
 				line = line.substring(endMarker.length(), line.length());
 				line = line.replaceAll("__TRACE-", "");
 				line = line.toLowerCase();
-				node.setUserObject(node.getUserObject() + line);
-				node = (DefaultMutableTreeNode) node.getParent();
+				if (node != null) {
+					node.setUserObject(node.getUserObject() + line);
+					node = (DefaultMutableTreeNode) node.getParent();
+				}
 			} else {
 				// Part of previous line.
 				line = line.replaceAll("__TRACE-", "");
 				line = line.toLowerCase();
-				node.setUserObject(node.getUserObject() + "\n" + line);
+				if (node != null) {
+					node.setUserObject(node.getUserObject() + "\n" + line);
+				}
 			}
 		}
-		if (node != root && node.getPath().length > 2) {
+		if (node != null && node != root && node.getPath().length > 2) {
 			expandPath(new TreePath(node.getPath()));
 		} else {
 			for (int i = 0; i < getRowCount() /* recalculate every time */; i++) {

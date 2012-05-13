@@ -334,7 +334,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	}
 
 	public ActionListener getHelpAction() {
-		// TODO Auto-generated method stub
 		return lookUpAction;
 	}
 }
