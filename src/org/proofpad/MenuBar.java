@@ -65,7 +65,7 @@ public class MenuBar extends JMenuBar {
 		item.addActionListener(IdeWindow.openAction);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, modKey));
 		menu.add(item);
-		recentMenu = new JMenu("Open " + (TITLE_CASE  ? 'r' : 'R') + "ecent");
+		recentMenu = new JMenu(applyTitleCase("Open recent"));
 		updateRecentMenu();
 		menu.add(recentMenu);
 		
@@ -203,7 +203,7 @@ public class MenuBar extends JMenuBar {
 		}
 		menu.add(item);
 		
-		item = new JMenuItem("Select " + (TITLE_CASE ? 'A' : 'a') + "ll");
+		item = new JMenuItem(applyTitleCase("Select all"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, modKey));
 		if (parent == null) {
 			item.setEnabled(false);
@@ -229,13 +229,12 @@ public class MenuBar extends JMenuBar {
 		
 		menu.addSeparator();
 		
-		item = new JMenuItem("Toggle " + (TITLE_CASE ? 'C' : 'c') + "omment");
+		item = new JMenuItem(applyTitleCase("Toggle comment"));
 		item.setEnabled(parent != null);
 		item.addActionListener(new RSyntaxTextAreaEditorKit.ToggleCommentAction());
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, modKey));
 		menu.add(item);
-		item = new JMenuItem("Reindent " + (TITLE_CASE? 'S' : 's') + "elected " +
-				(TITLE_CASE ? 'L' : 'l') + "ines");
+		item = new JMenuItem(applyTitleCase("Reindent selected lines"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, modKey));
 		if (parent == null) {
 			item.setEnabled(false);
@@ -292,7 +291,7 @@ public class MenuBar extends JMenuBar {
 		}
 		menu.add(item);
 		menu.addSeparator();
-		item = new JMenuItem("Include " + (TITLE_CASE ? 'B' : 'b') + "ook...");
+		item = new JMenuItem(applyTitleCase("Include book..."));
 		if (parent == null) {
 			item.setEnabled(false);
 		} else {
@@ -316,7 +315,7 @@ public class MenuBar extends JMenuBar {
 		/* ******* */
 		menu = new JMenu(OSX ? "Help " : "Help");
 		item = new JMenuItem("Index");
-		item = new JMenuItem("Quick " + (TITLE_CASE ? 'G' : 'g') + "uide");
+		item = new JMenuItem(applyTitleCase("Quick guide"));
 		item = new JMenuItem("Look up...");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey));
 		if (parent == null) {
@@ -432,6 +431,22 @@ public class MenuBar extends JMenuBar {
 			});
 			windowMenu.add(winItem);
 		}
+	}
+	
+	private String applyTitleCase(String phrase) {
+		if (!TITLE_CASE || phrase.isEmpty()) {
+			return phrase;
+		}
+		
+		char[] cs = phrase.toCharArray();
+		boolean afterSpace = false;
+		for (int i = 0; i < cs.length; i++) {
+			if (afterSpace && cs[i]>='a' && cs[i]<='z') {
+				cs[i] += 'A'-'a';
+			}
+			afterSpace = cs[i]==' ';
+		}
+		return new String(cs);
 	}
 
 }
