@@ -220,7 +220,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	public void admitBelowProofLine(String form) {
 		try {
 			boolean breakBefore = pb.getReadOnlyIndex() >= 0;
-			getDocument().insertString(pb.getReadOnlyIndex() + 1, (breakBefore ? System.getProperty("line.separator") : "") + form.trim(), null);
+			getDocument().insertString(pb.getReadOnlyIndex() + 1, (breakBefore ? "\n" : "") + form.trim(), null);
 			pb.admitNextForm();
 		} catch (BadLocationException e) { }
 	}

@@ -292,15 +292,15 @@ public class IdeWindow extends JFrame {
 					} catch (BadLocationException e) {
 						return;
 					}
-					String eol = System.getProperty("line.separator");
-					int eolLen = eol.length();
+					int eolLen = 1;
 					try {
 						String lineStr = editor.getText(offset, editor.getLineEndOffset(line) - offset);
 						Matcher whitespace = Pattern.compile("^[ \t]*").matcher(lineStr);
 						whitespace.find();
 						int whitespaceLen = whitespace.group().length();
+						
 						doc.remove(offset - eolLen, eolLen + whitespaceLen);
-						doc.insertString(offset - eolLen, eol, null);
+						doc.insertString(offset - eolLen, "\n", null);
 					} catch (BadLocationException e) { }
 				}
 			}
@@ -480,9 +480,8 @@ public class IdeWindow extends JFrame {
 			
 			@Override
 			public void readOnlyIndexChanged(int newIndex) {
-				String lineSep = System.getProperty("line.separator");
-				if (editor.getLastVisibleOffset() - lineSep.length() <= newIndex) {
-					editor.append(lineSep);
+				if (editor.getLastVisibleOffset() - 1 <= newIndex) {
+					editor.append("\n");
 				}
 				if (editor.getCaretPosition() <= newIndex + 1) {
 					editor.setCaretPosition(newIndex + 2);
@@ -902,7 +901,7 @@ public class IdeWindow extends JFrame {
 	public void includeBookAtCursor(String dirName, String path) {
 		editor.insert("(include-book \"" + path + "\""
 				       + (dirName == null ? "" : " :dir " + dirName) + ")" +
-				       System.getProperty("line.separator"),
+				       "\n",
 				       editor.getCaretPosition() - editor.getCaretOffsetFromLineStart());
 	}
 }

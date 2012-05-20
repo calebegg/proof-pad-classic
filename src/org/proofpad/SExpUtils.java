@@ -6,7 +6,6 @@ import org.fife.ui.rsyntaxtextarea.Token;
 
 
 public class SExpUtils {
-	static String newline = System.getProperty("line.separator");
 	static enum ExpType {
 		NORMAL,
 		FINAL,
