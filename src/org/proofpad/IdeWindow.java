@@ -118,8 +118,6 @@ public class IdeWindow extends JFrame {
 	ActionListener reindentAction;
 	ActionListener admitNextAction;
 	ActionListener undoPrevAction;
-	protected int dY;
-	protected int dX;
 	ActionListener tutorialAction;
 	TraceResult activeTrace;
 
