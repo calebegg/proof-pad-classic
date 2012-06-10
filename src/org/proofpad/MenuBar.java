@@ -283,7 +283,7 @@ public class MenuBar extends JMenuBar {
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 		menu.addSeparator();
-		item = new JMenuItem("Admit " +(TITLE_CASE ? 'N' : 'n')+ "ext " +(TITLE_CASE ? 'I' : 'i')+ "tem");
+		item = new JMenuItem(applyTitleCase("Admit next item"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, modKey));
 		if (parent == null) {
 			item.setEnabled(false);
@@ -291,7 +291,7 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(parent.admitNextAction);
 		}
 		menu.add(item);
-		item = new JMenuItem("Un-admit " +(TITLE_CASE ? 'O' : 'o')+ "ne " +(TITLE_CASE ? 'I' : 'i')+ "tem");
+		item = new JMenuItem(applyTitleCase("Un-admit one item"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, modKey));
 		menu.add(item);
 		menu.addSeparator();
