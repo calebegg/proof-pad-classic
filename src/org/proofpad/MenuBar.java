@@ -1,5 +1,6 @@
 package org.proofpad;
 
+import java.awt.Desktop;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -7,6 +8,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
@@ -372,6 +375,17 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(parent.tutorialAction);
 		}
 		menu.add(item);
+		menu.addSeparator();
+		item = new JMenuItem(applyTitleCase("Report a bug"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					Desktop.getDesktop().browse(new URI("https://github.com/calebegg/proof-pad/issues/new"));
+				} catch (Exception ex) { }
+			}
+		});
+		menu.add(item);
 		if (!OSX) {
 			item = new JMenuItem("About");
 			item.addActionListener(new ActionListener() {
@@ -396,12 +410,10 @@ public class MenuBar extends JMenuBar {
 			final File file = new File(path);
 			JMenuItem item = new JMenuItem(file.getName());
 			item.addActionListener(new ActionListener() {
-
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					new IdeWindow(file).setVisible(true);
 				}
-				
 			});
 			recentMenu.add(item);
 		}
