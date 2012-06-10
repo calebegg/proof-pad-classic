@@ -148,7 +148,6 @@ public class IdeWindow extends JFrame {
 		splitTop.setLayout(new BorderLayout());
 		final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		split.setTopComponent(splitTop);
-		split.setOneTouchExpandable(true);
 		split.setResizeWeight(1);
 		splitMain.add(split, BorderLayout.CENTER);
 		editorScroller = new JScrollPane();
