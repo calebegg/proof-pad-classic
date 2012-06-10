@@ -282,6 +282,19 @@ public class MenuBar extends JMenuBar {
 		}
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
+		menu.addSeparator();
+		item = new JMenuItem("Admit " +(TITLE_CASE ? 'N' : 'n')+ "ext " +(TITLE_CASE ? 'I' : 'i')+ "tem");
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, modKey));
+		if (parent == null) {
+			item.setEnabled(false);
+		} else {
+			item.addActionListener(parent.admitNextAction);
+		}
+		menu.add(item);
+		item = new JMenuItem("Un-admit " +(TITLE_CASE ? 'O' : 'o')+ "ne " +(TITLE_CASE ? 'I' : 'i')+ "tem");
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, modKey));
+		menu.add(item);
+		menu.addSeparator();
 		item = new JMenuItem("Build");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, modKey));
 		if (parent == null) {

@@ -116,6 +116,8 @@ public class IdeWindow extends JFrame {
 	ActionListener includeBookAction;
 	ActionListener helpAction;
 	ActionListener reindentAction;
+	ActionListener admitNextAction;
+	ActionListener undoOneAction;
 	protected int dY;
 	protected int dX;
 	ActionListener tutorialAction;
@@ -272,6 +274,13 @@ public class IdeWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				BookViewer viewer = new BookViewer(that);
 				viewer.setVisible(true);
+			}
+		};
+		
+		admitNextAction = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				proofBar.admitNextForm();
 			}
 		};
 		
