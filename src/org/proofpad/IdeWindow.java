@@ -118,9 +118,11 @@ public class IdeWindow extends JFrame {
 	ActionListener reindentAction;
 	ActionListener admitNextAction;
 	ActionListener undoPrevAction;
+	ActionListener clearReplScrollback;
 	ActionListener tutorialAction;
+	
 	TraceResult activeTrace;
-
+	
 	public IdeWindow() {
 		this((File)null);
 	}
@@ -287,6 +289,13 @@ public class IdeWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				proofBar.undoPrevForm();
+			}
+		};
+		
+		clearReplScrollback = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				repl.getOutput().removeAll();
 			}
 		};
 		

@@ -314,6 +314,15 @@ public class MenuBar extends JMenuBar {
 		}
 		menu.add(item);
 		menu.addSeparator();
+		item = new JMenuItem(applyTitleCase("Clear REPL scrollback"));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey));
+		if (parent == null) {
+			item.setEnabled(false);
+		} else {
+			item.addActionListener(parent.clearReplScrollback);
+		}
+		menu.add(item);
+		menu.addSeparator();
 		item = new JMenuItem("Build");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, modKey));
 		if (parent == null) {
