@@ -26,9 +26,9 @@ import org.fife.ui.rtextarea.SearchEngine;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
 
-import com.apple.eawt.FullScreenAdapter;
-import com.apple.eawt.AppEvent.FullScreenEvent;
-import com.apple.eawt.FullScreenUtilities;
+//import com.apple.eawt.FullScreenAdapter;
+//import com.apple.eawt.AppEvent.FullScreenEvent;
+//import com.apple.eawt.FullScreenUtilities;
 
 
 public class IdeWindow extends JFrame {

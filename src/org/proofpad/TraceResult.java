@@ -30,7 +30,9 @@ public class TraceResult extends JTree {
 				for (i++; i < lines.length; i++) {
 					line += " " + lines[i];
 				}
-				node.add(new DefaultMutableTreeNode(Repl.cleanUpMsg(line)));
+				if (node != null) {
+					node.add(new DefaultMutableTreeNode(Repl.cleanUpMsg(line)));
+				}
 				break;
 			}
 			final String beginMarker = "__trace-enter-";
