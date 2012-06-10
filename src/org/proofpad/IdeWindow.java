@@ -120,9 +120,9 @@ public class IdeWindow extends JFrame {
 	ActionListener undoPrevAction;
 	ActionListener clearReplScrollback;
 	ActionListener tutorialAction;
-	
+
 	TraceResult activeTrace;
-	
+
 	public IdeWindow() {
 		this((File)null);
 	}
