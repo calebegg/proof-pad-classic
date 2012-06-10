@@ -117,7 +117,7 @@ public class IdeWindow extends JFrame {
 	ActionListener helpAction;
 	ActionListener reindentAction;
 	ActionListener admitNextAction;
-	ActionListener undoOneAction;
+	ActionListener undoPrevAction;
 	protected int dY;
 	protected int dX;
 	ActionListener tutorialAction;
@@ -169,7 +169,8 @@ public class IdeWindow extends JFrame {
 			} else {
 				String maybeAcl2Path = "";
 				try {
-					String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+					String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation()
+							.getPath();
 					jarPath = URLDecoder.decode(jarPath, "UTF-8");
 					File jarFile = new File(jarPath);
 					maybeAcl2Path = jarFile.getParent() + "/acl2/run_acl2";
@@ -310,7 +311,8 @@ public class IdeWindow extends JFrame {
 					}
 					int eolLen = 1;
 					try {
-						String lineStr = editor.getText(offset, editor.getLineEndOffset(line) - offset);
+						String lineStr = editor.getText(offset, editor.getLineEndOffset(line)
+								- offset);
 						Matcher whitespace = Pattern.compile("^[ \t]*").matcher(lineStr);
 						whitespace.find();
 						int whitespaceLen = whitespace.group().length();
@@ -341,7 +343,8 @@ public class IdeWindow extends JFrame {
 			public void paintComponent(Graphics g) {
 				// More opaque over areas we want to write on
 				g.setColor(new Color(.95f, .95f, .95f, .7f));
-				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(), editorScroller.getHeight() + 3);
+				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(),
+						editorScroller.getHeight() + 3);
 				g.fillRect(0, getHeight() - repl.getHeight(),
 						getWidth(), repl.getHeight() - repl.getInputHeight() - 10);
 				g.setColor(new Color(.9f, .9f, .9f, .4f));
@@ -607,7 +610,8 @@ public class IdeWindow extends JFrame {
 		}
 
 		fixUndoRedoStatus();
-		split.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new PropertyChangeListener() {
+		split.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY,
+				new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent pce) {
 				adjustMaximizedBounds();
