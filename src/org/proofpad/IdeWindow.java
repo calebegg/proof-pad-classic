@@ -284,6 +284,13 @@ public class IdeWindow extends JFrame {
 			}
 		};
 		
+		undoPrevAction = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				proofBar.undoPrevForm();
+			}
+		};
+		
 		reindentAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

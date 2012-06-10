@@ -392,6 +392,33 @@ public class ProofBar extends JComponent {
 		repaint();
 	}
 	
+	public void undoPrevForm() {
+		int ignore = numProved + numProving - 1;
+		int i = 0;
+		numProved--;
+		int admissionIndexSoFar = 0;
+		int admissionIndex = 0;
+		for (Expression ex : expressions) {
+			admissionIndex = admissionIndices.get(i);
+			if (ignore > 0) {
+				ignore--;
+			} else {
+				for (; admissionIndexSoFar < admissionIndex; admissionIndexSoFar++) {
+					acl2.undo();
+				}
+				setReadOnlyIndex(Math.min(getReadOnlyIndex(),
+						ex.prev == null ? -1 : ex.prev.nextIndex - 1));
+				admissionIndices.remove(i);
+				break;
+			}
+			if (admissionIndex > admissionIndexSoFar) {
+				admissionIndexSoFar = admissionIndex;
+			}
+			i++;
+		}
+		repaint();
+	}
+	
 	public void resetProgress() {
 		numProved = 0;
 		numProving = 0;
@@ -482,4 +509,5 @@ public class ProofBar extends JComponent {
 			}
 		}
 	}
+
 }
