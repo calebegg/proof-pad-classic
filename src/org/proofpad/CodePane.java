@@ -107,6 +107,11 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (pb == null) return;
+				if (IdeWindow.OSX && e.isAltDown() && e.isMetaDown()
+						&& (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_UP)) {
+					// Keyboard shortcuts for admit/unadmit
+					return;
+				}
 				int readOnlyLine = 0;
 				try {
 					readOnlyLine = getLineOfOffset(pb.getReadOnlyIndex() + 2) - 1;

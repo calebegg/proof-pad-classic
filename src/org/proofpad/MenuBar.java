@@ -280,11 +280,20 @@ public class MenuBar extends JMenuBar {
 				}
 			});
 		}
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+		if (OSX) {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+		} else {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, modKey));
+		}
 		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem(applyTitleCase("Admit next item"));
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, modKey));
+		if (OSX) {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
+					modKey | KeyEvent.ALT_DOWN_MASK));
+		} else {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, modKey));
+		}
 		if (parent == null) {
 			item.setEnabled(false);
 		} else {
@@ -292,7 +301,17 @@ public class MenuBar extends JMenuBar {
 		}
 		menu.add(item);
 		item = new JMenuItem(applyTitleCase("Un-admit one item"));
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, modKey));
+		if (OSX) {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP,
+					modKey | KeyEvent.ALT_DOWN_MASK));
+		} else {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP, modKey));
+		}
+		if (parent == null) {
+			item.setEnabled(false);
+		} else {
+			item.addActionListener(parent.undoPrevAction);
+		}
 		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem("Build");
@@ -446,7 +465,7 @@ public class MenuBar extends JMenuBar {
 		}
 	}
 	
-	private String applyTitleCase(String phrase) {
+	private static String applyTitleCase(String phrase) {
 		if (!TITLE_CASE || phrase.isEmpty()) {
 			return phrase;
 		}
