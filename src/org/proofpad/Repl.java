@@ -20,7 +20,7 @@ public class Repl extends JPanel {
 
 	static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/media/info.png"));
 	static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/media/prompt.png"));
-	static final Icon moreIcon = new ImageIcon(Repl.class.getResource("/media/more.png"));
+	static final ImageIcon moreIcon = new ImageIcon(Repl.class.getResource("/media/more.png"));
 
 	public interface HeightChangeListener {
 		public void heightChanged(int delta);
@@ -416,11 +416,8 @@ public class Repl extends JPanel {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
 					if (tr == null) {
-						JTextArea resBox = new JTextArea();
-						resBox.setText(result);
-						resBox.setFont(getFont());
-						resBox.setEditable(false);
-						parent.setPreviewComponent(resBox);
+
+						parent.setPreviewText(result);
 					} else {
 						parent.setPreviewComponent(tr);
 					}

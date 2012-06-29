@@ -41,7 +41,8 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		this.pb = pb;
 		setAntiAliasingEnabled(true);
 		setAutoIndentEnabled(false);
-		setHighlightCurrentLine(false);
+		setHighlightCurrentLine(pb != null);
+		setCurrentLineHighlightColor(new Color(0, .6f, .8f, .1f));
 		setBracketMatchingEnabled(false);
 		setUseFocusableTips(false);
 		SyntaxScheme scheme = getSyntaxScheme();

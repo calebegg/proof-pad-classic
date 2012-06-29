@@ -122,6 +122,7 @@ public class IdeWindow extends JFrame {
 	ActionListener tutorialAction;
 
 	TraceResult activeTrace;
+	private MoreBar moreBar;
 
 	public IdeWindow() {
 		this((File)null);
@@ -185,10 +186,17 @@ public class IdeWindow extends JFrame {
 		
 		parser = new Acl2Parser(workingDir, new File(acl2Path).getParentFile());
 		acl2 = new Acl2(acl2Path, workingDir, parser);
-		proofBar = new ProofBar(acl2);
+		moreBar = new MoreBar(this);
+		proofBar = new ProofBar(acl2, moreBar);
 		editor = new CodePane(proofBar);
-		editorScroller.setViewportView(editor);
-		editorScroller.setRowHeaderView(proofBar);
+		JPanel editorContainer = new JPanel();
+		editorContainer.setBackground(Color.WHITE);
+		editorContainer.setLayout(new BorderLayout());
+		editorContainer.add(proofBar, BorderLayout.WEST);
+		editorContainer.add(moreBar, BorderLayout.EAST);
+		editorContainer.add(editor, BorderLayout.CENTER);
+		editorScroller.setViewportView(editorContainer);
+//		editorScroller.setRowHeaderView(proofBar);
 		helpAction = editor.getHelpAction();
 		repl = new Repl(this, acl2, editor);
 		proofBar.setLineHeight(editor.getLineHeight());
@@ -720,6 +728,14 @@ public class IdeWindow extends JFrame {
 		}
 		adjustMaximizedBounds();
 	}
+	
+	public void setPreviewText(String result) {
+		JTextArea resBox = new JTextArea();
+		resBox.setText(result);
+		resBox.setFont(getFont());
+		resBox.setEditable(false);
+		setPreviewComponent(resBox);
+	}
 
 	public void fixUndoRedoStatus() {
 		// TODO: Show what you're undoing in the menu item or tooltip.
@@ -744,6 +760,7 @@ public class IdeWindow extends JFrame {
 	boolean promptIfUnsavedAndClose() {
 		return promptIfUnsavedAndQuit(null);
 	}
+	
 	boolean promptIfUnsavedAndQuit(Iterator<IdeWindow> ii) {
 		int response = -1;
 		if (!isSaved) {

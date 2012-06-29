@@ -13,10 +13,25 @@ import org.proofpad.SExpUtils.ExpType;
 public class ProofBar extends JComponent {
 	
 	public interface ReadOnlyIndexChangeListener {
-
 		void readOnlyIndexChanged(int newIndex);
-
 	}
+	
+	public class ExpData {
+		Expression exp;
+		String output;
+		public ExpData(Expression exp, String output) {
+			this.exp = exp;
+			this.output = output;
+		}
+		public int getHeight() {
+			return lineHeight * (exp.lines + exp.prevGapHeight / 2 + exp.nextGapHeight / 2);
+		}
+		@Override
+		public String toString() {
+			return "<" + getHeight() + ", " + output + ">";
+		}
+	}
+	ArrayList<ExpData> data = new ArrayList<ExpData>();
 
 	static Color provedColor = new Color(.8f, 1f, .8f);
 	static Color untriedColor = new Color(.9f, .9f, .9f);
@@ -38,7 +53,7 @@ public class ProofBar extends JComponent {
 	private static final long serialVersionUID = 8267405348010307267L;
 	
 	List<Expression> expressions;
-	List<Expression> proofQueue;
+	List<Expression> proofQueue = new LinkedList<Expression>();
 	int my;
 	boolean hover = false;
 	final static int width = 20;
@@ -51,7 +66,7 @@ public class ProofBar extends JComponent {
 	List<Integer> admissionIndices = new ArrayList<Integer>();
 	
 	private int readOnlyIndex = -1;
-	private Expression tried;
+	Expression tried;
 	private Image inProgressThrobber = 
 			new ImageIcon(getClass().getResource("/media/in-progress-blue.gif")).getImage();
 	private int flashIndex;
@@ -70,9 +85,13 @@ public class ProofBar extends JComponent {
 	}
 	private List<UnprovenExp> unprovenStates = new ArrayList<UnprovenExp>();
 
-	public ProofBar(final Acl2 acl2) {
+	final MoreBar mb;
+
+	public ProofBar(final Acl2 acl2, final MoreBar mb) {
 		super();
 		this.acl2 = acl2;
+		this.mb = mb;
+		mb.updateWith(data);
 		acl2.addRestartListener(new Acl2.RestartListener() {
 			@Override
 			public void acl2Restarted() {
@@ -82,8 +101,6 @@ public class ProofBar extends JComponent {
 				repaint();
 			}
 		});
-		final ProofBar that = this;
-		proofQueue = new LinkedList<Expression>();
 		setPreferredSize(new Dimension(width, 0));
 		setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
 		addMouseListener(new MouseAdapter() {
@@ -110,8 +127,10 @@ public class ProofBar extends JComponent {
 						}
 						if (e.getY() < begin + height) {
 							for (; admissionIndexSoFar < admissionIndex; admissionIndexSoFar++) {
-								that.acl2.undo();
+								acl2.undo();
 							}
+							data.set(ex.expNum, null);
+							mb.repaint();
 							numProved--;
 							setReadOnlyIndex(Math.min(getReadOnlyIndex(),
 									ex.prev == null ? -1 : ex.prev.nextIndex - 1));
@@ -142,12 +161,12 @@ public class ProofBar extends JComponent {
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				hover = true;
-				that.repaint();
+				repaint();
 			}
 			@Override
 			public void mouseExited(MouseEvent e) {
 				hover = false;
-				that.repaint();
+				repaint();
 			}
 		});
 		addMouseMotionListener(new MouseMotionListener() {
@@ -163,7 +182,7 @@ public class ProofBar extends JComponent {
 					if (e.getY() < begin && my >= begin ||
 							e.getY() > begin + height && my <= begin + height) {
 						my = e.getY();
-						that.repaint();
+						repaint();
 					}
 					begin += height;
 				}
@@ -275,11 +294,11 @@ public class ProofBar extends JComponent {
 
 	static int pixelHeight(Expression ex) {
 		if (ex.prev == null) {
-			return (ex.height + ex.prevGapHeight) * lineHeight + ex.nextGapHeight * lineHeight / 2;
+			return (ex.lines + ex.prevGapHeight) * lineHeight + ex.nextGapHeight * lineHeight / 2;
 		} else if (ex.firstType == ExpType.FINAL) {
-			return (ex.height + ex.nextGapHeight) * lineHeight + ex.prevGapHeight * lineHeight / 2;
+			return (ex.lines + ex.nextGapHeight) * lineHeight + ex.prevGapHeight * lineHeight / 2;
 		} else {
-			return ex.height * lineHeight + (ex.prevGapHeight + ex.nextGapHeight) * lineHeight / 2;
+			return ex.lines * lineHeight + (ex.prevGapHeight + ex.nextGapHeight) * lineHeight / 2;
 			
 		}
 	}
@@ -294,7 +313,12 @@ public class ProofBar extends JComponent {
 	}
 	
 	public void adjustHeights(java.util.LinkedList<Expression> newExps) {
-		this.expressions = newExps;
+		expressions = newExps;
+		int i = 0;
+		for (Expression ex : expressions) {
+			ex.expNum = i;
+			i++;
+		}
 		error = false;
 		for (UnprovenExp e : unprovenStates) {
 			e.status = Status.UNTRIED;
@@ -352,9 +376,10 @@ public class ProofBar extends JComponent {
 		acl2.admit(tried.contents, new Acl2.Callback() {
 			@Override
 			public boolean run(final boolean outerSuccess, String response) {
+				setExpData(tried, response);
 				if (!outerSuccess) {
 					proofCallback(outerSuccess);
-					return true;
+					return false;
 				}
 				acl2.admit(":pbt :here", new Acl2.Callback() {
 					@Override
@@ -370,7 +395,7 @@ public class ProofBar extends JComponent {
 						return false;
 					}
 				});
-				return true;
+				return false;
 			}
 		});
 	}
@@ -480,7 +505,7 @@ public class ProofBar extends JComponent {
 		acl2.admit("(set-ld-redefinition-action '(:doit . :erase) state)", Acl2.doNothingCallback);
 		unprovenStates = new ArrayList<UnprovenExp>();
 		int unprovenIdx = 0;
-		for (Expression ex : expressions) {
+		for (final Expression ex : expressions) {
 			if (provedSoFar > 0) {
 				provedSoFar--;
 			} else {
@@ -501,6 +526,7 @@ public class ProofBar extends JComponent {
 				acl2.admit(ex.contents, new Acl2.Callback() {
 					@Override
 					public boolean run(boolean success, String response) {
+						setExpData(ex, response);
 						repaint();
 						ue.status = success ? Status.SUCCESS : Status.FAILURE;
 						return false;
@@ -508,6 +534,14 @@ public class ProofBar extends JComponent {
 				});
 			}
 		}
+	}
+
+	void setExpData(Expression exp, String response) {
+		while (data.size() <= exp.expNum) {
+			data.add(null);
+		}
+		data.set(exp.expNum, new ExpData(exp, response));
+		mb.repaint();
 	}
 
 }
