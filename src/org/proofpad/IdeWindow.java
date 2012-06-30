@@ -21,6 +21,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.undo.UndoManager;
 
 import org.fife.ui.rsyntaxtextarea.Token;
+import org.fife.ui.rtextarea.Gutter;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
 import org.proofpad.PrefsWindow.FontChangeListener;
@@ -123,6 +124,7 @@ public class IdeWindow extends JFrame {
 
 	TraceResult activeTrace;
 	private MoreBar moreBar;
+	Gutter gutter;
 
 	public IdeWindow() {
 		this((File)null);
@@ -189,10 +191,17 @@ public class IdeWindow extends JFrame {
 		moreBar = new MoreBar(this);
 		proofBar = new ProofBar(acl2, moreBar);
 		editor = new CodePane(proofBar);
-		JPanel editorContainer = new JPanel();
+		final JPanel editorContainer = new JPanel();
 		editorContainer.setBackground(Color.WHITE);
 		editorContainer.setLayout(new BorderLayout());
-		editorContainer.add(proofBar, BorderLayout.WEST);
+		final JPanel westPanel = new JPanel();
+		westPanel.setBackground(Color.WHITE);
+		westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.X_AXIS));
+		westPanel.add(proofBar);
+		gutter = new Gutter(editor);
+		gutter.setBackground(Color.WHITE);
+		westPanel.add(gutter);
+		editorContainer.add(westPanel, BorderLayout.WEST);
 		editorContainer.add(moreBar, BorderLayout.EAST);
 		editorContainer.add(editor, BorderLayout.CENTER);
 		editorScroller.setViewportView(editorContainer);
@@ -506,11 +515,17 @@ public class IdeWindow extends JFrame {
 				getRootPane().revalidate();
 			}
 		});
+		PrefsWindow.addShowLineNumbersListener(new PrefsWindow.ShowLineNumbersListener() {
+			@Override
+			public void lineNumbersVisible(boolean visible) {
+				gutter.setVisible(visible);
+				westPanel.revalidate();
+			}
+		});
 		
 		///// Event Listeners /////
 
 		proofBar.addReadOnlyIndexChangeListener(new ProofBar.ReadOnlyIndexChangeListener() {
-			
 			@Override
 			public void readOnlyIndexChanged(int newIndex) {
 				if (editor.getLastVisibleOffset() - 1 <= newIndex) {
@@ -539,6 +554,20 @@ public class IdeWindow extends JFrame {
 				} else {
 					editor.setCaretColor(Color.BLACK);
 				}
+			}
+		});
+		
+		editor.addKeyListener(new KeyAdapter() {
+			{
+				keyReleased(null);
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+				int width = ((int) Math.log10(editor.getLineCount()) + 2)
+						* getFontMetrics(gutter.getFont()).charWidth('1');
+				gutter.setPreferredSize(new Dimension(width, 0));
+				gutter.repaint();
+				westPanel.revalidate();
 			}
 		});
 		

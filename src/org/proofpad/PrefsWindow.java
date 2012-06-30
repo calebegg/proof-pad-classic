@@ -18,7 +18,7 @@ public class PrefsWindow extends JFrame {
 		public Separator() { }
 		@Override
 		public void paintComponent(Graphics g) {
-			g.setColor(new Color(.4f, .4f, .4f));
+			g.setColor(Color.LIGHT_GRAY);
 			g.drawLine(0, 0, getWidth(), 0);
 		}
 	}
@@ -35,6 +35,10 @@ public class PrefsWindow extends JFrame {
 		void toolbarVisible(boolean visible);
 	}
 
+	public interface ShowLineNumbersListener {
+		void lineNumbersVisible(boolean boolean1);
+	}
+	
 	private static final long serialVersionUID = -5097145621288246384L;
 	Font font;
 	static Preferences prefs = Preferences.userNodeForPackage(Main.class);
@@ -44,6 +48,8 @@ public class PrefsWindow extends JFrame {
 			new LinkedList<WidthGuideChangeListener>();
 	private static List<ToolbarVisibleListener> toolbarVisibleListeners =
 			new LinkedList<ToolbarVisibleListener>();
+	private static List<ShowLineNumbersListener> showLineNumbersListeners =
+			new LinkedList<PrefsWindow.ShowLineNumbersListener>();
 	
 	public PrefsWindow() {
 		super("Settings");
@@ -166,6 +172,13 @@ public class PrefsWindow extends JFrame {
 		guideSpinner.setEditor(new JSpinner.NumberEditor(guideSpinner));
 		add(guideSpinner, c);
 		
+		c.gridx = 0;
+		c.gridy++;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		add(new Separator(), c);
+		c.gridwidth = GridBagConstraints.NONE;
+		
 		c.gridx = 1;
 		c.gridy++;
 		final JCheckBox incSearch = new JCheckBox("Find as you type");
@@ -177,6 +190,18 @@ public class PrefsWindow extends JFrame {
 			}
 		});
 		add(incSearch, c);
+		
+		c.gridx = 1;
+		c.gridy++;
+		final JCheckBox showLineNums = new JCheckBox("Show line numbers");
+		showLineNums.setSelected(prefs.getBoolean("linenums", false));
+		showLineNums.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				fireShowLineNumbersEvent(showLineNums.isSelected());
+			}
+		});
+		add(showLineNums, c);
 		
 		c.gridx = 1;
 		c.gridy++;
@@ -330,6 +355,10 @@ public class PrefsWindow extends JFrame {
 		toolbarVisibleListeners.add(tvl);
 		tvl.toolbarVisible(prefs.getBoolean("toolbarvisible", true));
 	}
+	public static void addShowLineNumbersListener(ShowLineNumbersListener showLineNumbersListener) {
+		showLineNumbersListeners .add(showLineNumbersListener);
+		showLineNumbersListener.lineNumbersVisible(prefs.getBoolean("linenums", false));
+	}
 	
 	protected static void fireWidthGuideChangeEvent(int value) {
 		for (WidthGuideChangeListener wgcl : widthGuideChangeListeners) {
@@ -352,6 +381,13 @@ public class PrefsWindow extends JFrame {
 		prefs.putBoolean("toolbarvisible", visible);
 	}
 
+	protected static void fireShowLineNumbersEvent(boolean selected) {
+		for (ShowLineNumbersListener slnl : showLineNumbersListeners) {
+			slnl.lineNumbersVisible(selected);
+		}
+		prefs.putBoolean("linenums", selected);
+	}
+
 	private static Font getPrefFont() {
 		int fontSize = prefs.getInt("fontsize", 12);
 		String defaultFamily;
@@ -365,4 +401,5 @@ public class PrefsWindow extends JFrame {
 		String fontFamily = prefs.get("fontfamily", defaultFamily);
 		return new Font(fontFamily, Font.PLAIN, fontSize);
 	}
+
 }

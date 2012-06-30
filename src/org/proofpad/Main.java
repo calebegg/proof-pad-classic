@@ -10,7 +10,8 @@ import javax.swing.border.Border;
 import com.apple.eawt.*;
 import com.apple.eawt.AppEvent.*;
 
-/*  Proof Pad: An IDE for ACL2.
+/*
+ *  Proof Pad: An IDE for ACL2.
  *  Copyright (C) 2012 Caleb Eggensperger
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -27,6 +28,11 @@ import com.apple.eawt.AppEvent.*;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *  
  *  To contact the author, send email to calebegg@gmail.com.
+ */
+
+/**
+ *  @author Caleb Eggensperger
+ *  @version {@value RELEASE}
  */
 
 public class Main {

@@ -24,7 +24,7 @@ public class ProofBar extends JComponent {
 			this.output = output;
 		}
 		public int getHeight() {
-			return lineHeight * (exp.lines + exp.prevGapHeight / 2 + exp.nextGapHeight / 2);
+			return pixelHeight(exp);
 		}
 		@Override
 		public String toString() {
@@ -37,8 +37,10 @@ public class ProofBar extends JComponent {
 	static Color untriedColor = new Color(.9f, .9f, .9f);
 	static Color provingColor = new Color(.5f, .8f, 1f);
 	static Color errorColor = new Color(1f, .8f, .8f);
-	public static final ImageIcon errorIcon = new ImageIcon(ProofBar.class.getResource("/media/error.png"));
-	public static final ImageIcon successIcon = new ImageIcon(ProofBar.class.getResource("/media/check.png"));
+	public static final ImageIcon errorIcon = new ImageIcon(
+			ProofBar.class.getResource("/media/error.png"));
+	public static final ImageIcon successIcon = new ImageIcon(
+			ProofBar.class.getResource("/media/check.png"));
 	
 	static LinearGradientPaint diagonalPaint(Color a, Color b, int step, float dist) {
 		return new LinearGradientPaint(0, 0, step, step,
@@ -119,6 +121,8 @@ public class ProofBar extends JComponent {
 					height += addToNextHeight;
 					addToNextHeight = 0;
 					if (provedSoFar > 0) {
+						// Going through expressions that have been proven. A
+						// click here means we need to undo.
 						int admissionIndex = admissionIndices.get(i);
 						provedSoFar--;
 						if (provedSoFar == 0) {
@@ -142,6 +146,7 @@ public class ProofBar extends JComponent {
 							admissionIndexSoFar = admissionIndex;
 						}
 					} else {
+						// A click here means we need to admit some new forms
 						if (error) {
 							break;
 						}
@@ -318,7 +323,16 @@ public class ProofBar extends JComponent {
 		for (Expression ex : expressions) {
 			ex.expNum = i;
 			i++;
+			if (i < data.size()) {
+				data.get(i).exp = ex;
+			}
 		}
+		if (admissionIndices.size() == 0) {
+			data.clear();
+		} else if (data.size() > 0) {
+			data.subList(admissionIndices.size() - 1, data.size() - 1).clear();
+		}
+		mb.repaint();
 		error = false;
 		for (UnprovenExp e : unprovenStates) {
 			e.status = Status.UNTRIED;
@@ -326,6 +340,10 @@ public class ProofBar extends JComponent {
 		repaint();
 	}
 	
+	/**
+	 * Called by {@link proveNext} when the function is admitted.
+	 * @param success
+	 */
 	void proofCallback(boolean success) {
 		if (tried == null) return;
 		if (success && numProving > 0) {
@@ -354,11 +372,15 @@ public class ProofBar extends JComponent {
 		} else {
 			idx = admissionIndices.get(admissionIndices.size() - 1) + 1;
 		}
+		data.subList(0, admissionIndices.size()).clear();
 		acl2.admit(":ubt! " + idx + "\n", Acl2.doNothingCallback);
 		// Enter logic mode
 		acl2.admit(":logic\n", Acl2.doNothingCallback);
 	}
 
+	/**
+	 * Prove the next item in the proof queue, if there is one.
+	 */
 	void proveNext() {
 		if (proofQueue.size() == 0) {
 			numProving = 0;
@@ -381,6 +403,7 @@ public class ProofBar extends JComponent {
 					proofCallback(outerSuccess);
 					return false;
 				}
+				// Get the index
 				acl2.admit(":pbt :here", new Acl2.Callback() {
 					@Override
 					public boolean run(boolean s, String r) {
@@ -540,6 +563,7 @@ public class ProofBar extends JComponent {
 		while (data.size() <= exp.expNum) {
 			data.add(null);
 		}
+		data.subList(exp.expNum, data.size() - 1).clear();
 		data.set(exp.expNum, new ExpData(exp, response));
 		mb.repaint();
 	}
