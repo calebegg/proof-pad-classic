@@ -327,17 +327,21 @@ public class ProofBar extends JComponent {
 				data.get(i).exp = ex;
 			}
 		}
-		if (admissionIndices.size() == 0) {
-			data.clear();
-		} else if (data.size() > 0) {
-			data.subList(admissionIndices.size() - 1, data.size() - 1).clear();
-		}
-		mb.repaint();
+		clearProgramModeData();
 		error = false;
 		for (UnprovenExp e : unprovenStates) {
 			e.status = Status.UNTRIED;
 		}
 		repaint();
+	}
+
+	private void clearProgramModeData() {
+		if (admissionIndices.size() == 0) {
+			data.clear();
+		} else if (data.size() > 0) {
+			data.subList(admissionIndices.size(), data.size()).clear();
+		}
+		mb.repaint();
 	}
 	
 	/**
@@ -372,7 +376,7 @@ public class ProofBar extends JComponent {
 		} else {
 			idx = admissionIndices.get(admissionIndices.size() - 1) + 1;
 		}
-		data.subList(0, admissionIndices.size()).clear();
+		clearProgramModeData();
 		acl2.admit(":ubt! " + idx + "\n", Acl2.doNothingCallback);
 		// Enter logic mode
 		acl2.admit(":logic\n", Acl2.doNothingCallback);
