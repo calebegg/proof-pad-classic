@@ -402,7 +402,7 @@ public class ProofBar extends JComponent {
 		acl2.admit(tried.contents, new Acl2.Callback() {
 			@Override
 			public boolean run(final boolean outerSuccess, String response) {
-				setExpData(tried, response);
+				setExpData(tried, outerSuccess, response);
 				if (!outerSuccess) {
 					proofCallback(outerSuccess);
 					return false;
@@ -553,7 +553,7 @@ public class ProofBar extends JComponent {
 				acl2.admit(ex.contents, new Acl2.Callback() {
 					@Override
 					public boolean run(boolean success, String response) {
-						setExpData(ex, response);
+						setExpData(ex, success, response);
 						repaint();
 						ue.status = success ? Status.SUCCESS : Status.FAILURE;
 						return false;
@@ -563,13 +563,17 @@ public class ProofBar extends JComponent {
 		}
 	}
 
-	void setExpData(Expression exp, String response) {
+	void setExpData(Expression exp, boolean success, String response) {
 		while (data.size() <= exp.expNum) {
 			data.add(null);
 		}
 		data.subList(exp.expNum, data.size() - 1).clear();
-		data.set(exp.expNum, new ExpData(exp, response));
+		ExpData expData = new ExpData(exp, response);
+		data.set(exp.expNum, expData);
 		mb.repaint();
+		if (!success) {
+			mb.selectExpression(expData);
+		}
 	}
 
 }

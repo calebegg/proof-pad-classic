@@ -416,10 +416,10 @@ public class Repl extends JPanel {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
 					if (tr == null) {
-
-						parent.setPreviewText(result);
+						// TODO: Highlight the currently selected item and reset it in Runnable after.
+						parent.setPreviewText(result, null);
 					} else {
-						parent.setPreviewComponent(tr);
+						parent.setPreviewComponent(tr, null);
 					}
 				}
 			};
@@ -479,7 +479,7 @@ public class Repl extends JPanel {
 			public boolean run(boolean success, String response) {
 				// Display the results in a nicely-formatted way
 				TraceResult tr = new TraceResult(response, inputText);
-				parent.setPreviewComponent(tr);
+				parent.setPreviewComponent(tr, null);
 				displayResult(tr, success ? MsgType.SUCCESS : MsgType.ERROR);
 				return false;
 			}

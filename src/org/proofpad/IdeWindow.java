@@ -125,6 +125,7 @@ public class IdeWindow extends JFrame {
 	TraceResult activeTrace;
 	private MoreBar moreBar;
 	Gutter gutter;
+	Runnable afterPreview;
 
 	public IdeWindow() {
 		this((File)null);
@@ -403,7 +404,6 @@ public class IdeWindow extends JFrame {
 		findAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println(splitTop.getComponentCount());
 				if (splitTop.getComponentCount() == 1) {
 					splitTop.add(findBar, BorderLayout.NORTH);
 				} else {
@@ -693,13 +693,16 @@ public class IdeWindow extends JFrame {
 		}
 	}
 	
-	public void setPreviewComponent(JComponent c) {
+	public void setPreviewComponent(JComponent c, Runnable after) {
 		if (!isVisible()) return;
+		if (afterPreview != null) afterPreview.run();
+		afterPreview = after;
 		if (c instanceof TraceResult) {
 			activeTrace = (TraceResult) c;
 		} else {
 			activeTrace = null;
 		}
+		int oldDividerLoc = previewSplit.getDividerLocation();
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		previewSplit.setRightComponent(panel);
@@ -712,26 +715,20 @@ public class IdeWindow extends JFrame {
 		bottom.add(Box.createGlue());
 		bottom.add(closeButton);
 		closeButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				int paneWidth = previewSplit.getRightComponent().getWidth();
-				Point loc = getLocationOnScreen();
-				setBounds(loc.x, loc.y, getWidth() - paneWidth - splitDividerDefaultSize, getHeight());
-				previewSplit.setRightComponent(null);
-				previewSplit.setDividerSize(0);
-				activeTrace = null;
+			@Override public void actionPerformed(ActionEvent arg0) {
+				closePreviewPane();
 			}
 		});
 		panel.add(bottom, BorderLayout.SOUTH);
-		boolean wasPreviewOpen = previewSplit.getDividerSize() != 0;
+		boolean wasPreviewOpen = previewSplit.getDividerSize() > 0;
 		previewSplit.setDividerSize(splitDividerDefaultSize);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		Point loc = getLocationOnScreen();
 		int paneWidth = 75 * getFontMetrics(c.getFont()).charWidth('a');
 		final int winWidth = getWidth();
-		int newX = (int) Math.min(screenSize.getWidth() - winWidth - paneWidth, loc.x);
 		if (!wasPreviewOpen) {
+			int newX = (int) Math.min(screenSize.getWidth() - winWidth - paneWidth, loc.x);
 			setBounds(newX, loc.y, winWidth + paneWidth + splitDividerDefaultSize, getHeight());
 			// TODO: This doesn't work well on OS X, but might work on Windows or Linux.
 //			final int steps = 10;
@@ -751,19 +748,38 @@ public class IdeWindow extends JFrame {
 //					}
 //				}
 //			}).start();
-			previewSplit.setDividerLocation(winWidth + splitDividerDefaultSize);
+			previewSplit.setDividerLocation(winWidth);
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					previewSplit.setDividerLocation(winWidth);
+				}
+			});
 		} else {
-			previewSplit.setDividerLocation(winWidth - paneWidth);
+			previewSplit.setDividerLocation(oldDividerLoc);
 		}
 		adjustMaximizedBounds();
 	}
+
+	public void closePreviewPane() {
+		int paneWidth = previewSplit.getRightComponent().getWidth();
+		Point loc = getLocationOnScreen();
+		previewSplit.setDividerSize(0);
+		previewSplit.setRightComponent(null);
+		setBounds(loc.x, loc.y, getWidth() - paneWidth - splitDividerDefaultSize, getHeight());
+		activeTrace = null;
+		if (afterPreview != null) {
+			afterPreview.run();
+		}
+		afterPreview = null;
+	}
 	
-	public void setPreviewText(String result) {
+	public void setPreviewText(String result, Runnable after) {
 		JTextArea resBox = new JTextArea();
 		resBox.setText(result);
 		resBox.setFont(getFont());
 		resBox.setEditable(false);
-		setPreviewComponent(resBox);
+		setPreviewComponent(resBox, after);
 	}
 
 	public void fixUndoRedoStatus() {
