@@ -10,7 +10,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 public class AboutWindow extends JDialog {
 	class License {
@@ -89,13 +99,14 @@ public class AboutWindow extends JDialog {
 					"ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n" +
 					"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n" +
 					"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"),
-			// TODO: Dracula's license?
-			new License("DrACLua",
-					"")};
+			new License("Icon",
+					"Proof Pad's icon is based on a photo by Deutsche Fotothek, and is used under\n" +
+					"the Creative Commons Attribution-Share Alike 3.0 Germany license.")
+			};
 
 	private static final long serialVersionUID = 2263577634446940344L;
 
-	public static final Icon icon64 = new ImageIcon("media/IDEIcon64.png");
+	public static final Icon icon128 = new ImageIcon("media/icon.iconset/icon_128x128.png");
 
 	int widthFor(Font font, int chars) {
 		char[] line = new char[chars];
@@ -110,7 +121,7 @@ public class AboutWindow extends JDialog {
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		getRootPane().setBorder(Main.WINDOW_BORDER);
 		JLabel label = new JLabel();
-		label.setIcon(icon64);
+		label.setIcon(icon128);
 		label.setAlignmentX(CENTER_ALIGNMENT);
 		add(label);
 		add(Box.createVerticalStrut(6));
