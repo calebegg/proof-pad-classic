@@ -38,13 +38,12 @@ section "install"
 	File "proofpad.jar"
 	File "media\IDEIcon64.ico"
 	File /r "acl2"
-	File "launcher.exe"
  
 	writeUninstaller "$INSTDIR\uninstall.exe"
  
 	# Start Menu
 	createDirectory "$SMPROGRAMS"
-	createShortCut "$SMPROGRAMS\${APPNAME}.lnk" "$INSTDIR\app.exe" "" "$INSTDIR\IDEIcon64.ico"
+	createShortCut "$SMPROGRAMS\${APPNAME}.lnk" "$INSTDIR\proofpad.jar" "" "$INSTDIR\IDEIcon64.ico"
  
 	# Registry information for add/remove programs
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME} - ${DESCRIPTION}"
@@ -80,3 +79,4 @@ section "uninstall"
  
 	# Remove uninstaller information from the registry
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}"
+sectionEnd
