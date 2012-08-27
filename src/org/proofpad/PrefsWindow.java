@@ -1,13 +1,46 @@
 package org.proofpad;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.InputVerifier;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -79,7 +112,8 @@ public class PrefsWindow extends JFrame {
 		    }
 		}
 		
-		final JComboBox fontPicker = new JComboBox(monospaced.toArray());
+		final JComboBox fontPicker =
+				new JComboBox(monospaced.toArray(new String[0]));
 		fontPicker.setSelectedItem(font.getFamily());
 		fontPicker.addActionListener(new ActionListener() {
 			@Override
@@ -105,7 +139,8 @@ public class PrefsWindow extends JFrame {
 		c.gridx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		//final JSpinner fontSpinner = new JSpinner(new SpinnerNumberModel(font.getSize(), 6, 24, 1));
-		final JComboBox fontSizeComboBox = new JComboBox(new String[] {"8", "10", "12", "14", "16", "20", "24" });
+		final JComboBox fontSizeComboBox =
+				new JComboBox(new String[] {"8", "10", "12", "14", "16", "20", "24" });
 		fontSizeComboBox.setEditable(true);
 		fontSizeComboBox.setSelectedItem(Integer.toString(font.getSize()));
 		((JTextField) fontSizeComboBox.getEditor().getEditorComponent()).setInputVerifier(
@@ -174,6 +209,23 @@ public class PrefsWindow extends JFrame {
 		
 		c.gridx = 0;
 		c.gridy++;
+		
+		add(new JLabel("Usage data:"), c);
+		c.gridx = 1;
+		final String[] opts = { "Ask every time", "Always send", "Never send" };
+		final JComboBox usageData = new JComboBox(opts);
+		usageData.setSelectedIndex(prefs.getInt("alwaysSend", 0));
+		usageData.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO: Clean this up, use constants.
+				prefs.putInt("alwaysSend", usageData.getSelectedIndex());
+			}
+		});
+		add(usageData, c);
+				
+		c.gridy++;
+		c.gridx = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		add(new Separator(), c);

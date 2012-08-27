@@ -1,21 +1,65 @@
 package org.proofpad;
 
-import java.util.*;
-import java.util.List;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
-import java.net.URLDecoder;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.undo.UndoManager;
@@ -126,6 +170,7 @@ public class IdeWindow extends JFrame {
 	private MoreBar moreBar;
 	Gutter gutter;
 	Runnable afterPreview;
+	JPanel westPanel;
 
 	public IdeWindow() {
 		this((File)null);
@@ -172,16 +217,12 @@ public class IdeWindow extends JFrame {
 			} else {
 				String maybeAcl2Path = "";
 				try {
-					String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation()
-							.getPath();
-					jarPath = URLDecoder.decode(jarPath, "UTF-8");
+					String jarPath = Main.getJarPath();
 					File jarFile = new File(jarPath);
 					maybeAcl2Path = jarFile.getParent() + "/acl2/run_acl2";
 					maybeAcl2Path = maybeAcl2Path.replaceAll(" ", "\\\\ ");
 				} catch (NullPointerException e) {
 					System.err.println("Built-in ACL2 not found.");
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
 				}
 				acl2Path = maybeAcl2Path;
 			}
@@ -195,7 +236,7 @@ public class IdeWindow extends JFrame {
 		final JPanel editorContainer = new JPanel();
 		editorContainer.setBackground(Color.WHITE);
 		editorContainer.setLayout(new BorderLayout());
-		final JPanel westPanel = new JPanel();
+		westPanel = new JPanel();
 		westPanel.setBackground(Color.WHITE);
 		westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.X_AXIS));
 		westPanel.add(proofBar);
@@ -313,6 +354,7 @@ public class IdeWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				repl.getOutput().removeAll();
+				repl.getOutput().repaint();
 			}
 		};
 		
@@ -563,11 +605,7 @@ public class IdeWindow extends JFrame {
 			}
 			@Override
 			public void keyReleased(KeyEvent e) {
-				int width = ((int) Math.log10(editor.getLineCount()) + 2)
-						* getFontMetrics(gutter.getFont()).charWidth('1');
-				gutter.setPreferredSize(new Dimension(width, 0));
-				gutter.repaint();
-				westPanel.revalidate();
+				adjustGutterSize();
 			}
 		});
 		
@@ -728,10 +766,10 @@ public class IdeWindow extends JFrame {
 		int paneWidth = 75 * getFontMetrics(c.getFont()).charWidth('a');
 		final int winWidth = getWidth();
 		if (!wasPreviewOpen) {
-			int newX = (int) Math.min(screenSize.getWidth() - winWidth - paneWidth, loc.x);
+			int newX = (int) Math.min(screenSize.getWidth() - winWidth - paneWidth, loc.x) - 30;
 			setBounds(newX, loc.y, winWidth + paneWidth + splitDividerDefaultSize, getHeight());
 			// TODO: This doesn't work well on OS X, but might work on Windows or Linux.
-//			final int steps = 10;
+//			final int steps = 5;
 //			final int dx = (newX - loc.x) / steps;
 //			final int dw = (paneWidth + splitDividerDefaultSize) / steps;
 //			new Timer(30, new ActionListener() {
@@ -828,7 +866,7 @@ public class IdeWindow extends JFrame {
 				windows.remove(that);
 			}
 			if (windows.size() == 0 && !OSX) {
-				System.exit(0);
+				Main.quit();
 			}
 			return true;
 		}
@@ -904,6 +942,14 @@ public class IdeWindow extends JFrame {
 		saveButton.setEnabled(!isSaved);
 		menuBar.saveItem.setEnabled(!isSaved);
 	}
+	
+	void adjustGutterSize() {
+		int width = ((int) Math.log10(editor.getLineCount()) + 2)
+				* getFontMetrics(gutter.getFont()).charWidth('1');
+		gutter.setPreferredSize(new Dimension(width, 0));
+		gutter.repaint();
+		westPanel.revalidate();
+	}
 
 	protected void openAndDisplay(File file) {
 		getRootPane().putClientProperty("Window.documentFile", file);
@@ -917,6 +963,7 @@ public class IdeWindow extends JFrame {
 			return;
 		}
 		String content = scan.useDelimiter("\\Z").next();
+		scan.close();
 		editor.setText(content);
 		editor.setCaretPosition(0);
 		java.util.List<Expression> exps = SExpUtils
@@ -927,6 +974,7 @@ public class IdeWindow extends JFrame {
 		updateWindowMenu();
 		
 		markOpenFileAsRecent();
+		adjustGutterSize();
 	}
 	
 	private void markOpenFileAsRecent() {

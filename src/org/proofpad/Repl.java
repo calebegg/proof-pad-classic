@@ -1,14 +1,37 @@
 package org.proofpad;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Set;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.Token;
@@ -82,7 +105,7 @@ public class Repl extends JPanel {
 	protected int historyIndex = 0;
 	boolean addedInputToHistory = false;
 	private Font font;
-	private List<JComponent> fontChangeList = new LinkedList<JComponent>();
+	private final List<JComponent> fontChangeList = new LinkedList<JComponent>();
 	CodePane input;
 	JScrollPane inputScroller;
 	private JSplitPane split;
@@ -155,6 +178,7 @@ public class Repl extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				runInputCode();
+				Main.userData.addUse("runButton", false);
 			}
 		});
 		trace.addActionListener(new ActionListener() {
@@ -167,6 +191,7 @@ public class Repl extends JPanel {
 				historyIndex = history.size();
 				addedInputToHistory = false;
 				resetInput();
+				Main.userData.addUse("traceButton", false);
 			}
 		});
 		input.addKeyListener(new KeyAdapter() {
@@ -227,6 +252,7 @@ public class Repl extends JPanel {
 						}
 					}
 					if (parenLevel <= 0) {
+						Main.userData.addUse("runButton", true);
 						e.consume();
 						runInputCode();
 					}
@@ -322,34 +348,44 @@ public class Repl extends JPanel {
 		Matcher match;
 		String joined = result.replaceAll("[\n\r]+", " ").replaceAll("\\s+", " ").trim();
 		if ((match = welcomeMessage.matcher(joined)).matches()) {
+			Main.userData.addReplMsg("welcomeMessage");
 			ret = "ACL2 started successfully.";
 		} else if ((match = guardViolation.matcher(joined)).matches()) {
 			ret = "Guard violation in " + match.group(3).toLowerCase() + ".";
+			Main.userData.addReplMsg("guardViolation");
 		} else if ((match = globalVar.matcher(joined)).matches()) {
 			ret = "Global variables, such as " + match.group(1).toLowerCase() +
 					", are not allowed.";
+			Main.userData.addReplMsg("globalVar");
 		} else if ((match = wrongNumParams.matcher(joined)).matches()) {
 			ret = match.group(1).toLowerCase() +  " takes " + match.group(2) +
 					" arguments but was given " + match.group(4) + " at " +
 					match.group(3).toLowerCase();
+			Main.userData.addReplMsg("wrongNumParams");
 		} else if ((match = trivial.matcher(joined)).matches() ||
 				   (match = nonRec.matcher(joined)).matches() ||
 				   (match = admission.matcher(joined)).matches()) {
 			if (msgtype == MsgType.ERROR) {
 				ret = "Admission of " + match.group(1).toLowerCase() + " failed. " +
 						"Click for details.";
+				Main.userData.addReplMsg("admissionFailed");
 			} else {
 				ret = match.group(1).toLowerCase() + " was admitted successfully.";
+				Main.userData.addReplMsg("admissionSucceeded");
 			}
 		} else if ((match = undefinedFunc.matcher(joined)).matches()) {
 			String func = match.group(1).toLowerCase();
 			ret = "The function " + func + " is undefined.";
+			Main.userData.addReplMsg("undefinedFunc");
 		} else if ((match = proved.matcher(joined)).find()) {
 			ret = "Proof successful.";
+			Main.userData.addReplMsg("proofSuccess");
 		} else if (joined.length() > 70) {
 			ret = joined.substring(0, 67) + " ...";
+			Main.userData.addReplMsg(ret);
 		} else {
 			ret = joined;
+			Main.userData.addReplMsg(joined);
 		}
 		return ret;
 	}
@@ -393,14 +429,14 @@ public class Repl extends JPanel {
 		status.setMsgType(type);
 		switch (type) {
 		case ERROR:
-			line.setBackground(ProofBar.errorColor);
-			status.setBackground(ProofBar.errorColor);
+			line.setBackground(ProofBar.ERROR_COLOR);
+			status.setBackground(ProofBar.ERROR_COLOR);
 			status.setFont(status.getFont().deriveFont(18f));
 			break;
 		case INFO:
 			break;
 		case SUCCESS:
-			status.setBackground(ProofBar.provedColor);
+			status.setBackground(ProofBar.ADMITTED_COLOR);
 			status.setFont(status.getFont().deriveFont(18f));
 			break;
 		case INPUT:

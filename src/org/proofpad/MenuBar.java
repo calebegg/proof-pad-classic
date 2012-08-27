@@ -60,11 +60,13 @@ public class MenuBar extends JMenuBar {
 				window.setVisible(true);
 			}
 		});
+		item.addActionListener(new UserData.LogUse("newMenuItem"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, modKey));
 		menu.add(item);
 		
 		item = new JMenuItem("Open...");
 		item.addActionListener(IdeWindow.openAction);
+		item.addActionListener(new UserData.LogUse("openMenuItem"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, modKey));
 		menu.add(item);
 		recentMenu = new JMenu(applyTitleCase("Open recent"));
@@ -86,6 +88,7 @@ public class MenuBar extends JMenuBar {
 				}
 			}
 		});
+		item.addActionListener(new UserData.LogUse("closeMenuItem"));
 		menu.add(item);
 		
 		item = new JMenuItem("Save");
@@ -94,6 +97,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.saveAction);
+			item.addActionListener(new UserData.LogUse("saveMenuItem"));
 		}
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, modKey));
 		menu.add(item);
@@ -109,6 +113,7 @@ public class MenuBar extends JMenuBar {
 					dupWin.setVisible(true);
 				}
 			});
+			item.addActionListener(new UserData.LogUse("duplicateMenuItem"));
 		}
 		menu.add(item);
 
@@ -119,6 +124,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.printAction);
+			item.addActionListener(new UserData.LogUse("printMenuItem"));
 		}
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, modKey));
 		menu.add(item);
@@ -134,6 +140,7 @@ public class MenuBar extends JMenuBar {
 					}
 				}
 			});
+			item.addActionListener(new UserData.LogUse("quitMenuItem"));
 			if (!WIN) {
 				item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, modKey));
 			}
@@ -150,6 +157,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.undoAction);
+			item.addActionListener(new UserData.LogUse("undoMenuItem"));
 		}
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, modKey));
 		menu.add(item);
@@ -160,6 +168,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.redoAction);
+			item.addActionListener(new UserData.LogUse("redoMenuItem"));
 		}
 		if (OSX) {
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, modKey | KeyEvent.SHIFT_DOWN_MASK));
@@ -174,18 +183,21 @@ public class MenuBar extends JMenuBar {
 		item.setText("Cut");
 		item.setEnabled(parent != null);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, modKey));
+		item.addActionListener(new UserData.LogUse("cutMenuItem"));
 		menu.add(item);
 		
 		item = new JMenuItem(new DefaultEditorKit.CopyAction());
 		item.setText("Copy");
 		item.setEnabled(parent != null);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, modKey));
+		item.addActionListener(new UserData.LogUse("copyMenuItem"));
 		menu.add(item);
 		
 		item = new JMenuItem(new DefaultEditorKit.PasteAction());
 		item.setText("Paste");
 		item.setEnabled(parent != null);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, modKey));
+		item.addActionListener(new UserData.LogUse("pasteMenuItem"));
 		menu.add(item);
 		
 		item = new JMenuItem("Delete");
@@ -202,6 +214,7 @@ public class MenuBar extends JMenuBar {
 					} catch (BadLocationException e1) { }
 				}
 			});
+			item.addActionListener(new UserData.LogUse("deleteMenuItem"));
 		}
 		menu.add(item);
 		
@@ -216,6 +229,7 @@ public class MenuBar extends JMenuBar {
 					parent.editor.selectAll();
 				}
 			});
+			item.addActionListener(new UserData.LogUse("selectAllMenuItem"));
 		}
 		
 		menu.addSeparator();
@@ -225,6 +239,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.findAction);
+			item.addActionListener(new UserData.LogUse("findMenuItem"));
 		}
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, modKey));
 		menu.add(item);
@@ -234,20 +249,23 @@ public class MenuBar extends JMenuBar {
 		item = new JMenuItem(applyTitleCase("Toggle comment"));
 		item.setEnabled(parent != null);
 		item.addActionListener(new RSyntaxTextAreaEditorKit.ToggleCommentAction());
+		item.addActionListener(new UserData.LogUse("toggleCommentMenuItem"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, modKey));
 		menu.add(item);
-		item = new JMenuItem(applyTitleCase("Reindent selected lines"));
+		item = new JMenuItem(applyTitleCase("Reindent selection"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, modKey));
 		if (parent == null) {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.reindentAction);
+			item.addActionListener(new UserData.LogUse("reindentMenuItem"));
 		}
 		menu.add(item);
 		if (!OSX && !WIN) {
 			menu.addSeparator();
 			item = new JMenuItem("Preferences...");
 			item.addActionListener(prefsAction);
+			item.addActionListener(new UserData.LogUse("preferencesMenuItem"));
 			menu.add(item);
 		}
 		add(menu);
@@ -268,6 +286,7 @@ public class MenuBar extends JMenuBar {
 				}
 			}
 		});
+		item.addActionListener(new UserData.LogUse("restartAcl2MenuItem"));
 		menu.add(item);
 		item = new JMenuItem("Interrupt ACL2");
 		if (parent == null) {
@@ -281,6 +300,7 @@ public class MenuBar extends JMenuBar {
 					}
 				}
 			});
+			item.addActionListener(new UserData.LogUse("interruptAcl2MenuItem"));
 		}
 		if (OSX) {
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
@@ -300,6 +320,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.admitNextAction);
+			item.addActionListener(new UserData.LogUse("admitNextMenuItem"));
 		}
 		menu.add(item);
 		item = new JMenuItem(applyTitleCase("Un-admit one item"));
@@ -313,6 +334,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.undoPrevAction);
+			item.addActionListener(new UserData.LogUse("unAdmitOneMenuItem"));
 		}
 		menu.add(item);
 		menu.addSeparator();
@@ -322,6 +344,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.clearReplScrollback);
+			item.addActionListener(new UserData.LogUse("clearScrollbackMenuItem"));
 		}
 		menu.add(item);
 		menu.addSeparator();
@@ -331,6 +354,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.buildAction);
+			item.addActionListener(new UserData.LogUse("buildMenuItem"));
 		}
 		menu.add(item);
 		menu.addSeparator();
@@ -339,12 +363,14 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.includeBookAction);
+			item.addActionListener(new UserData.LogUse("includeBookMenuItem"));
 		}
 		menu.add(item);
 		add(menu);
 		if (WIN) {
 			item = new JMenuItem("Options...");
 			item.addActionListener(prefsAction);
+			item.addActionListener(new UserData.LogUse("prefsMenuItem"));
 			menu.addSeparator();
 			menu.add(item);
 		}
@@ -360,11 +386,12 @@ public class MenuBar extends JMenuBar {
 		item = new JMenuItem("Index");
 		item = new JMenuItem(applyTitleCase("Quick guide"));
 		item = new JMenuItem("Look up...");
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey | KeyEvent.ALT_DOWN_MASK));
 		if (parent == null) {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.helpAction);
+			item.addActionListener(new UserData.LogUse("lookUpMenuItem"));
 		}
 		menu.add(item);
 		item = new JMenuItem("Tutorial");
@@ -372,6 +399,7 @@ public class MenuBar extends JMenuBar {
 			item.setEnabled(false);
 		} else {
 			item.addActionListener(parent.tutorialAction);
+			item.addActionListener(new UserData.LogUse("tutorialMenuItem"));
 		}
 		menu.add(item);
 		menu.addSeparator();
@@ -384,6 +412,7 @@ public class MenuBar extends JMenuBar {
 				} catch (Exception ex) { }
 			}
 		});
+		item.addActionListener(new UserData.LogUse("reportBugMenuItem"));
 		menu.add(item);
 		if (!OSX) {
 			item = new JMenuItem("About");
@@ -393,6 +422,7 @@ public class MenuBar extends JMenuBar {
 					new AboutWindow().setVisible(true);
 				}
 			});
+			item.addActionListener(new UserData.LogUse("aboutMenuItem"));
 			menu.add(item);
 		}
 		add(menu);
@@ -414,6 +444,7 @@ public class MenuBar extends JMenuBar {
 					new IdeWindow(file).setVisible(true);
 				}
 			});
+			item.addActionListener(new UserData.LogUse("recentFileMenuItem"));
 			recentMenu.add(item);
 		}
 		
@@ -431,6 +462,7 @@ public class MenuBar extends JMenuBar {
 				}
 			}
 		});
+		clearItem.addActionListener(new UserData.LogUse("clearRecentMenuItem"));
 		recentMenu.addSeparator();
 		recentMenu.add(clearItem);
 	}
@@ -448,6 +480,7 @@ public class MenuBar extends JMenuBar {
 				parent.setState(Frame.ICONIFIED);
 			}
 		});
+		item.addActionListener(new UserData.LogUse("minimizeMenuItem"));
 		windowMenu.add(item);
 		item = new JMenuItem("Zoom");
 		item.setEnabled(parent != null);
@@ -461,6 +494,7 @@ public class MenuBar extends JMenuBar {
 				}
 			}
 		});
+		item.addActionListener(new UserData.LogUse("zoomMenuItem"));
 		windowMenu.add(item);
 		if (IdeWindow.windows.size() <= 0) {
 			return;
@@ -481,6 +515,7 @@ public class MenuBar extends JMenuBar {
 					parentItem.setSelected(true);
 				}
 			});
+			item.addActionListener(new UserData.LogUse("windowSwitchMenuItem"));
 			windowMenu.add(winItem);
 		}
 	}

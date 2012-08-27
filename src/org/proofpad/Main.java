@@ -1,45 +1,77 @@
 package org.proofpad;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.prefs.Preferences;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ProgressMonitor;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 
-import com.apple.eawt.*;
-import com.apple.eawt.AppEvent.*;
-
-/*
- *  Proof Pad: An IDE for ACL2.
- *  Copyright (C) 2012 Caleb Eggensperger
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *  
- *  To contact the author, send email to calebegg@gmail.com.
- */
-
-/**
- *  @author Caleb Eggensperger
- *  @version {@value RELEASE}
- */
+import com.apple.eawt.AboutHandler;
+import com.apple.eawt.AppEvent.AboutEvent;
+import com.apple.eawt.AppEvent.AppForegroundEvent;
+import com.apple.eawt.AppEvent.AppReOpenedEvent;
+import com.apple.eawt.AppEvent.OpenFilesEvent;
+import com.apple.eawt.AppEvent.PreferencesEvent;
+import com.apple.eawt.AppEvent.QuitEvent;
+import com.apple.eawt.AppForegroundListener;
+import com.apple.eawt.AppReOpenedListener;
+import com.apple.eawt.Application;
+import com.apple.eawt.OpenFilesHandler;
+import com.apple.eawt.PreferencesHandler;
+import com.apple.eawt.QuitHandler;
+import com.apple.eawt.QuitResponse;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class Main {
 	
-	public static final String displayName = "Proof Pad (alpha)";
+	public static final String displayName = "Proof Pad";
 	public static final int RELEASE = 1;
 	public static final Border WINDOW_BORDER = BorderFactory.createEmptyBorder(4, 4, 4, 4);
+	private static String userDataPath = new File(getJarPath()) +
+			System.getProperty("file.separator") +
+			"user_data.dat";
+    public static final String UPLOAD_URL = "http://www.calebegg.com/ppuserdata";
+	public static UserData userData = null;
+	static {
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(userDataPath));
+			userData = (UserData) ois.readObject();
+			ois.close();
+		} catch (Exception e) {
+			userData = null;
+		}
+		if (userData == null) {
+			userData = new UserData();
+		}
+		System.out.println(userData);
+	}
 	
 	public static boolean startingUp = true;
 	public static long startTime = System.currentTimeMillis();
@@ -52,6 +84,7 @@ public class Main {
 	public static void main(String[] args) throws FileNotFoundException, IOException,
 			ClassNotFoundException {
 		logtime("Starting main");
+		// http://java.net/jira/browse/MACOSX_PORT-764
 		System.setProperty("apple.awt.brushMetalLook", "true");
 		if (!FAKE_WINDOWS) {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -82,6 +115,7 @@ public class Main {
 				errorWindow.pack();
 				errorWindow.setLocationRelativeTo(null);
 				errorWindow.setVisible(true);
+				userData.addError(stackTrace);
 			}
 		});
 		
@@ -119,7 +153,7 @@ public class Main {
 					}
 					IdeWindow.updateWindowMenu();
 					if (IdeWindow.windows.size() <= 0) {
-						System.exit(0);
+						quit();
 					} else {
 						qr.cancelQuit();
 					}
@@ -138,7 +172,7 @@ public class Main {
 				@Override
 				public void appMovedToBackground(AppForegroundEvent arg0) {
 					if (IdeWindow.windows.size() == 0 && !startingUp) {
-						System.exit(0);
+						Main.quit();
 					}
 				}
 				@Override
@@ -159,7 +193,8 @@ public class Main {
 			});
 			if (!FAKE_WINDOWS) {
 				menuBar = new MenuBar(null);
-				app.setDefaultMenuBar(menuBar);
+				// http://java.net/jira/browse/MACOSX_PORT-775
+				// app.setDefaultMenuBar(menuBar);
 				PopupMenu dockMenu = new PopupMenu();
 				MenuItem item = new MenuItem("New");
 				item.addActionListener(new ActionListener() {
@@ -178,14 +213,111 @@ public class Main {
 			@Override
 			public void run() {
 				logtime("Start creating main window");
+				final Preferences prefs = Preferences.userNodeForPackage(Main.class);
 				IdeWindow win = new IdeWindow();
 				startingUp = false;
 				win.setVisible(true);
 				logtime("Main window visible");
+				Date now = new Date();
+				Date oneWeekAgo = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
+				if (userData.recordingStart.before(oneWeekAgo)) {
+					int alwaysSend = prefs.getInt("alwaysSend", 0);
+					if (alwaysSend > 0) {
+						if (alwaysSend == 1) {
+							sendUserData();
+						}
+						return;
+					}
+					JCheckBox saveAction = new JCheckBox("Do the same thing every week");
+					Object[] params = {"<html>You've been using Proof Pad for one week. In order to " +
+							"<br />continually improve Proof Pad, we ask that you volunteer your " +
+							"<br />anonymous usage and error data.</html>", saveAction};
+					Object[] options = { "Send data", "Don't send" };
+					int shouldSend = JOptionPane.showOptionDialog(null, params, "",
+							JOptionPane.YES_NO_OPTION,
+							JOptionPane.QUESTION_MESSAGE,
+							null,
+							options,
+							options[0]
+							);
+					if (saveAction.isSelected()) {
+						prefs.putInt("alwaysSend", shouldSend == JOptionPane.YES_OPTION ? 1 : 2);
+					}
+					if (shouldSend == JOptionPane.YES_OPTION) {
+						sendUserData();
+					}
+				}
 			}
 		});
 	}
+	
+	protected static void quit() {
+		ObjectOutputStream oos;
+		System.out.println("Quitting");
+		try {
+			oos = new ObjectOutputStream(new FileOutputStream(userDataPath));
+			oos.writeObject(userData);
+			oos.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.exit(0);
+	}
+	
+	static String getJarPath() {
+		try {
+			return URLDecoder.decode(Main.class.getProtectionDomain().getCodeSource().getLocation()
+					.getPath(), "UTF-8");
+		} catch (UnsupportedEncodingException e) { }
+		return "";
+	}
+	
 	public static void logtime(String event) {
 		System.out.println(event + ": " + (System.currentTimeMillis() - startTime) + "ms");
+	}
+	
+	static void sendUserData() {
+		final ProgressMonitor pm = new ProgressMonitor(null, "Sending user data", null, 0, 100);
+		pm.setProgress(0);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println("Sending user data");
+				XStream xs = new XStream(new StaxDriver());
+				String xml = xs.toXML(userData);
+				try {
+					String data = "data=" + URLEncoder.encode(xml, "UTF-8");
+					System.out.println(xml);
+					URL url = new URL(UPLOAD_URL);
+					URLConnection conn = url.openConnection();
+					conn.setDoOutput(true);
+					OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+					int chunkSize = 100;
+					int chunks = data.length() / chunkSize + 1;
+					for (int chunk = 0; chunk < chunks; chunk++) {
+						wr.write(data, chunk * chunkSize, Math.min(chunkSize,
+								data.length() - chunk * chunkSize));
+						pm.setProgress(chunk * 100 / chunks);
+						if (pm.isCanceled()) {
+							wr.close();
+							return;
+						}
+					}
+					wr.close();
+					// This makes the connection actually go through.
+					conn.getInputStream();
+					userData = new UserData();
+					pm.setProgress(100);
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				} catch (ConnectException e) {
+					System.out.println("User data server down: " + UPLOAD_URL);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 	}
 }

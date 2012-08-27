@@ -4,14 +4,27 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.Stack;
 import java.util.logging.Logger;
 
 import javax.swing.text.BadLocationException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rsyntaxtextarea.parser.*;
+import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
+import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
+import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
+import org.fife.ui.rsyntaxtextarea.parser.ParseResult;
+import org.fife.ui.rsyntaxtextarea.parser.ParserNotice;
 
 public class Acl2Parser extends AbstractParser {
 	
@@ -23,8 +36,8 @@ public class Acl2Parser extends AbstractParser {
 	
 	public static class CacheKey implements Serializable {
 		private static final long serialVersionUID = -4201796432147755450L;
-		private File book;
-		private long mtime;
+		private final File book;
+		private final long mtime;
 
 		public CacheKey(File book, long mtime) {
 			this.book = book;
@@ -64,8 +77,8 @@ public class Acl2Parser extends AbstractParser {
 	public Set<String> constants;
 	public File workingDir;
 	private Map<CacheKey, CacheSets> cache = Main.cache.getBookCache();
-	private File acl2Dir;
-	private List<ParseListener> parseListeners = new LinkedList<Acl2Parser.ParseListener>();
+	private final File acl2Dir;
+	private final List<ParseListener> parseListeners = new LinkedList<Acl2Parser.ParseListener>();
 	
 	public Acl2Parser(File workingDir, File acl2Dir) {
 		this.workingDir = workingDir;
@@ -490,7 +503,9 @@ public class Acl2Parser extends AbstractParser {
 			while (token != null && token.isPaintable()) {
 				ParseToken top = (s.empty() ? null : s.peek());
 				if (top != null && top.name != null && !token.isWhitespace() &&
-						!token.isComment() && !token.isSingleChar(')')) {
+						!token.isComment() && !token.isSingleChar(')') &&
+						!token.isSingleChar('`') && !token.isSingleChar(',') &&
+						!token.isSingleChar('\'')) {
 					// In a parameter position.
 					top.params.add(token.getLexeme());
 					if (top.name.equals("defun") && top.params.size() == 1) {
@@ -502,6 +517,7 @@ public class Acl2Parser extends AbstractParser {
 						constants.add(token.getLexeme());
 						String constName = token.getLexeme();
 						if (!constName.startsWith("*") || !constName.endsWith("*")) {
+							Main.userData.addParseError("constNames");
 							result.addNotice(new Acl2ParserNotice(this, 
 									"Constant names must begin and end with *.", line, token,
 									ParserNotice.ERROR));
@@ -524,6 +540,7 @@ public class Acl2Parser extends AbstractParser {
 							grandparent.vars.add(token.getLexeme());
 						}
 					} else if (token.type != Token.WHITESPACE && !token.isSingleChar(')')) {
+						Main.userData.addParseError("expectedVariableName");
 						result.addNotice(new Acl2ParserNotice(this, "Expected a variable name",
 								line, token, ParserNotice.ERROR));
 					}
@@ -559,6 +576,7 @@ public class Acl2Parser extends AbstractParser {
 					s.peek().offset = token.offset;
 				} else if (token.isSingleChar(')')) {
 					if (top == null) {
+						Main.userData.addParseError("UnmatchedCloseParen");
 						result.addNotice(new Acl2ParserNotice(this, "Unmatched )", line, token.offset, 1,
 								ParserNotice.ERROR));
 					} else {
@@ -573,6 +591,7 @@ public class Acl2Parser extends AbstractParser {
 								msg = "<html><b>" + htmlEncode(top.name) + "</b> expects between "
 										+ range.lower + " and " + range.upper + " parameters.</html>";							
 							}
+							Main.userData.addParseError("numOfParams");
 							result.addNotice(new Acl2ParserNotice(this, msg, top, token.offset + 1));
 						}
 						s.pop();
@@ -590,6 +609,7 @@ public class Acl2Parser extends AbstractParser {
 								} else if (dirKey.equals(":teachpacks")) {
 									dir = new File(acl2Dir, "dracula");
 								} else {
+									Main.userData.addParseError("UnrecongizedBookLocation");
 									result.addNotice(new Acl2ParserNotice(this,
 											"Unrecognized book location: " + dirKey, top,
 											token.offset + 1));
@@ -610,6 +630,7 @@ public class Acl2Parser extends AbstractParser {
 									bookCache = parseBook(book, acl2Dir, cache);
 									cache.put(key, bookCache);
 								} catch (FileNotFoundException e) {
+									Main.userData.addParseError("BookNotFound");
 									result.addNotice(new Acl2ParserNotice(this, "File could not be found", top, token.offset + 1));
 								} catch (BadLocationException e) { }
 							}
@@ -630,6 +651,7 @@ public class Acl2Parser extends AbstractParser {
 							!functions.contains(top.name) &&
 							!macros.contains(top.name) &&
 							!isIgnored) {
+						Main.userData.addParseError("undefinedCallable");
 						result.addNotice(new Acl2ParserNotice(this, "<html><b>" +
 							htmlEncode(top.name) + "</b> is undefined.</html>",
 							line, token, ParserNotice.ERROR));
@@ -640,7 +662,7 @@ public class Acl2Parser extends AbstractParser {
 						Map<String, String> docs = Main.cache.getDocs();
 						String upperToken = token.getLexeme().toUpperCase();
 						if (docs.containsKey(upperToken)) {
-							String modKey = IdeWindow.OSX ? "\u2318" : "Ctrl + ";
+							String modKey = IdeWindow.OSX ? "\u2325\u2318" : "Ctrl + Alt + ";
 							String msg = "<html>" + docs.get(upperToken) + "<br><font " +
 									"color=\"gray\" size=\"2\">" + modKey + "L for more.</font></html>";
 							result.addNotice(new Acl2ParserNotice(this,
@@ -651,6 +673,7 @@ public class Acl2Parser extends AbstractParser {
 						token.type == Token.RESERVED_WORD || token.type == Token.RESERVED_WORD_2)
 						&& !constants.contains(token.getLexeme()) &&
 						!vars.contains(token.getLexeme())) {
+					Main.userData.addParseError("undeclaredVariable");
 					result.addNotice(new Acl2ParserNotice(this, token.getLexeme() + " is undeclared.",
 							line, token, ParserNotice.ERROR));
 				}
@@ -669,6 +692,7 @@ public class Acl2Parser extends AbstractParser {
 		Scanner bookScanner = new Scanner(book);
 		bookScanner.useDelimiter("\\Z");
 		String bookContents = bookScanner.next();
+		bookScanner.close();
 		logger.info("PARSING: " + book);
 		book.lastModified();
 		Acl2Parser bookParser = new Acl2Parser(book.getParentFile(), acl2Dir);
