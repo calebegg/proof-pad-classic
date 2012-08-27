@@ -2,8 +2,10 @@ package org.proofpad;
 
 import java.awt.Font;
 
-import javax.swing.*;
-import javax.swing.tree.*;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 
 public class TraceResult extends JTree {
 	private static final long serialVersionUID = 2124327473664301528L;
@@ -22,7 +24,7 @@ public class TraceResult extends JTree {
 		for (int i = 0; i < lines.length; i++) {
 			String line;
 			line = lines[i];
-			System.out.println(line);
+//			System.out.println(line);
 			line = line.replaceAll("^\\s*<\\d+\\s", "")
 					   .replaceAll("^\\s*\\d+>\\s", "")
 					   .replaceAll("ACL2_\\*1\\*_ACL2::", "");

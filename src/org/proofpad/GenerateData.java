@@ -1,8 +1,18 @@
 package org.proofpad;
 
-import java.util.regex.*;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.ObjectOutputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.proofpad.Acl2Parser.CacheKey;
 import org.proofpad.Acl2Parser.CacheSets;
@@ -32,6 +42,7 @@ public class GenerateData {
 			}
 			docScanner.useDelimiter("\\Z");
 			String doc = docScanner.next();
+			docScanner.close();
 			Matcher m = Pattern.compile("</h2>(.*?)\\n").matcher(doc);
 			if (!m.find()) {
 				continue;
@@ -85,5 +96,6 @@ public class GenerateData {
 
 		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data/cache.dat"));
 		oos.writeObject(cache);
+		oos.close();
 	}
 }

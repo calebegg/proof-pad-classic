@@ -26,11 +26,16 @@
  */
 package org.proofpad;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
+
 import javax.swing.text.Segment;
 
-import org.fife.ui.rsyntaxtextarea.*;
+import org.fife.ui.rsyntaxtextarea.AbstractJFlexTokenMaker;
+import org.fife.ui.rsyntaxtextarea.DefaultToken;
+import org.fife.ui.rsyntaxtextarea.Token;
 
 
 /**

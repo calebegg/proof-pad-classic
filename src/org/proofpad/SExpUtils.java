@@ -1,5 +1,6 @@
 package org.proofpad;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.Token;

@@ -1,13 +1,24 @@
 package org.proofpad;
 
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.awt.*;
-import java.awt.event.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.ToolTipManager;
@@ -15,7 +26,11 @@ import javax.swing.event.CaretEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.undo.UndoManager;
 
-import org.fife.ui.rsyntaxtextarea.*;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
+import org.fife.ui.rsyntaxtextarea.Style;
+import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
+import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rtextarea.RUndoManager;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
