@@ -1,6 +1,6 @@
 (in-package "ACL2")
 
-:set-state-ok t
+(set-state-ok t)
 
 (defconst *default-repeat* 50)
 
@@ -79,7 +79,7 @@
              success))
          (condense-results (rest rs)))))
 
-(defmacro defproperty (name &rest args)
+(defmacro defproperty-program (name &rest args)
   (let ((repeat (cond ((eql (first args) ':repeat)
                        (second args))
                       ((eql (third args) ':repeat)
@@ -100,21 +100,43 @@
        (repeat-times ,repeat ,limit
                      (expand-vars ,vars ,body))
        (if (condense-results results)
-         (mv nil state)
+         (mv nil nil state)
          (mv (hard-error nil "Test ~xn failed."
                          (list (cons #\n (quote ,name))))
+             nil
              state)))))
 
-:trans1 (repeat-times 20 20 x)
+;; Code from Dracula begins here
+(defun expand-defproperty-implication (hyps test)
+  `(implies (and ,@hyps) ,test))
 
-(defproperty +-commutes
-  (x :value (random-natural)
-   y :value (random-natural))
-  (= (+ x y)
-     (+ y x)))
+(defun expand-defproperty-hypotheses (vars)
+  (case-match vars
+    ((':where hyp . rest)
+     (cons hyp (expand-defproperty-hypotheses rest)))
+    ((':value & . rest)
+     (expand-defproperty-hypotheses rest))
+    ((':limit & . rest)
+     (expand-defproperty-hypotheses rest))
+    ((& . rest) (expand-defproperty-hypotheses rest))
+    (nil nil)))
 
-(defproperty --commutes :repeat 10 :limit 100
-  (x :value (random-natural)
-   y :value (random-natural) :where (= x y))
-  (= (- x y)
-     (- y x)))
+(defun expand-defproperty-body (body)
+  (case-match body
+    ((':repeat & . rest) (expand-defproperty-body rest))
+    ((':limit & . rest) (expand-defproperty-body rest))
+    ((vars test . options)
+     (cons
+      (expand-defproperty-implication
+       (expand-defproperty-hypotheses vars) 
+       test)
+      options))))
+
+(defmacro defproperty-logic (name &rest rest)
+  `(defthm ,name ,@(expand-defproperty-body rest)))
+;; Code from Dracula ends here
+
+(defmacro defproperty (name &rest args)
+   `(er-progn
+     (defproperty-program ,name ,@args)
+     (defproperty-logic ,name ,@args)))
