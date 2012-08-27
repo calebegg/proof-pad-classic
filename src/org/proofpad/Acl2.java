@@ -625,7 +625,8 @@ public class Acl2 extends Thread {
 		ProcessBuilder processBuilder;
 
 		if (IdeWindow.WIN) {
-			processBuilder = new ProcessBuilder("ctrlc-windows.exe", acl2Path);
+			//processBuilder = new ProcessBuilder("ctrlc-windows.exe", acl2Path);
+			processBuilder = new ProcessBuilder(acl2Path);
 		} else {
 			processBuilder = new ProcessBuilder("sh", "-c", "echo \"$$\"; exec \"$0\" \"$@\"" + acl2Path);
 		}
@@ -633,7 +634,7 @@ public class Acl2 extends Thread {
 		acl2 = processBuilder.start();
 		in = new BufferedReader(new InputStreamReader(acl2.getInputStream()));
 		if (!IdeWindow.WIN) {
-			procId = Integer.parseInt(in.readLine());
+			//procId = Integer.parseInt(in.readLine());
 		}
 		out = new BufferedWriter(new OutputStreamWriter(acl2.getOutputStream()));
 		out.write("(cw \"" + marker + "\")\n");
@@ -801,7 +802,9 @@ public class Acl2 extends Thread {
 	
 	public void terminate() {
 		if (IdeWindow.WIN) {
-			writeByte(0);
+			acl2.destroy();
+			// Depends on ctrlc-windows.exe
+			//writeByte(0);
 			//acl2.waitFor();
 		}
 	}
@@ -810,7 +813,8 @@ public class Acl2 extends Thread {
 	public void interrupt() {
 		backoff = 0;
 		if (IdeWindow.WIN) {
-			writeByte(1);
+			// Depends on ctrlc-windows.exe
+			//writeByte(1);
 		} else {
 			try {
 				Runtime.getRuntime().exec(new String[] {"kill", "-s", "INT", Integer.toString(procId)});
