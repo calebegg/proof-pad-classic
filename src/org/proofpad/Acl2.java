@@ -1,6 +1,16 @@
 package org.proofpad;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.EventListener;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.text.Segment;
 
@@ -75,13 +85,13 @@ public class Acl2 extends Thread {
 	private boolean errorOccured;
 	private StringBuilder sb;
 	private OutputEventListener outputEventListener;
-	private List<Callback> callbacks = new LinkedList<Callback>();
-	private List<OutputEvent> outputQueue = new LinkedList<OutputEvent>();
+	private final List<Callback> callbacks = new LinkedList<Callback>();
+	private final List<OutputEvent> outputQueue = new LinkedList<OutputEvent>();
 	private int backoff = 1;
-	private Acl2TokenMaker tm = new Acl2TokenMaker();
+	private final Acl2TokenMaker tm = new Acl2TokenMaker();
 	File workingDir;
 
-	private List<RestartListener> restartListeners = new LinkedList<RestartListener>();
+	private final List<RestartListener> restartListeners = new LinkedList<RestartListener>();
 
 	private int procId;
 
@@ -92,7 +102,7 @@ public class Acl2 extends Thread {
 
 	private boolean initializing;
 
-	private Set<String> functionsToTrace = new HashSet<String>(Arrays.asList(new String[] {
+	private final Set<String> functionsToTrace = new HashSet<String>(Arrays.asList(new String[] {
 		"IN-PACKAGE",
 		"THM",
 		"AREF1",
@@ -491,7 +501,7 @@ public class Acl2 extends Thread {
 		"ZPF",
 	}));
 
-	private Acl2Parser parser;
+	private final Acl2Parser parser;
 
 	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
 	private final static List<Character> markerChars = stringToCharacterList(marker);
@@ -518,19 +528,22 @@ public class Acl2 extends Thread {
 		while (true) {
 			synchronized (this) {
 				try {
-					try {
-						acl2.exitValue();
-						// If we get here, the process has terminated.
-						failAllCallbacks();
-						fireRestartEvent();
-						fireOutputEvent(new OutputEvent("ACL2 has terminated. Use ACL2 > Restart ACL2 to restart.", MsgType.INFO));
-						return;
-						//restart();
-					} catch (IllegalThreadStateException e) { }
 					if (!in.ready()) {
+						try {
+							acl2.exitValue();
+							// If we get here, the process has terminated.
+							failAllCallbacks();
+							fireRestartEvent();
+							fireOutputEvent(new OutputEvent("ACL2 has terminated. Use Tools > " +
+									"Restart ACL2 to restart.", MsgType.INFO));
+							Main.userData.addError("ACL2 terminated.");
+							return;
+							//restart();
+						} catch (IllegalThreadStateException e) { }
 						backoff = Math.min(backoff + 1, 12); // Maxes out at about 4 seconds.
 						wait((long)Math.pow(2, backoff));
 					}
+					out.flush();
 					if (in.ready()) {
 						backoff = 0;
 						char c = (char) in.read();
@@ -559,6 +572,9 @@ public class Acl2 extends Thread {
 									outputQueue.add(new OutputEvent(response,
 											errorOccured ? Repl.MsgType.ERROR : Repl.MsgType.SUCCESS));
 								}
+								if (errorOccured) {
+									//Main.userData.addAcl2Error(response);
+								}
 								sb = new StringBuilder();
 								errorOccured = false;
 								break;
@@ -567,7 +583,6 @@ public class Acl2 extends Thread {
 						if (markerChars != null &&
 								buffer.size() > markerChars.size() &&
 								buffer.subList(buffer.size() - markerChars.size(), buffer.size()).equals(markerChars)) {
-//							System.out.println("READ A MARKER");
 							fireOutputEvents(fullSuccess);
 							fullSuccess = true;
 						}
@@ -661,7 +676,7 @@ public class Acl2 extends Thread {
 				"                      (list ,@args)\n" +
 				"                      (,(quote ,name)\n" +
 				"                        ,@args))))\n"
-, doNothingCallback);
+				, doNothingCallback);
 		for (String fun : functionsToTrace) {
 			admit("(__trace-builtin __trace-" + fun + " " + fun + ")", doNothingCallback);
 		}
@@ -751,12 +766,11 @@ public class Acl2 extends Thread {
 				if (!current.contains("__trace") || trace) {
 					out.write("(cw \"" + marker + "\")\n");
 				}
-				out.flush();
 			} catch (IOException e) { }
-			synchronized (this) {
-				backoff = 0;
-				notify();
-			}
+		}
+		synchronized (this) {
+			backoff = 0;
+			notify();
 		}
 	}
 	private static List<Character> stringToCharacterList(String s) {
