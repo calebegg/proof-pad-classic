@@ -1,10 +1,24 @@
 package org.proofpad;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.LinearGradientPaint;
+import java.awt.MultipleGradientPaint;
+import java.awt.Paint;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.undo.UndoManager;
 
 import org.proofpad.ProofBar.UnprovenExp.Status;
@@ -12,6 +26,8 @@ import org.proofpad.SExpUtils.ExpType;
 
 public class ProofBar extends JComponent {
 	
+	static final Cursor HAND = new Cursor(Cursor.HAND_CURSOR);
+
 	public interface ReadOnlyIndexChangeListener {
 		void readOnlyIndexChanged(int newIndex);
 	}
@@ -28,15 +44,16 @@ public class ProofBar extends JComponent {
 		}
 		@Override
 		public String toString() {
-			return "<" + getHeight() + ", " + output + ">";
+			return "<" + getHeight() + ", " + output.replace('\n', ' ').substring(0, Math.min(10, output.length())) + ">";
 		}
 	}
 	ArrayList<ExpData> data = new ArrayList<ExpData>();
 
-	static Color provedColor = new Color(.8f, 1f, .8f);
-	static Color untriedColor = new Color(.9f, .9f, .9f);
-	static Color provingColor = new Color(.5f, .8f, 1f);
-	static Color errorColor = new Color(1f, .8f, .8f);
+	static final Color PROVED_COLOR = new Color(0x5B9653);
+	static final Color UNTRIED_COLOR = new Color (0xDDDDDD);
+	static final Color IN_PROGRESS_COLOR = new Color(0xA3D6BC);
+	static final Color ERROR_COLOR = new Color(0xFFAAAA);
+	static final Color ADMITTED_COLOR = new Color(0xDDF8CC);
 	public static final ImageIcon errorIcon = new ImageIcon(
 			ProofBar.class.getResource("/media/error.png"));
 	public static final ImageIcon successIcon = new ImageIcon(
@@ -49,8 +66,8 @@ public class ProofBar extends JComponent {
 				MultipleGradientPaint.CycleMethod.REPEAT);
 	}
 	
-	static Paint prove = diagonalPaint(provedColor, untriedColor, 8, .8f);
-	static Paint unprove = diagonalPaint(provedColor, untriedColor, 8, .2f);
+	static Paint prove = diagonalPaint(PROVED_COLOR, UNTRIED_COLOR, 8, .8f);
+	static Paint unprove = diagonalPaint(PROVED_COLOR, UNTRIED_COLOR, 8, .2f);
 
 	private static final long serialVersionUID = 8267405348010307267L;
 	
@@ -59,6 +76,7 @@ public class ProofBar extends JComponent {
 	int my;
 	boolean hover = false;
 	final static int width = 20;
+
 	static int lineHeight;
 	final Acl2 acl2;
 	
@@ -94,6 +112,7 @@ public class ProofBar extends JComponent {
 		this.acl2 = acl2;
 		this.mb = mb;
 		mb.updateWith(data);
+		setCursor(HAND);
 		acl2.addRestartListener(new Acl2.RestartListener() {
 			@Override
 			public void acl2Restarted() {
@@ -184,14 +203,18 @@ public class ProofBar extends JComponent {
 				int begin = 0;
 				for (Expression ex : expressions) {
 					int height = pixelHeight(ex);
-					if (e.getY() < begin && my >= begin ||
-							e.getY() > begin + height && my <= begin + height) {
+					if (e.getY() >= begin && e.getY() < begin + height) {
+						if (my <= begin || my >= begin + height) {
+							repaint();
+						}
 						my = e.getY();
-						repaint();
+						setCursor(HAND);
+						return;
 					}
 					begin += height;
 				}
 				my = e.getY();
+				setCursor(null);
 			}
 			
 		});
@@ -234,17 +257,17 @@ public class ProofBar extends JComponent {
 					g.setPaint(unprove);
 					g.fillRect(0, begin, 30, height);
 					if (my >= begin) {
-						g.setColor(provedColor);
+						g.setColor(PROVED_COLOR);
 						g.fillPolygon(new int[] {0, width / 2, width, width, 0, 0},
 								new int[] {begin + 10, begin, begin + 10, begin, begin, begin + 10},
 								6);
 						setToolTipText("Undo admitting this term.");
 					}
 				} else {
-					g.setColor(provedColor);
+					g.setColor(PROVED_COLOR);
 					int flashEndIndex = e.nextIndex + e.nextGapHeight / 2;
 					if (flashPhase % 2 == 1 && flashIndex <= flashEndIndex && flashIndex > flashStartIndex) {
-						g.setColor(provedColor.darker());
+						g.setColor(PROVED_COLOR.darker());
 					}
 					flashStartIndex = flashEndIndex;
 					g.fillRect(0, begin, 30, height);
@@ -253,7 +276,7 @@ public class ProofBar extends JComponent {
 			} else if ((isError && provedSoFar == 0) || expStatus == Status.FAILURE) {
 				// Draw error box
 				isError = false;
-				g.setColor(errorColor);
+				g.setColor(ERROR_COLOR);
 				g.fillRect(0, begin, 30, height);
 				if (hover && my > begin && my <= begin + height) {
 					setToolTipText("An error occured. See the log below for details.");
@@ -265,16 +288,17 @@ public class ProofBar extends JComponent {
 				if (provingSoFar == 0) {
 					setReadOnlyHeight(begin + height - e.nextGapHeight * lineHeight / 2);
 				}
-				g.setColor(provingColor);
+				g.setColor(IN_PROGRESS_COLOR);
 				g.fillRect(0, begin, 30, height);
 				g.drawImage(inProgressThrobber, (width - 16) / 2, begin + (height - 16) / 2, this);
 			} else if (e.firstType != SExpUtils.ExpType.FINAL) {
 				// Drawing untried terms
+				Color expColor = expStatus == Status.SUCCESS ? ADMITTED_COLOR : UNTRIED_COLOR; 
 				if (hover && my > begin && !error && !e.contents.equals("")) {
-					g.setColor(provedColor);
+					g.setColor(PROVED_COLOR);
 					g.fillRect(0, begin, 30, height);
 					if (my <= begin + height) {
-						g.setColor(untriedColor);
+						g.setColor(expColor);
 						int yEnd = begin + height;
 						g.fillPolygon(new int[] {0, width / 2, width, width, 0, 0},
 								new int[] {yEnd - 10, yEnd, yEnd - 10, yEnd, yEnd, yEnd - 10},
@@ -282,7 +306,7 @@ public class ProofBar extends JComponent {
 						setToolTipText("Admit this term.");
 					}
 				} else {
-					g.setColor(untriedColor);
+					g.setColor(expColor);
 					g.fillRect(0, begin, 30, height);
 				}
 			}
@@ -322,10 +346,10 @@ public class ProofBar extends JComponent {
 		int i = 0;
 		for (Expression ex : expressions) {
 			ex.expNum = i;
-			i++;
-			if (i < data.size()) {
+			if (i < data.size() && data.get(i) != null) {
 				data.get(i).exp = ex;
 			}
+			i++;
 		}
 		clearProgramModeData();
 		error = false;
@@ -339,7 +363,11 @@ public class ProofBar extends JComponent {
 		if (admissionIndices.size() == 0) {
 			data.clear();
 		} else if (data.size() > 0) {
-			data.subList(admissionIndices.size(), data.size()).clear();
+			int start = admissionIndices.size();
+			int end = data.size();
+			if (end >= start) {
+				data.subList(start, end).clear();
+			}
 		}
 		mb.repaint();
 	}
