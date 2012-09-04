@@ -10,13 +10,85 @@
     (mv (+ random low) state)))
 
 (defmacro random-between (low high)
-  `(random-between-fn ,low ,high state))
+   `(random-between-fn ,low ,high state))
 
 (defabbrev random-natural ()
-  (random-between 0 1000))
+   (random-between 0 10000))
+
+(defabbrev random-positive ()
+   (random-between 1 10000))
 
 (defabbrev random-integer ()
-  (random-between -1000 1000))
+   (random-between -10000 10000))
+
+(defmacro random-rational ()
+   `(mv-let (a state)
+            (random-integer)
+       (mv-let (b state)
+               (random-integer)
+          (mv (/ a b) state))))
+
+(defmacro random-complex ()
+   `(mv-let (a state)
+            (random-rational)
+       (mv-let (b state)
+               (random-rational)
+          (mv (complex a b) state))))
+
+(defabbrev random-data-size ()
+   (random-between 0 10))
+
+(defmacro random-number ()
+   `(mv-let (which state)
+            (random-between 0 3)
+       (cond ((= which 0)
+              (random-integer))
+             ((= which 1)
+              (random-rational))
+             (t
+              (random-complex)))))
+
+(defmacro random-list-of-length (fn n)
+   (if (zp n)
+       `(mv nil state)
+       `(mv-let (xs state)
+                (random-list-of-length ,fn ,(1- n))
+           (mv-let (val state)
+                   (,fn)
+              (mv (cons val xs) state)))))
+
+(defun random-integer-list-of-length-fn (n state)
+   (if (zp n)
+       (mv nil state)
+       (mv-let (xs state)
+               (random-integer-list-of-length-fn (1- n) state)
+          (mv-let (val state)
+                  (random-integer)
+             (mv (cons val xs) state)))))
+
+(defmacro random-integer-list ()
+   `(mv-let (ln state)
+            (random-data-size)
+       (random-integer-list-of-length-fn ln state)))
+
+(defun random-digit-list-of-length-fn (n state)
+   (if (zp n)
+       (mv nil state)
+       (mv-let (xs state)
+               (random-digit-list-of-length-fn (1- n) state)
+          (mv-let (val state)
+                  (random-between 0 9)
+             (mv (cons val xs) state)))))
+
+(defmacro random-digit-list ()
+   `(mv-let (ln state)
+            (random-data-size)
+       (random-digit-list-of-length-fn ln state)))
+
+(defmacro random-list-of (fn)
+   `(mv-let (a state)
+            (random-data-size)
+       (random-list-of-length ,fn a)))
 
 (defmacro repeat-times (times limit body)
   (if (zp limit)
@@ -137,6 +209,9 @@
 ;; Code from Dracula ends here
 
 (defmacro defproperty (name &rest args)
-   `(er-progn
-     (defproperty-program ,name ,@args)
-     (defproperty-logic ,name ,@args)))
+   `(mv-let (er val state)
+            (table acl2-defaults-table :defun-mode)
+       (declare (ignore er))
+       (if (eq val :logic)
+           (defproperty-logic ,name ,@args)
+           (defproperty-program ,name ,@args))))

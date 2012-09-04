@@ -53,7 +53,6 @@
           (%expand x state)
           (mv er (%replace-placeholders x-prime 1) state)))
 
-
 (defun% %defrandom-fn (name args expr)
   (let ((fn-name (%symbol-append name '-fn))
         (call-name (%symbol-append name '!)))
@@ -266,4 +265,3 @@
   (%random-sexp-of-size (random-data-size)))
 
 (pop-namespace defrandom)
-
