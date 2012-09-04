@@ -634,7 +634,7 @@ public class Acl2 extends Thread {
 		acl2 = processBuilder.start();
 		in = new BufferedReader(new InputStreamReader(acl2.getInputStream()));
 		if (!IdeWindow.WIN) {
-			//procId = Integer.parseInt(in.readLine());
+			procId = Integer.parseInt(in.readLine());
 		}
 		out = new BufferedWriter(new OutputStreamWriter(acl2.getOutputStream()));
 		out.write("(cw \"" + marker + "\")\n");
@@ -681,7 +681,6 @@ public class Acl2 extends Thread {
 		for (String fun : functionsToTrace) {
 			admit("(__trace-builtin __trace-" + fun + " " + fun + ")", doNothingCallback);
 		}
-		//admit("(set-gag-mode t)", doNothingCallback);
 		errorOccured = false;
 		initializing = false;
 	}
@@ -753,7 +752,6 @@ public class Acl2 extends Thread {
 			t = t.getNextToken();
 		}
 		
-//		System.out.println(exps);
 		for (String current : exps) {
 			if (initializing) {
 				numInitExps++;

@@ -218,6 +218,8 @@ public class Main {
 				startingUp = false;
 				win.setVisible(true);
 				logtime("Main window visible");
+				
+				// Check whether to ask to send user data
 				Date now = new Date();
 				Date oneWeekAgo = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
 				if (userData.recordingStart.before(oneWeekAgo)) {
