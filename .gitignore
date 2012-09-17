@@ -9,3 +9,6 @@ acl2/*
 examples/*
 !examples/*.*
 *~
+help/linux
+help/Proof Pad.help
+help/win
