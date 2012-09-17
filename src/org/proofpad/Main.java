@@ -50,7 +50,6 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class Main {
-	
 	public static final String displayName = "Proof Pad";
 	public static final int RELEASE = 1;
 	public static final Border WINDOW_BORDER = BorderFactory.createEmptyBorder(4, 4, 4, 4);
@@ -85,7 +84,7 @@ public class Main {
 			ClassNotFoundException {
 		logtime("Starting main");
 		// http://java.net/jira/browse/MACOSX_PORT-764
-		System.setProperty("apple.awt.brushMetalLook", "true");
+//		System.setProperty("apple.awt.brushMetalLook", "true");
 		if (!FAKE_WINDOWS) {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 		}

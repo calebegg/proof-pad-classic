@@ -26,7 +26,6 @@ public class Toolbar extends JPanel {
 	JButton updateButton;
 
 	public Toolbar(final IdeWindow parent) {
-		new JPanel();
 		if (OSX) {
 			setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		} else {

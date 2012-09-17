@@ -71,6 +71,8 @@ import org.fife.ui.rtextarea.SearchEngine;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
 
+import com.apple.eawt.FullScreenUtilities;
+
 //import com.apple.eawt.FullScreenAdapter;
 //import com.apple.eawt.AppEvent.FullScreenEvent;
 //import com.apple.eawt.FullScreenUtilities;
@@ -171,6 +173,7 @@ public class IdeWindow extends JFrame {
 	Gutter gutter;
 	Runnable afterPreview;
 	JPanel westPanel;
+	private Preferences prefs;
 
 	public IdeWindow() {
 		this((File)null);
@@ -183,6 +186,9 @@ public class IdeWindow extends JFrame {
 
 	public IdeWindow(File file) {
 		super();
+		FullScreenUtilities.setWindowCanFullScreen(this, true);
+		getRootPane().putClientProperty("apple.awt.brushMetalLook", true);
+		
 		windows.add(this);
 		openFile = file;
 		workingDir = openFile == null ? null : openFile.getParentFile();
@@ -205,7 +211,7 @@ public class IdeWindow extends JFrame {
 		this.getRootPane().setBorder(BorderFactory.createEmptyBorder());
 		splitTop.add(editorScroller, BorderLayout.CENTER);
 
-		final Preferences prefs = Preferences.userNodeForPackage(Main.class);
+		prefs = Preferences.userNodeForPackage(Main.class);
 		
 		final String acl2Path;
 		if (prefs.getBoolean("customacl2", false)) {
@@ -719,7 +725,6 @@ public class IdeWindow extends JFrame {
 		pack();
 		editor.requestFocus();
 		split.setDividerLocation(.65);
-
 	}
 
 	static void updateWindowMenu() {
@@ -1007,14 +1012,17 @@ public class IdeWindow extends JFrame {
 		if (!OSX) return;
 		Dimension visibleSize = editorScroller.getViewport().getExtentSize();
 		Dimension textSize = editor.getPreferredScrollableViewportSize();
-		int maxWidth = Math.max(getWidth() - visibleSize.width + textSize.width
-				+ proofBar.getWidth(), 550);
+		int widthGuideWidth = editor.getFontMetrics(editor.getFont()).charWidth('a') *
+				prefs.getInt("widthguide", 0);
+		int textWidth = Math.max(textSize.width, widthGuideWidth);
+		int maxWidth = Math.max(getWidth() - visibleSize.width + textWidth
+				+ proofBar.getWidth() + moreBar.getWidth(), 550);
 		int maxHeight = getHeight() - visibleSize.height + Math.max(textSize.height, 200);
 		if (previewSplit.getDividerSize() > 0) {
 			maxWidth += previewSplit.getRightComponent().getWidth();
 		}
 		setMaximizedBounds(new Rectangle(getLocation(), new Dimension(
-				maxWidth + 5, maxHeight + 5)));
+				maxWidth + 5, maxHeight + 5999)));
 	}
 
 	void searchFor(String text, boolean forward) {
