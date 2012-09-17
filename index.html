@@ -1,5 +1,8 @@
 <!doctype html>
 <style>
+  body {
+    background: #eee;
+  }
   * {
     font-family: sans-serif;
   }
@@ -13,18 +16,19 @@
     margin: 10px auto;
     width: 240px;
     text-decoration: none;
-    color: black;
+    color: #eee;
     font-size: 32px;
+    font-weight: bold;
     display: block;
-    padding: 25px 0;
+    padding: 15px 0;
     text-align: center;
     border-radius: 5px;
     background-color: #36BA3F;
-    border: outset 4px rgba(0, 0, 0, .1);
+    border: outset 6px rgba(0, 0, 0, .1);
     background-image: -webkit-linear-gradient(
       bottom,
-      #36BA3F 0%,
-      #49E654);
+      #495148 0%,
+      #727d71);
   }
   a.download div {
     font-size: 14px;
@@ -66,20 +70,28 @@
 
 <h1>Proof Pad</h1>
 
-<a class="download osx-show" href="https://github.com/downloads/calebegg/proof-pad/proofpad.jar">Download<div>for OS X</div></a>
-<a class="download win-show" href="https://github.com/downloads/calebegg/proof-pad/proofpad.jar">Download<div>for Windows</div></a>
-<a class="download linux-show" href="https://github.com/downloads/calebegg/proof-pad/proofpad.jar">Download<div>for Linux</div></a>
+<div style="text-align: center;">
+<img src="icon.png" />
+</div>
+
+<div style="width: 50%; margin: auto;">
+    Proof Pad is a modern integrated development environment for <a href="http://www.cs.utexas.edu/~moore/acl2/">ACL2</a>. It's under active development. Please report any bugs you find on <a href="https://github.com/calebegg/proof-pad/issues/new">Github</a> or <a href="mailto:calebegg@gmail.com">email the developer</a>.
+</div>
+
+<a class="download osx-show none-show" href="https://docs.google.com/open?id=0B6eCe7RdSWmLZVJDYml3MldYUUk">&#x21d3; Download<div>for OS X</div></a>
+<a class="download win-show none-show" href="https://docs.google.com/open?id=0B6eCe7RdSWmLTjZiU1lZRHFZQUU">&#x21d3; Download<div>for Windows</div></a>
+<a class="download linux-show none-show" href="https://docs.google.com/open?id=0B6eCe7RdSWmLZm1xem9ZWm05UDA">&#x21d3; Download<div>for Linux</div></a>
+
+<div style="text-align: center;"> <a href="#" style="color: blue;" onclick="javascript:document.body.className='none';this.style.display='none'; return false;">Show other platforms</a> </div>
 
 <br />
-
-<tt>(For now, you'll need a platform-specific build of ACL2 from <a href="http://acl2s.ccs.neu.edu/acl2s/update/images/">here</a> as well).</tt>
 
 <h2>Screenshots</h2>
 <img src="osxss.png" class="screenshot osx-show none-show" />
 <img src="windowsss.png" class="screenshot win-show" />
 <img src="ubuntuss.png" class="screenshot linux-show" />
 
-<a href="http://github.com/calebegg/proof-pad"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/7afbc8b248c68eb468279e8c17986ad46549fb71/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub"></a>
+<a href="http://github.com/calebegg/proof-pad"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
 <script type="text/javascript">
   var _gaq = _gaq || [];
