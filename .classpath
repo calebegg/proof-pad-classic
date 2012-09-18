@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="rsyntaxtextarea.jar" sourcepath="/Users/calebegg/Downloads/rsyntaxtextarea_2.0.1_Source"/>
 	<classpathentry kind="lib" path="OrangeExtensions-1.2.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="/Users/calebegg/Code/proof-pad/xstream-1.4.3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>

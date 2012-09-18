@@ -53,7 +53,7 @@ public class Main {
 	public static final String displayName = "Proof Pad";
 	public static final int RELEASE = 1;
 	public static final Border WINDOW_BORDER = BorderFactory.createEmptyBorder(4, 4, 4, 4);
-	private static String userDataPath = new File(getJarPath()) +
+	private static String userDataPath = new File(getJarPath()).getParent() +
 			System.getProperty("file.separator") +
 			"user_data.dat";
     public static final String UPLOAD_URL = "http://www.calebegg.com/ppuserdata";
@@ -269,8 +269,10 @@ public class Main {
 	
 	static String getJarPath() {
 		try {
+			System.out.println(URLDecoder.decode(Main.class.getProtectionDomain().getCodeSource().getLocation()
+					.getPath(), "UTF-8"));
 			return URLDecoder.decode(Main.class.getProtectionDomain().getCodeSource().getLocation()
-					.getPath(), "UTF-8");
+							.getPath(), "UTF-8");
 		} catch (UnsupportedEncodingException e) { }
 		return "";
 	}
