@@ -5,7 +5,9 @@ from django.template.loader import render_to_string
 import django.conf
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
-OSES = ['osx', 'win', 'linux']
+# Mac generates plain HTML. OS X tries to generate a help bundle, but it's
+# broken.
+OSES = ['mac', 'osx', 'win', 'linux']
 
 def main():
     django.conf.settings.configure(
@@ -35,7 +37,10 @@ def main():
                         'is_win': os_name == 'win',
                         'is_linux': os_name == 'linux'}))
             else:
-                shutil.copy(fn, path)
+                shutil.copy(os.path.join(ROOT, 'templates', fn), path)
+        for fn in os.listdir(os.path.join(ROOT, 'media')):
+            if (fn.endswith('.png')):
+                shutil.copy(os.path.join(ROOT, 'media', fn), path)
 
 if __name__ == '__main__':
     main()
