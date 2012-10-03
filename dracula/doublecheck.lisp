@@ -36,7 +36,7 @@
           (mv (complex a b) state))))
 
 (defabbrev random-data-size ()
-   (random-between 0 10))
+   (random-between 0 15))
 
 (defmacro random-number ()
    `(mv-let (which state)
@@ -47,15 +47,6 @@
               (random-rational))
              (t
               (random-complex)))))
-
-(defmacro random-list-of-length (fn n)
-   (if (zp n)
-       `(mv nil state)
-       `(mv-let (xs state)
-                (random-list-of-length ,fn ,(1- n))
-           (mv-let (val state)
-                   (,fn)
-              (mv (cons val xs) state)))))
 
 (defun random-integer-list-of-length-fn (n state)
    (if (zp n)
@@ -85,10 +76,36 @@
             (random-data-size)
        (random-digit-list-of-length-fn ln state)))
 
-(defmacro random-list-of (fn)
-   `(mv-let (a state)
+(defun random-between-list-fn (lo hi ln state)
+   (if (zp ln)
+       (mv nil state)
+       (mv-let (xs state)
+               (random-between-list-fn lo hi (1- ln) state)
+          (mv-let (rnd state)
+                  (random-between lo hi)
+             (mv (cons rnd xs) state)))))
+
+(defmacro random-between-list (lo hi)
+   `(mv-let (ln state)
+           (random-data-size)
+       (random-between-list-fn ,lo ,hi ln state)))
+
+(defun random-increasing-list-fn (ln state)
+   (if (zp ln)
+       (mv nil state)
+       (mv-let (xs state)
+               (random-increasing-list-fn (1- ln) state)
+          (mv-let (rnd state)
+                  (let ((prev (if (consp xs)
+                                  (first (last xs))
+                                  0)))
+                       (random-between prev (+ 50 prev)))
+             (mv (append xs (list rnd)) state)))))
+
+(defmacro random-increasing-list ()
+   `(mv-let (ln state)
             (random-data-size)
-       (random-list-of-length ,fn a)))
+       (random-increasing-list-fn ln state)))
 
 (defmacro repeat-times (times limit body)
   (if (zp limit)
