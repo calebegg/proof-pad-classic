@@ -640,7 +640,7 @@ public class Acl2 extends Thread {
 		out.write("(cw \"" + marker + "\")\n");
 		String draculaPath;
 		if (IdeWindow.WIN) {
-			draculaPath = "/PROGRA~1/PROOFP~1/acl2/dracula";
+			draculaPath = new File(acl2Path).getParent().replaceAll("\\\\", "/") + "/dracula";
 		} else {
 			try {
 				draculaPath = new File(acl2Path).getParent().replaceAll("\\\\", "") + "/dracula";
@@ -679,7 +679,7 @@ public class Acl2 extends Thread {
 				"                        ,@args))))\n"
 				, doNothingCallback);
 		for (String fun : functionsToTrace) {
-			admit("(__trace-builtin __trace-" + fun + " " + fun + ")", doNothingCallback);
+			//admit("(__trace-builtin __trace-" + fun + " " + fun + ")", doNothingCallback);
 		}
 		errorOccured = false;
 		initializing = false;
@@ -791,19 +791,19 @@ public class Acl2 extends Thread {
 		}
 	}
 	
-	private void writeByte(int b) {
-		try {
-			out.write(b);
-			out.flush();
-		} catch (IOException e) { }
-	}
-	
 	public void terminate() {
+		admit("(good-bye)", Acl2.doNothingCallback);
 		if (IdeWindow.WIN) {
-			acl2.destroy();
 			// Depends on ctrlc-windows.exe
-			//writeByte(0);
-			//acl2.waitFor();
+//			try {
+//				out.write(0);
+//				out.flush();
+//			} catch (IOException e) { }
+		}
+		try {
+			acl2.waitFor();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 	
