@@ -32,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -213,29 +214,31 @@ public class IdeWindow extends JFrame {
 
 		prefs = Preferences.userNodeForPackage(Main.class);
 		
-		final String acl2Path;
+		List<String> acl2Paths = new ArrayList<String>();
 		if (prefs.getBoolean("customacl2", false)) {
-			acl2Path = prefs.get("acl2Path", "");
+			acl2Paths.add(prefs.get("acl2Path", ""));
 		} else {
 			if (WIN) {
 				// HACK: oh no oh no oh no
-				acl2Path = "C:\\PROGRA~1\\PROOFP~1\\acl2\\run_acl2.exe";
-			} else {
+				acl2Paths.add("C:\\PROGRA~1\\PROOFP~1\\acl2\\run_acl2.exe");
+				acl2Paths.add("C:\\PROGRA~2\\PROOFP~1\\acl2\\run_acl2.exe");
+				acl2Paths.add("C:\\PROGRA~3\\PROOFP~1\\acl2\\run_acl2.exe");
+			}
+			try {
 				String maybeAcl2Path = "";
-				try {
-					String jarPath = Main.getJarPath();
-					File jarFile = new File(jarPath);
-					maybeAcl2Path = jarFile.getParent() + "/acl2/run_acl2";
-					maybeAcl2Path = maybeAcl2Path.replaceAll(" ", "\\\\ ");
-				} catch (NullPointerException e) {
-					System.err.println("Built-in ACL2 not found.");
-				}
-				acl2Path = maybeAcl2Path;
+				String jarPath = Main.getJarPath();
+				File jarFile = new File(jarPath);
+				String sep = System.getProperty("file.separator");
+				maybeAcl2Path = jarFile.getParent() + sep + "acl2" + sep + "run_acl2";
+				maybeAcl2Path = maybeAcl2Path.replaceAll(" ", "\\\\ ");
+				acl2Paths.add(maybeAcl2Path);
+			} catch (NullPointerException e) {
+				System.err.println("Built-in ACL2 not found.");
 			}
 		}
 		
-		parser = new Acl2Parser(workingDir, new File(acl2Path).getParentFile());
-		acl2 = new Acl2(acl2Path, workingDir, parser);
+		parser = new Acl2Parser(workingDir, null);
+		acl2 = new Acl2(acl2Paths, workingDir, parser);
 		moreBar = new MoreBar(this);
 		proofBar = new ProofBar(acl2, moreBar);
 		editor = new CodePane(proofBar);
@@ -328,7 +331,7 @@ public class IdeWindow extends JFrame {
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				final BuildWindow builder = new BuildWindow(openFile, acl2Path);
+				final BuildWindow builder = new BuildWindow(openFile, acl2.getAcl2Path());
 				builder.setVisible(true);
 				builder.build();
 			}

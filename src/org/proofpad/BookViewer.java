@@ -66,7 +66,7 @@ public class BookViewer extends JFrame {
 	
 	public BookViewer(final IdeWindow parent) {
 		super("Include a book");
-		String acl2Dir = new File(parent.acl2.acl2Path).getParent();
+		String acl2Dir = new File(parent.acl2.getAcl2Path()).getParent();
 		systemPath = acl2Dir + "/books";
 		draculaPath =  acl2Dir + "/dracula";
 		System.out.println(systemPath);
@@ -99,7 +99,8 @@ public class BookViewer extends JFrame {
 				if (selPath == null) return;
 				DefaultMutableTreeNode last =
 						(DefaultMutableTreeNode) selPath.getLastPathComponent();
-				if(selRow != -1 && e.getClickCount() == 2 && last.getChildCount() == 0) {
+				if(selRow != -1 && e.getClickCount() == 2 && last.getChildCount() == 0 &&
+						last.getUserObject() instanceof BookView) {
 					BookView bv = (BookView) last.getUserObject();
 					if (bv.isBook()) {
 						parent.includeBookAtCursor(bv.getDirSymbol(), bv.getPath());

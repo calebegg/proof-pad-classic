@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -51,7 +53,9 @@ public class BuildWindow extends JFrame {
 	}
 	
 	public void build() {
-		builder = new Acl2(acl2Dir, file.getParentFile(), null);
+		List<String> acl2Paths = new ArrayList<String>();
+		acl2Paths.add(acl2Dir);
+		builder = new Acl2(acl2Paths, file.getParentFile(), null);
 		try {
 			builder.initialize();
 			builder.start();
