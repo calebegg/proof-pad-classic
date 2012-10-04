@@ -28,6 +28,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -39,7 +40,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.MutableComboBoxModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -101,20 +104,26 @@ public class PrefsWindow extends JFrame {
 		final int formSpacing = 5;
 		c.insets = new Insets(formSpacing, formSpacing, formSpacing, formSpacing);
 		
-		String[] fontFamilies = GraphicsEnvironment.getLocalGraphicsEnvironment()
-				.getAvailableFontFamilyNames();
-		
-		List<String> monospaced = new LinkedList<String>();
-		for (String family : fontFamilies) {
-		    FontMetrics fm = getFontMetrics(new Font(family, Font.PLAIN, 128));
-		    if (fm.charWidth('.') == fm.charWidth('m')) {
-		    	monospaced.add(family);
-		    }
-		}
-		
-		final JComboBox fontPicker =
-				new JComboBox(monospaced.toArray(new String[0]));
-		fontPicker.setSelectedItem(font.getFamily());
+		final JComboBox fontPicker = new JComboBox();
+		fontPicker.setEnabled(false);
+		fontPicker.addItem("Loading...");
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				String[] fontFamilies = GraphicsEnvironment.getLocalGraphicsEnvironment()
+						.getAvailableFontFamilyNames();
+				List<String> monospaced = new LinkedList<String>();
+				for (String family : fontFamilies) {
+					FontMetrics fm = getFontMetrics(new Font(family, Font.PLAIN, 128));
+					if (fm.charWidth('.') == fm.charWidth('m')) {
+						monospaced.add(family);
+						fontPicker.addItem(family);
+					}
+				}
+				//monospaced.toArray(new String[0]);
+				fontPicker.setSelectedItem(font.getFamily());
+				fontPicker.setEnabled(true);
+			}
+		});
 		fontPicker.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -230,7 +239,19 @@ public class PrefsWindow extends JFrame {
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		add(new Separator(), c);
 		c.gridwidth = GridBagConstraints.NONE;
-		
+
+		c.gridx = 1;
+		c.gridy++;
+		final JCheckBox showErrors = new JCheckBox("Highlight potential errors with a red underline");
+		showErrors.setSelected(Prefs.showErrors.get());
+		showErrors.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				Prefs.showErrors.set(showErrors.isSelected());
+			}
+		});
+		add(showErrors, c);
+
 		c.gridx = 1;
 		c.gridy++;
 		final JCheckBox incSearch = new JCheckBox("Find as you type");

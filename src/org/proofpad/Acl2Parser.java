@@ -470,16 +470,6 @@ public class Acl2Parser extends AbstractParser {
 			this(parser, msg, line, token.offset, token.textCount, level);
 		}
 		@Override
-		public Color getColor() {
-			if (getLevel() == ERROR) {
-				return Color.RED;
-			} else if (getLevel() == INFO) {
-				return null;
-			} else {
-				return null;
-			}
-		}
-		@Override
 		public boolean getShowInEditor() {
 			return getLevel() != INFO;
 		}
@@ -490,6 +480,12 @@ public class Acl2Parser extends AbstractParser {
 		DefaultParseResult result = new DefaultParseResult(this);
 		int lines = doc.getDefaultRootElement().getElementCount();
 		result.setParsedLines(0, lines);
+		if (!Prefs.showErrors.get()) {
+			for (ParseListener pl : parseListeners) {
+				pl.wasParsed();
+			}
+			return result;
+		}
 		functions = new HashSet<String>();
 		macros = new HashSet<String>(Arrays.asList(new String [] {
 				"declare", "include-book", "defproperty", "defttag"
