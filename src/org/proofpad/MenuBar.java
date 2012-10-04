@@ -135,12 +135,12 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					new UserData.LogUse("quitMenuItem").actionPerformed(e);
 					for (IdeWindow w : IdeWindow.windows) {
 						w.promptIfUnsavedAndClose();
 					}
 				}
 			});
-			item.addActionListener(new UserData.LogUse("quitMenuItem"));
 			if (!WIN) {
 				item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, modKey));
 			}

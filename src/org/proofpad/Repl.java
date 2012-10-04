@@ -261,7 +261,8 @@ public class Repl extends JPanel {
 			}
 		});
 		bottom.add(run);
-		bottom.add(trace);
+		// TODO: Fix tracing
+		//bottom.add(trace);
 		JPanel bottomWrapper = new JPanel();
 		bottomWrapper.setLayout(new BorderLayout());
 		bottomWrapper.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));

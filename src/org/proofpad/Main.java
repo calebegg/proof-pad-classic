@@ -217,8 +217,6 @@ public class Main {
 				startingUp = false;
 				win.setVisible(true);
 				logtime("Main window visible");
-				
-				// Check whether to ask to send user data
 				Date now = new Date();
 				Date oneWeekAgo = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
 				if (userData.recordingStart.before(oneWeekAgo)) {
@@ -259,9 +257,7 @@ public class Main {
 			oos = new ObjectOutputStream(new FileOutputStream(userDataPath));
 			oos.writeObject(userData);
 			oos.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		System.exit(0);

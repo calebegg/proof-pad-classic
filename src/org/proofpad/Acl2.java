@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.prefs.Preferences;
 
 import javax.swing.text.Segment;
 
@@ -81,7 +82,6 @@ public class Acl2 extends Thread {
 	private Process acl2;
 	private BufferedReader in;
 	private BufferedWriter out;
-	final String acl2Path;
 	private boolean errorOccured;
 	private StringBuilder sb;
 	private OutputEventListener outputEventListener;
@@ -503,15 +503,19 @@ public class Acl2 extends Thread {
 
 	private final Acl2Parser parser;
 
+	private List<String> acl2Paths;
+
+	private String acl2Path;
+
 	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
 	private final static List<Character> markerChars = stringToCharacterList(marker);
 
-	public Acl2(String acl2Path, File workingDir, Acl2Parser parser) {
-		this(acl2Path, workingDir, null, parser);
+	public Acl2(List<String> acl2Paths, File workingDir, Acl2Parser parser) {
+		this(acl2Paths, workingDir, null, parser);
 	}
-	public Acl2(String acl2Path, File workingDir, Callback callback, Acl2Parser parser) {
+	public Acl2(List<String> acl2Paths, File workingDir, Callback callback, Acl2Parser parser) {
 		this.parser = parser;
-		this.acl2Path = acl2Path;
+		this.acl2Paths = acl2Paths;
 		sb = new StringBuilder();
 		this.workingDir = workingDir;
 		// Startup callback
@@ -520,9 +524,18 @@ public class Acl2 extends Thread {
 
 	@Override
 	public void run() {
+		final Preferences prefs = Preferences.userNodeForPackage(Main.class);
+		if (prefs.getBoolean("firstRun", true)) {
+			fireOutputEvent(new OutputEvent("Starting ACL2 for the first time. " +
+					"Please be patient.", MsgType.INFO));
+			prefs.putBoolean("firstRun", false);
+		}
 		List<Character> buffer = new LinkedList<Character>();
 		if (acl2 == null) {
-			throw new NullPointerException("Call initialize() first");
+			//throw new NullPointerException("Call initialize() first");
+			fireOutputEvent(new OutputEvent("ACL2 was not correctly started.", MsgType.ERROR));
+			Main.userData.addError("ACL2 failed to start.");
+			return;
 		}
 		outputQueue.add(null); // to not eat the initial message
 		while (true) {
@@ -543,7 +556,15 @@ public class Acl2 extends Thread {
 						backoff = Math.min(backoff + 1, 12); // Maxes out at about 4 seconds.
 						wait((long)Math.pow(2, backoff));
 					}
-					out.flush();
+					new Thread(new Runnable() {
+						public void run() {
+							try {
+								out.flush();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					}).start();
 					if (in.ready()) {
 						backoff = 0;
 						char c = (char) in.read();
@@ -589,6 +610,12 @@ public class Acl2 extends Thread {
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
+					failAllCallbacks();
+					fireRestartEvent();
+					fireOutputEvent(new OutputEvent("ACL2 has terminated. Use Tools > " +
+							"Restart ACL2 to restart.", MsgType.INFO));
+					Main.userData.addError(e.getMessage());
+					return;
 				}
 			}
 		}
@@ -624,63 +651,82 @@ public class Acl2 extends Thread {
 	public void initialize() throws IOException {
 		ProcessBuilder processBuilder;
 
-		if (IdeWindow.WIN) {
-			//processBuilder = new ProcessBuilder("ctrlc-windows.exe", acl2Path);
-			processBuilder = new ProcessBuilder(acl2Path);
-		} else {
-			processBuilder = new ProcessBuilder("sh", "-c", "echo \"$$\"; exec \"$0\" \"$@\"" + acl2Path);
-		}
-		processBuilder.directory(workingDir);
-		acl2 = processBuilder.start();
-		in = new BufferedReader(new InputStreamReader(acl2.getInputStream()));
-		if (!IdeWindow.WIN) {
-			procId = Integer.parseInt(in.readLine());
-		}
-		out = new BufferedWriter(new OutputStreamWriter(acl2.getOutputStream()));
-		out.write("(cw \"" + marker + "\")\n");
-		String draculaPath;
-		if (IdeWindow.WIN) {
-			draculaPath = new File(acl2Path).getParent().replaceAll("\\\\", "/") + "/dracula";
-		} else {
-			try {
-				draculaPath = new File(acl2Path).getParent().replaceAll("\\\\", "") + "/dracula";
-			} catch (Exception e) {
-				draculaPath = "";
+		for (String maybeAcl2Path : acl2Paths) {
+			if (IdeWindow.WIN) {
+				//processBuilder = new ProcessBuilder("ctrlc-windows.exe", acl2Path);
+				processBuilder = new ProcessBuilder(maybeAcl2Path);
+			} else {
+				processBuilder = new ProcessBuilder("sh", "-c", "echo \"$$\"; exec \"$0\" \"$@\"" + maybeAcl2Path);
 			}
+			File maybeWorkingDir;
+			if (workingDir == null) {
+				maybeWorkingDir = (new File(maybeAcl2Path).getParentFile());
+			} else {
+				maybeWorkingDir = workingDir;
+			}
+			processBuilder.directory(workingDir);
+			try {
+				acl2 = processBuilder.start();
+			} catch (IOException e) {
+				System.out.println("ACL2 failed at: " + maybeAcl2Path);
+				e.printStackTrace();
+				continue;
+			}
+			acl2Path = maybeAcl2Path;
+			workingDir = maybeWorkingDir;
+			in = new BufferedReader(new InputStreamReader(acl2.getInputStream()));
+			if (!IdeWindow.WIN) {
+				//procId = Integer.parseInt(in.readLine());
+			}
+			out = new BufferedWriter(new OutputStreamWriter(acl2.getOutputStream()));
+			out.write("(cw \"" + marker + "\")\n");
+			String draculaPath;
+			if (IdeWindow.WIN) {
+				draculaPath = maybeAcl2Path.replace("run_acl2.exe", "dracula");
+			} else {
+				try {
+					draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "") + "/dracula";
+				} catch (Exception e) {
+					draculaPath = "";
+				}
+			}
+			initializing = true;
+			numInitExps = 0;
+			admit("(add-include-book-dir :teachpacks \"" + draculaPath + "\")", doNothingCallback);
+			admit("(set-compile-fns nil)", doNothingCallback);
+			break;
 		}
-		initializing = true;
-		numInitExps = 0;
-		admit("(add-include-book-dir :teachpacks \"" + draculaPath + "\")", doNothingCallback);
-		admit("(set-compile-fns nil)", doNothingCallback);
-		admit("(defmacro __trace-wrap (name args body)\n" +
-				"   `(prog2$ (cw \"__trace-enter-(~x0 ~*1)~%\"\n" +
-				"                (quote ,name)\n" +
-				"                (list \"\" \"~x*\" \"~x* \" \"~x* \" ,args))\n" +
-				"         (let ((__value ,body))\n" +
-				"              (prog2$ (cw \"__trace-exit- = ~x1~%\"\n" +
-				"                          (quote ,name)\n" +
-				"                          __value)\n" +
-				"                      __value))))\n" +
-				"\n" +
-				"(defmacro __trace-defun (name &rest rst)\n" +
-				"   `(er-progn (defun ,name ,@rst)\n" +
-				"              (trace$\n" +
-				"                (,name :entry (:fmt (msg \"__trace-enter-~x0\"\n" +
-				"                                         (cons traced-fn\n" +
-				"                                               arglist)))\n" +
-				"                 :exit (:fmt (msg \"__trace-exit- = ~x0\"\n" +
-				"                                  values))))))\n" +
-				"\n" +
-				"(defmacro __trace-builtin (trace-name name)\n" +
-				"   `(defmacro ,trace-name (&rest args)\n" +
-				"       `(__trace-wrap ,(quote ,name)\n" +
-				"                      (list ,@args)\n" +
-				"                      (,(quote ,name)\n" +
-				"                        ,@args))))\n"
-				, doNothingCallback);
-		for (String fun : functionsToTrace) {
+		// TODO: Fix tracing
+//		admit("(defmacro __trace-wrap (name args body)\n" +
+//				"   `(prog2$ (cw \"__trace-enter-(~x0 ~*1)~%\"\n" +
+//				"                (quote ,name)\n" +
+//				"                (list \"\" \"~x*\" \"~x* \" \"~x* \" ,args))\n" +
+//				"         (let ((__value ,body))\n" +
+//				"              (prog2$ (cw \"__trace-exit- = ~x1~%\"\n" +
+//				"                          (quote ,name)\n" +
+//				"                          __value)\n" +
+//				"                      __value))))\n" +
+//				"\n" +
+//				"(defmacro __trace-defun (name &rest rst)\n" +
+//				"   `(er-progn (defun ,name ,@rst)\n" +
+//				"              (trace$\n" +
+//				"                (,name :entry (:fmt (msg \"__trace-enter-~x0\"\n" +
+//				"                                         (cons traced-fn\n" +
+//				"                                               arglist)))\n" +
+//				"                 :exit (:fmt (msg \"__trace-exit- = ~x0\"\n" +
+//				"                                  values))))))\n" +
+//				"\n" +
+//				"(defmacro __trace-builtin (trace-name name)\n" +
+//				"   `(defmacro ,trace-name (&rest args)\n" +
+//				"       `(__trace-wrap ,(quote ,name)\n" +
+//				"                      (list ,@args)\n" +
+//				"                      (,(quote ,name)\n" +
+//				"                        ,@args))))\n"
+//				, doNothingCallback);
+		//for (String fun : functionsToTrace) {
 			//admit("(__trace-builtin __trace-" + fun + " " + fun + ")", doNothingCallback);
-		}
+		//}
+		//admit("(set-gag-mode t)", doNothingCallback);
 		errorOccured = false;
 		initializing = false;
 	}
@@ -690,6 +736,7 @@ public class Acl2 extends Thread {
 	}
 	
 	private void admit(String code, Callback callback, boolean trace) {
+		if (out == null) return;
 		code = code + '\n';
 		code = code
 				.replaceAll(";.*?\r?\n", "")
@@ -752,6 +799,7 @@ public class Acl2 extends Thread {
 			t = t.getNextToken();
 		}
 		
+//		System.out.println(exps);
 		for (String current : exps) {
 			if (initializing) {
 				numInitExps++;
@@ -847,5 +895,8 @@ public class Acl2 extends Thread {
 	}
 	public void trace(String inputText, Callback callback) {
 		admit(inputText, callback, true);
+	}
+	public String getAcl2Path() {
+		return acl2Path;
 	}
 }
