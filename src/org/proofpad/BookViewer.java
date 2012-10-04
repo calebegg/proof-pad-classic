@@ -100,6 +100,9 @@ public class BookViewer extends JFrame {
 				DefaultMutableTreeNode last =
 						(DefaultMutableTreeNode) selPath.getLastPathComponent();
 				if(selRow != -1 && e.getClickCount() == 2 && last.getChildCount() == 0) {
+					if (!(last.getUserObject() instanceof BookView)) {
+						return;
+					}
 					BookView bv = (BookView) last.getUserObject();
 					if (bv.isBook()) {
 						parent.includeBookAtCursor(bv.getDirSymbol(), bv.getPath());
@@ -116,6 +119,9 @@ public class BookViewer extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				DefaultMutableTreeNode node =
 						(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+				if (!(node.getUserObject() instanceof BookView)) {
+					return;
+				}
 				BookView bv = (BookView) node.getUserObject();
 				if (!bv.isBook()) {
 					return;
