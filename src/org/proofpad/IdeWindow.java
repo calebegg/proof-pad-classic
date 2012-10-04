@@ -7,6 +7,7 @@ import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -32,6 +33,9 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -71,7 +75,7 @@ import org.fife.ui.rtextarea.SearchEngine;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
 
-import com.apple.eawt.FullScreenUtilities;
+//import com.apple.eawt.FullScreenUtilities;
 
 //import com.apple.eawt.FullScreenAdapter;
 //import com.apple.eawt.AppEvent.FullScreenEvent;
@@ -186,7 +190,7 @@ public class IdeWindow extends JFrame {
 
 	public IdeWindow(File file) {
 		super();
-		FullScreenUtilities.setWindowCanFullScreen(this, true);
+		//FullScreenUtilities.setWindowCanFullScreen(this, true);
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", true);
 		
 		windows.add(this);
@@ -324,8 +328,8 @@ public class IdeWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				if (!saveFile()) {
 					JOptionPane.showMessageDialog(that,
-							"Save the current file in order to build", "Error",
-							JOptionPane.ERROR_MESSAGE);
+							"Save the current file in order to build", "Build did not complete",
+							JOptionPane.INFORMATION_MESSAGE);
 					return;
 				}
 				final BuildWindow builder = new BuildWindow(openFile, acl2Path);
@@ -720,6 +724,19 @@ public class IdeWindow extends JFrame {
 				proofBar.repaint();
 			}
 		});
+		
+		String[] iconPaths = {
+				"media/icon.iconset/icon_16x16.png",
+				"media/icon.iconset/icon_32x32.png",
+				"media/icon.iconset/icon_128x128.png",
+				"media/icon.iconset/icon_32x32@2x.png"
+		};
+		
+		List<Image> icons = new ArrayList<Image>();
+		for (String path : iconPaths) {
+			icons.add(new ImageIcon(path).getImage());
+		}
+		setIconImages(icons );
 		
 		adjustMaximizedBounds();
 		pack();
