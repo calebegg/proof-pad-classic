@@ -37,11 +37,14 @@
     display: block;
     margin: 0 auto;
   }
-  .win-show, .osx-show, .linux-show, .none-show, .x86-show, .x64-show {
+  .win-show, .osx-show, .linux-show, .none-show {
     display: none !important;
   }
   .win .win-show {
     display: block !important;
+  }
+  .win .x86-show, .win .x64-show {
+    display: none !important;
   }
   .x86 .x86-show {
     display: block !important;
