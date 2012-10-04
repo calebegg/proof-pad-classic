@@ -33,8 +33,6 @@ import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rtextarea.RUndoManager;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
 	public interface UndoManagerCreatedListener {
@@ -331,7 +329,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
 			@Override
 			public void remove() {
-				throw new NotImplementedException();
+				throw new RuntimeException();
 			}	
 		};
 		return it;

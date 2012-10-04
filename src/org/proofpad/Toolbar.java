@@ -56,7 +56,9 @@ public class Toolbar extends JPanel {
 		button.addActionListener(new UserData.LogUse("undoButton"));
 		button.putClientProperty("JButton.buttonType", "segmentedTextured");
 		button.putClientProperty("JButton.segmentPosition", "first");
-		button.setMargin(new Insets(2, 0, 2, 0)); // Workaround for JDK 7 bug w/ segmentedTextured
+		if (OSX) {
+			button.setMargin(new Insets(2, 0, 2, 0)); // Workaround for JDK 7 bug w/ segmentedTextured
+		}
 		button.setEnabled(false);
 		add(button);
 		button = new JButton(new ImageIcon(getClass().getResource("/media/redo.png")));
@@ -66,7 +68,9 @@ public class Toolbar extends JPanel {
 		button.addActionListener(new UserData.LogUse("redoButton"));
 		button.putClientProperty("JButton.buttonType", "segmentedTextured");
 		button.putClientProperty("JButton.segmentPosition", "last");
-		button.setMargin(new Insets(2, 0, 2, 0));
+		if (OSX) {
+			button.setMargin(new Insets(2, 0, 2, 0));
+		}
 		button.setEnabled(false);
 		add(button);
 		add(Box.createHorizontalStrut(BUTTON_GAP * 2));
@@ -111,7 +115,7 @@ public class Toolbar extends JPanel {
 		}
 		button.addActionListener(parent.tutorialAction);
 		button.addActionListener(new UserData.LogUse("tutorialButton"));
-		add(button);
+		//add(button);
 	}
 	
 	public void checkForUpdate() {
