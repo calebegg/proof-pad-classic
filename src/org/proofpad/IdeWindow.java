@@ -283,6 +283,7 @@ public class IdeWindow extends JFrame {
 			JOptionPane.showMessageDialog(that, "ACL2 executable not found",
 					"Error", JOptionPane.ERROR_MESSAGE);
 		}
+		parser.setAcl2Dir(new File(acl2.getAcl2Path()).getParentFile());
 
 		undoAction = new ActionListener() {
 			@Override
@@ -334,7 +335,7 @@ public class IdeWindow extends JFrame {
 							JOptionPane.INFORMATION_MESSAGE);
 					return;
 				}
-				final BuildWindow builder = new BuildWindow(openFile, acl2Path);
+				final BuildWindow builder = new BuildWindow(openFile, acl2.getAcl2Path());
 				builder.setVisible(true);
 				builder.build();
 			}
@@ -987,6 +988,7 @@ public class IdeWindow extends JFrame {
 			return;
 		}
 		String content = scan.useDelimiter("\\Z").next();
+		content = content.replaceAll("\\r", "");
 		scan.close();
 		editor.setText(content);
 		editor.setCaretPosition(0);

@@ -67,7 +67,7 @@ public class BookViewer extends JFrame {
 	
 	public BookViewer(final IdeWindow parent) {
 		super("Include a book");
-		String acl2Dir = new File(parent.acl2.acl2Path).getParent();
+		String acl2Dir = new File(parent.acl2.getAcl2Path()).getParent();
 		systemPath = acl2Dir + "/books";
 		draculaPath =  acl2Dir + "/dracula";
 		System.out.println(systemPath);

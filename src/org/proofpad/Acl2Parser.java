@@ -77,12 +77,12 @@ public class Acl2Parser extends AbstractParser {
 	public Set<String> constants;
 	public File workingDir;
 	private Map<CacheKey, CacheSets> cache = Main.cache.getBookCache();
-	private final File acl2Dir;
+	private File acl2Dir;
 	private final List<ParseListener> parseListeners = new LinkedList<Acl2Parser.ParseListener>();
 	
 	public Acl2Parser(File workingDir, File acl2Dir) {
 		this.workingDir = workingDir;
-		this.acl2Dir = acl2Dir;
+		this.setAcl2Dir(acl2Dir);
 	}
 
 	private static Map<String, Range> paramCounts = new HashMap<String, Range>();
@@ -548,7 +548,7 @@ public class Acl2Parser extends AbstractParser {
 					isIgnoredBecauseMacro |= macros.contains(ancestor.name);
 					vars.addAll(ancestor.vars);
 					isThm |= ancestor.name != null && (ancestor.name.equals("thm") ||
-							ancestor.name.equals("defthm"));
+							ancestor.name.equals("defthm") || ancestor.name.equals("defthmd"));
 				}
 				boolean isIgnoredBecauseParent = parent != null && parent.name != null &&
 						(parent.name.equals("defun") && parent.params.size() == 2 ||
@@ -601,9 +601,9 @@ public class Acl2Parser extends AbstractParser {
 							} else {
 								dirKey = top.params.get(dirLoc);
 								if (dirKey.equals(":system")) {
-									dir = new File(acl2Dir, "books");
+									dir = new File(getAcl2Dir(), "books");
 								} else if (dirKey.equals(":teachpacks")) {
-									dir = new File(acl2Dir, "dracula");
+									dir = new File(getAcl2Dir(), "dracula");
 								} else {
 									Main.userData.addParseError("UnrecongizedBookLocation");
 									result.addNotice(new Acl2ParserNotice(this,
@@ -611,6 +611,9 @@ public class Acl2Parser extends AbstractParser {
 											token.offset + 1));
 									dir = null;
 								}
+							}
+							if (IdeWindow.WIN) {
+								bookName.replaceAll("\\\\/", "\\");
 							}
 							File book = new File(dir, bookName.substring(1, bookName.length() - 1) + ".lisp");
 							CacheSets bookCache = null;
@@ -623,7 +626,8 @@ public class Acl2Parser extends AbstractParser {
 								bookCache = cache.get(key);
 							} else {
 								try {
-									bookCache = parseBook(book, acl2Dir, cache);
+									System.out.println("Book exists? " + book.exists());
+									bookCache = parseBook(book, getAcl2Dir(), cache);
 									cache.put(key, bookCache);
 								} catch (FileNotFoundException e) {
 									Main.userData.addParseError("BookNotFound");
@@ -709,6 +713,14 @@ public class Acl2Parser extends AbstractParser {
 
 	public void addParseListener(ParseListener parseListener) {
 		parseListeners.add(parseListener);
+	}
+
+	public File getAcl2Dir() {
+		return acl2Dir;
+	}
+
+	public void setAcl2Dir(File acl2Dir) {
+		this.acl2Dir = acl2Dir;
 	}
 
 }

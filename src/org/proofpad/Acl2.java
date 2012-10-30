@@ -682,7 +682,7 @@ public class Acl2 extends Thread {
 			out.write("(cw \"" + marker + "\")\n");
 			String draculaPath;
 			if (IdeWindow.WIN) {
-				draculaPath = maybeAcl2Path.replace("run_acl2.exe", "dracula");
+				draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "/") + "/dracula";
 			} else {
 				try {
 					draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "") + "/dracula";
@@ -790,7 +790,7 @@ public class Acl2 extends Thread {
 				}
 				if (isTracing) {
 					isTracing = false;
-					exps.add(traceIdx, traceExp.toString());
+					//exps.add(traceIdx, traceExp.toString());
 					traceIdx++;
 				}
 				exp = new StringBuilder();
