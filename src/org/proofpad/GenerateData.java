@@ -19,7 +19,7 @@ import org.proofpad.Acl2Parser.CacheSets;
 
 
 public class GenerateData {
-	public final static String pathToAcl2 = "C:\\PROGRA~1\\PROOFP~1\\acl2\\";
+	public final static String pathToAcl2 = "/Users/calebegg/Code/acl2/";
 	public static void main(String[] args) throws Exception {
 		CacheData cache = new CacheData();
 		Main.cache = cache;

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -14,11 +15,11 @@ import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
+import javax.swing.JScrollBar;
 
 import org.proofpad.ProofBar.ExpData;
 
-public class MoreBar extends JComponent {
+public class MoreBar extends JScrollBar {
 	
 	private static final ImageIcon moreIcon = Repl.moreIcon;
 	private static final long serialVersionUID = -2510084974061378819L;
@@ -32,12 +33,14 @@ public class MoreBar extends JComponent {
 	
 	public MoreBar(final IdeWindow win) {
 		this.win = win;
-		setPreferredSize(new Dimension(width, 0));
+		int scrollWidth = new JScrollBar().getPreferredSize().width;
+		setPreferredSize(new Dimension(width + scrollWidth, 0));
 		setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.LIGHT_GRAY));
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int offset = 0;
+				int top = getValue();
+				int offset = -top;
 				if (data == null) return;
 				for (ExpData ex : data) {
 					if (ex == null) continue;
@@ -51,12 +54,26 @@ public class MoreBar extends JComponent {
 			}
 		});
 	}
-	
+
 	@Override
 	protected void paintComponent(Graphics gOld) {
 		Graphics2D g = (Graphics2D) gOld;
+		// Draw the old scrollbar
+		Rectangle clip = g.getClipBounds();
+		clip.width -= width;
+		clip.x += width;
+		g.setClip(clip);
+		g.translate(width / 2, 0); // TODO: Why is this /2?
 		super.paintComponent(g);
-		int offset = 0;
+		g.translate(-width / 2, 0);
+		clip.x -= width;
+		clip.width += width;
+		g.setClip(clip);
+		// Draw the More Bar.
+		int top = getValue();
+		g.setColor(Color.GRAY);
+		g.drawLine(width, 0, width, getHeight());
+		int offset = -top;
 		if (data == null) return;
 		try {
 			boolean drewSelected = false;
@@ -73,7 +90,7 @@ public class MoreBar extends JComponent {
 						angle = Math.toRadians(180);
 					}
 					g.setColor(ProofBar.UNTRIED_COLOR);
-					g.fillRect(0, offset, getWidth(), height);
+					g.fillRect(0, offset, width, height);
 					drewSelected = true;
 				} else if (ex.exp.expNum == oldIdx) {
 					if (currTime - rotateStart < 200) {
@@ -85,11 +102,11 @@ public class MoreBar extends JComponent {
 					}
 				}
 				g.setColor(Color.GRAY);
-				g.drawLine(0, offset + height, getWidth(), offset + height);
+				g.drawLine(0, offset + height, width, offset + height);
 				if (ex.output.length() > 0) {
 					AffineTransform savedTx = g.getTransform();
-					g.rotate(angle, getWidth() / 2, offset + height / 2);
-					g.drawImage(moreIcon.getImage(), (getWidth() - 19) / 2, (height - 19) / 2
+					g.rotate(angle, width / 2, offset + height / 2);
+					g.drawImage(moreIcon.getImage(), (width - 19) / 2, (height - 19) / 2
 							+ offset, this);
 					g.setTransform(savedTx);
 				}
