@@ -3,9 +3,9 @@ package org.proofpad;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
+import java.util.Vector;
 
 public class UserData implements Serializable {
 
@@ -50,10 +50,10 @@ public class UserData implements Serializable {
 	final Date recordingStart = new Date();
 	final UUID uuid = UUID.randomUUID();
 	final String systemData;
-	final ArrayList<Use> uses = new ArrayList<Use>();
-	final ArrayList<ErrorData> errors = new ArrayList<ErrorData>();
-	final ArrayList<ErrorData> parseErrors = new ArrayList<ErrorData>();
-	final ArrayList<ErrorData> replMessages = new ArrayList<ErrorData>();
+	final Vector<Use> uses = new Vector<Use>();
+	final Vector<ErrorData> errors = new Vector<ErrorData>();
+	final Vector<ErrorData> parseErrors = new Vector<ErrorData>();
+	final Vector<ErrorData> replMessages = new Vector<ErrorData>();
 
 	
 	public UserData() {
