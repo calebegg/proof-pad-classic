@@ -112,7 +112,6 @@ public class Repl extends JPanel {
 	private HeightChangeListener heightChangeListener;
 	private JPanel bottom;
 	IdeWindow parent;
-	protected JButton trace;
 	protected JButton run;
 	private int oldNeededHeight = 26;
 		
@@ -171,27 +170,12 @@ public class Repl extends JPanel {
 		inputScroller.setMaximumSize(new Dimension(Integer.MAX_VALUE, StatusLabel.size + 6));
 		bottom.add(inputScroller);
 		run = new JButton("run");
-		trace = new JButton("trace");
 		run.setEnabled(false);
-		trace.setEnabled(false);
 		run.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				runInputCode();
 				Main.userData.addUse("runButton", false);
-			}
-		});
-		trace.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final String inputText = input.getText();
-				displayResult(inputText + "\n", MsgType.INPUT);
-				traceExp(inputText);
-				history.add(inputText.trim());
-				historyIndex = history.size();
-				addedInputToHistory = false;
-				resetInput();
-				Main.userData.addUse("traceButton", false);
 			}
 		});
 		input.addKeyListener(new KeyAdapter() {
@@ -341,68 +325,70 @@ public class Repl extends JPanel {
 	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL: The symbol " +
 			"(.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in " +
 			"ACL2\\. Please define it\\..*");
-	public static String cleanUpMsg(String result) {
+	
+	public static List<String> cleanUpMsg(String result) {
 		return cleanUpMsg(result, null, null);
 	}
-	private static String cleanUpMsg(String result, Set<String> functions, MsgType msgtype) {
-		String ret;
+	
+	private static List<String> cleanUpMsg(String result, Set<String> functions, MsgType msgtype) {
+		List<String> ret = new ArrayList<String>();
 		Matcher match;
 		String joined = result.replaceAll("[\n\r]+", " ").replaceAll("\\s+", " ").trim();
 		if ((match = welcomeMessage.matcher(joined)).matches()) {
 			Main.userData.addReplMsg("welcomeMessage");
-			ret = "ACL2 started successfully.";
-		} else if ((match = guardViolation.matcher(joined)).matches()) {
-			ret = "Guard violation in " + match.group(3).toLowerCase() + ".";
+			ret.add("ACL2 started successfully.");
+		}
+		if ((match = guardViolation.matcher(joined)).matches()) {
+			ret.add("Guard violation in " + match.group(3).toLowerCase() + ".");
 			Main.userData.addReplMsg("guardViolation");
-		} else if ((match = globalVar.matcher(joined)).matches()) {
-			ret = "Global variables, such as " + match.group(1).toLowerCase() +
-					", are not allowed.";
+		}
+		if ((match = globalVar.matcher(joined)).matches()) {
+			ret.add("Global variables, such as " + match.group(1).toLowerCase() +
+					", are not allowed.");
 			Main.userData.addReplMsg("globalVar");
-		} else if ((match = wrongNumParams.matcher(joined)).matches()) {
-			ret = match.group(1).toLowerCase() +  " takes " + match.group(2) +
+		}
+		if ((match = wrongNumParams.matcher(joined)).matches()) {
+			ret.add(match.group(1).toLowerCase() +  " takes " + match.group(2) +
 					" arguments but was given " + match.group(4) + " at " +
-					match.group(3).toLowerCase();
+					match.group(3).toLowerCase());
 			Main.userData.addReplMsg("wrongNumParams");
-		} else if ((match = trivial.matcher(joined)).matches() ||
+		}
+		if ((match = trivial.matcher(joined)).matches() ||
 				   (match = nonRec.matcher(joined)).matches() ||
 				   (match = admission.matcher(joined)).matches()) {
 			if (msgtype == MsgType.ERROR) {
-				ret = "Admission of " + match.group(1).toLowerCase() + " failed. " +
-						"Click for details.";
+				ret.add("Admission of " + match.group(1).toLowerCase() + " failed.");
 				Main.userData.addReplMsg("admissionFailed");
 			} else {
-				ret = match.group(1).toLowerCase() + " was admitted successfully.";
+				ret.add(match.group(1).toLowerCase() + " was admitted successfully.");
 				Main.userData.addReplMsg("admissionSucceeded");
 			}
-		} else if ((match = undefinedFunc.matcher(joined)).matches()) {
+		}
+		if ((match = undefinedFunc.matcher(joined)).matches()) {
 			String func = match.group(1).toLowerCase();
-			ret = "The function " + func + " is undefined.";
+			ret.add("The function " + func + " is undefined.");
 			Main.userData.addReplMsg("undefinedFunc");
-		} else if ((match = proved.matcher(joined)).find()) {
-			ret = "Proof successful.";
+		}
+		if ((match = proved.matcher(joined)).find()) {
+			ret.add("Proof successful.");
 			Main.userData.addReplMsg("proofSuccess");
-		} else if (joined.length() > 70) {
-			ret = joined.substring(0, 67) + " ...";
-			Main.userData.addReplMsg(ret);
-		} else {
-			ret = joined;
+		}
+		if (joined.length() > 70) {
+			ret.add(joined.substring(0, 67) + " ...");
+			Main.userData.addReplMsg(ret.get(ret.size() - 1));
+		}
+		if (ret.isEmpty()) {
+			ret.add(joined);
 			Main.userData.addReplMsg(joined);
 		}
 		return ret;
 	}
 
-	protected void displayResult(TraceResult tr, MsgType type) {
-		displayResult("(click for trace results)", tr, type);
-	}
 	public void displayResult(final String result, MsgType type) {
-		displayResult(result, null, type);
-	}
-
-	public void displayResult(final String result, final TraceResult tr, MsgType type) {
 		String traceFreeResult = result.replaceAll("\\s*\\d+>.*?\\n", "").replaceAll("\\s*<\\d+.*?\\n", "");
 		String shortResult = cleanUpMsg(traceFreeResult,
 				((Acl2Parser) definitions.getParser(0)).functions,
-				type);
+				type).get(0);
 		if (shortResult.startsWith("ACL2 started successfully")) {
 			type = MsgType.INFO;
 		}
@@ -447,17 +433,13 @@ public class Repl extends JPanel {
 		}
 		text.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 		line.add(text);
-		if (!shortResult.equals(result.trim()) || tr != null) {
+		if (!shortResult.equals(result.trim())) {
 			line.add(new JLabel(moreIcon));
 			MouseListener ml = new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
-					if (tr == null) {
-						// TODO: Highlight the currently selected item and reset it in Runnable after.
-						parent.setPreviewText(result, null);
-					} else {
-						parent.setPreviewComponent(tr, null);
-					}
+					// TODO: Highlight the currently selected item and reset it in Runnable after.
+					parent.setPreviewText(result, null);
 				}
 			};
 			line.addMouseListener(ml);
@@ -504,22 +486,8 @@ public class Repl extends JPanel {
 			public void run() {
 				boolean enable = input.getLastVisibleOffset() != 0;
 				run.setEnabled(enable);
-				trace.setEnabled(enable);
 			}
 		});
 	}
 
-	void traceExp(final String inputText) {
-		// Run the code
-		acl2.trace(inputText, new Acl2.Callback() {
-			@Override
-			public boolean run(boolean success, String response) {
-				// Display the results in a nicely-formatted way
-				TraceResult tr = new TraceResult(response, inputText);
-				parent.setPreviewComponent(tr, null);
-				displayResult(tr, success ? MsgType.SUCCESS : MsgType.ERROR);
-				return false;
-			}
-		});
-	}
 }

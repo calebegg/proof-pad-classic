@@ -33,9 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -172,12 +170,11 @@ public class IdeWindow extends JFrame {
 	ActionListener clearReplScrollback;
 	ActionListener tutorialAction;
 
-	TraceResult activeTrace;
-	private MoreBar moreBar;
+	MoreBar moreBar;
 	Gutter gutter;
 	Runnable afterPreview;
 	JPanel westPanel;
-	private Preferences prefs;
+	Preferences prefs;
 
 	public IdeWindow() {
 		this((File)null);
@@ -209,7 +206,8 @@ public class IdeWindow extends JFrame {
 		split.setTopComponent(splitTop);
 		split.setResizeWeight(1);
 		splitMain.add(split, BorderLayout.CENTER);
-		editorScroller = new JScrollPane();
+		editorScroller = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		editorScroller.setBorder(BorderFactory.createEmptyBorder());
 		editorScroller.setViewportBorder(BorderFactory.createEmptyBorder());
 		this.getRootPane().setBorder(BorderFactory.createEmptyBorder());
@@ -255,11 +253,15 @@ public class IdeWindow extends JFrame {
 		gutter = new Gutter(editor);
 		gutter.setBackground(Color.WHITE);
 		westPanel.add(gutter);
-		editorContainer.add(westPanel, BorderLayout.WEST);
-		editorContainer.add(moreBar, BorderLayout.EAST);
+		//editorContainer.add(westPanel, BorderLayout.WEST);
+		editorScroller.setRowHeaderView(westPanel);
+		editorScroller.setVerticalScrollBar(moreBar);
+		//editorContainer.add(moreBar, BorderLayout.EAST);
 		editorContainer.add(editor, BorderLayout.CENTER);
 		editorScroller.setViewportView(editorContainer);
-//		editorScroller.setRowHeaderView(proofBar);
+		editorScroller.getVerticalScrollBar().setUnitIncrement(editor.getLineHeight());
+		editorScroller.getHorizontalScrollBar().setUnitIncrement(editor.getLineHeight());
+		editorScroller.setRowHeaderView(proofBar);
 		helpAction = editor.getHelpAction();
 		repl = new Repl(this, acl2, editor);
 		proofBar.setLineHeight(editor.getLineHeight());
@@ -269,9 +271,6 @@ public class IdeWindow extends JFrame {
 			@Override
 			public void wasParsed() {
 				proofBar.admitUnprovenExps();
-				if (activeTrace != null) {
-					repl.traceExp(activeTrace.input);
-				}
 			}
 		});
 		editor.addParser(parser);
@@ -335,7 +334,9 @@ public class IdeWindow extends JFrame {
 							JOptionPane.INFORMATION_MESSAGE);
 					return;
 				}
+
 				final BuildWindow builder = new BuildWindow(openFile, acl2.getAcl2Path());
+
 				builder.setVisible(true);
 				builder.build();
 			}
@@ -554,6 +555,8 @@ public class IdeWindow extends JFrame {
 				editor.setFont(font);
 				repl.setFont(font);
 				proofBar.setLineHeight(editor.getLineHeight());
+				editorScroller.getVerticalScrollBar().setUnitIncrement(editor.getLineHeight());
+				editorScroller.getHorizontalScrollBar().setUnitIncrement(editor.getLineHeight());
 			}
 		});
 		PrefsWindow.addWidthGuideChangeListener(new PrefsWindow.WidthGuideChangeListener() {
@@ -760,11 +763,6 @@ public class IdeWindow extends JFrame {
 		if (!isVisible()) return;
 		if (afterPreview != null) afterPreview.run();
 		afterPreview = after;
-		if (c instanceof TraceResult) {
-			activeTrace = (TraceResult) c;
-		} else {
-			activeTrace = null;
-		}
 		int oldDividerLoc = previewSplit.getDividerLocation();
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -830,7 +828,6 @@ public class IdeWindow extends JFrame {
 		previewSplit.setDividerSize(0);
 		previewSplit.setRightComponent(null);
 		setBounds(loc.x, loc.y, getWidth() - paneWidth - splitDividerDefaultSize, getHeight());
-		activeTrace = null;
 		if (afterPreview != null) {
 			afterPreview.run();
 		}
@@ -1005,7 +1002,6 @@ public class IdeWindow extends JFrame {
 	
 	private void markOpenFileAsRecent() {
 		// Update recent files
-		Preferences prefs = Preferences.userNodeForPackage(Main.class);
 		int downTo = 10;
 		for (int i = 1; i <= MenuBar.RECENT_MENU_ITEMS; i++) {
 			String temp = prefs.get("recent" + i, "");

@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.LinearGradientPaint;
 import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -87,7 +88,7 @@ public class ProofBar extends JComponent {
 	
 	private int readOnlyIndex = -1;
 	Expression tried;
-	private Image inProgressThrobber = 
+	private final Image inProgressThrobber = 
 			new ImageIcon(getClass().getResource("/media/in-progress-blue.gif")).getImage();
 	private int flashIndex;
 	int flashPhase;
@@ -95,7 +96,7 @@ public class ProofBar extends JComponent {
 	protected Thread flashThread;
 	public int readOnlyHeight;
 	UndoManager undoManager;
-	private List<ReadOnlyIndexChangeListener> readOnlyIndexListeners =
+	private final List<ReadOnlyIndexChangeListener> readOnlyIndexListeners =
 			new LinkedList<ReadOnlyIndexChangeListener>();
 	
 	static class UnprovenExp {
@@ -226,6 +227,8 @@ public class ProofBar extends JComponent {
 	@Override
 	protected void paintComponent(Graphics gOld) {
 		Graphics2D g = (Graphics2D) gOld;
+		Rectangle clipBounds = g.getClipBounds();
+		// TODO: Draw only what's in clipBounds to scroll faster.
 		int begin = 0;
 		int provedSoFar = numProved;
 		int provingSoFar = numProving;
@@ -314,7 +317,8 @@ public class ProofBar extends JComponent {
 			g.drawLine(0, begin, width, begin);
 			begin += height;
 		}
-		setPreferredSize(new Dimension(width, begin + 50));
+		setPreferredSize(new Dimension(clipBounds.x + clipBounds.width,
+				clipBounds.y + clipBounds.height + 10));
 	}
 
 	private void setReadOnlyHeight(int newHeight) {
@@ -328,7 +332,6 @@ public class ProofBar extends JComponent {
 			return (ex.lines + ex.nextGapHeight) * lineHeight + ex.prevGapHeight * lineHeight / 2;
 		} else {
 			return ex.lines * lineHeight + (ex.prevGapHeight + ex.nextGapHeight) * lineHeight / 2;
-			
 		}
 	}
 	

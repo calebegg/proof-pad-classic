@@ -28,7 +28,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -40,7 +39,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
-import javax.swing.MutableComboBoxModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -108,7 +106,7 @@ public class PrefsWindow extends JFrame {
 		fontPicker.setEnabled(false);
 		fontPicker.addItem("Loading...");
 		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
+			@Override public void run() {
 				String[] fontFamilies = GraphicsEnvironment.getLocalGraphicsEnvironment()
 						.getAvailableFontFamilyNames();
 				List<String> monospaced = new LinkedList<String>();
