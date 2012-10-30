@@ -71,6 +71,7 @@ import org.fife.ui.rtextarea.Gutter;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
 import org.proofpad.PrefsWindow.FontChangeListener;
+import org.proofpad.Repl.Message;
 import org.proofpad.Repl.MsgType;
 
 //import com.apple.eawt.FullScreenUtilities;
@@ -765,11 +766,10 @@ public class IdeWindow extends JFrame {
 		afterPreview = after;
 		int oldDividerLoc = previewSplit.getDividerLocation();
 		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createEmptyBorder());
 		panel.setLayout(new BorderLayout());
 		previewSplit.setRightComponent(panel);
-		JScrollPane scroller = new JScrollPane();
-		scroller.setViewportView(c);
-		panel.add(scroller, BorderLayout.CENTER);
+		panel.add(c, BorderLayout.CENTER);
 		JButton closeButton = new JButton("<<");
 		JPanel bottom = new JPanel();
 		bottom.setLayout(new BoxLayout(bottom, BoxLayout.X_AXIS));
@@ -835,11 +835,23 @@ public class IdeWindow extends JFrame {
 	}
 	
 	public void setPreviewText(String result, Runnable after) {
+		JPanel summaries = new JPanel();
+		summaries.setLayout(new BoxLayout(summaries, BoxLayout.Y_AXIS));
 		JTextArea resBox = new JTextArea();
 		resBox.setText(result);
 		resBox.setFont(getFont());
 		resBox.setEditable(false);
-		setPreviewComponent(resBox, after);
+		List<Message> msgs = Repl.summarize(result, null);
+		for (Message msg : msgs) {
+			JComponent line = repl.createSummary(msg.msg, msg.type, null);
+			summaries.add(line);
+		}
+		JPanel comp = new JPanel();
+		comp.setBorder(BorderFactory.createEmptyBorder());
+		comp.setLayout(new BorderLayout());
+		comp.add(summaries, BorderLayout.NORTH);
+		comp.add(new JScrollPane(resBox), BorderLayout.CENTER);
+		setPreviewComponent(comp, after);
 	}
 
 	public void fixUndoRedoStatus() {

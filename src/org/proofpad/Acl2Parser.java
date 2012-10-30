@@ -1,6 +1,5 @@
 package org.proofpad;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
@@ -631,7 +630,8 @@ public class Acl2Parser extends AbstractParser {
 									cache.put(key, bookCache);
 								} catch (FileNotFoundException e) {
 									Main.userData.addParseError("BookNotFound");
-									result.addNotice(new Acl2ParserNotice(this, "File could not be found", top, token.offset + 1));
+									result.addNotice(new Acl2ParserNotice(this,
+											"File could not be found.", top, token.offset + 1));
 								} catch (BadLocationException e) { }
 							}
 							if (bookCache != null) {
@@ -664,7 +664,8 @@ public class Acl2Parser extends AbstractParser {
 						if (docs.containsKey(upperToken)) {
 							String modKey = IdeWindow.OSX ? "\u2325\u2318" : "Ctrl + Alt + ";
 							String msg = "<html>" + docs.get(upperToken) + "<br><font " +
-									"color=\"gray\" size=\"2\">" + modKey + "L for more.</font></html>";
+									"color=\"gray\" size=\"2\">" + modKey +
+									"L for more.</font></html>";
 							result.addNotice(new Acl2ParserNotice(this,
 									msg, line, token, ParserNotice.INFO));
 						}
@@ -674,7 +675,8 @@ public class Acl2Parser extends AbstractParser {
 						&& !constants.contains(token.getLexeme()) &&
 						!vars.contains(token.getLexeme())) {
 					Main.userData.addParseError("undeclaredVariable");
-					result.addNotice(new Acl2ParserNotice(this, token.getLexeme() + " is undeclared.",
+					result.addNotice(new Acl2ParserNotice(this, token.getLexeme() +
+							" is undeclared.",
 							line, token, ParserNotice.ERROR));
 				}
 				token = token.getNextToken();
@@ -686,8 +688,8 @@ public class Acl2Parser extends AbstractParser {
 		return result;
 	}
 	
-	public static CacheSets parseBook(File book, File acl2Dir, Map<CacheKey, CacheSets> cache) throws FileNotFoundException,
-			BadLocationException {
+	public static CacheSets parseBook(File book, File acl2Dir, Map<CacheKey, CacheSets> cache)
+			throws FileNotFoundException, BadLocationException {
 		CacheSets bookCache;
 		Scanner bookScanner = new Scanner(book);
 		bookScanner.useDelimiter("\\Z");

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.undo.UndoManager;
@@ -54,12 +55,15 @@ public class ProofBar extends JComponent {
 	static final Color UNTRIED_COLOR = new Color (0xDDDDDD);
 	static final Color IN_PROGRESS_COLOR = new Color(0xA3D6BC);
 	static final Color ERROR_COLOR = new Color(0xFFAAAA);
+	static final Color WARNING_COLOR = new Color(0xFFFF00);
 	static final Color ADMITTED_COLOR = new Color(0xDDF8CC);
 	public static final ImageIcon errorIcon = new ImageIcon(
 			ProofBar.class.getResource("/media/error.png"));
 	public static final ImageIcon successIcon = new ImageIcon(
 			ProofBar.class.getResource("/media/check.png"));
-	
+	public static final Icon warningIcon = new ImageIcon(
+			ProofBar.class.getResource("/media/error.png")); // FIXME
+
 	static LinearGradientPaint diagonalPaint(Color a, Color b, int step, float dist) {
 		return new LinearGradientPaint(0, 0, step, step,
 				new float[] {0f, dist, dist + .01f, 1f},
@@ -77,7 +81,7 @@ public class ProofBar extends JComponent {
 	int my;
 	boolean hover = false;
 	final static int width = 20;
-
+	
 	static int lineHeight;
 	final Acl2 acl2;
 	
@@ -226,6 +230,7 @@ public class ProofBar extends JComponent {
 
 	@Override
 	protected void paintComponent(Graphics gOld) {
+		// TODO: Draw warnings
 		Graphics2D g = (Graphics2D) gOld;
 		Rectangle clipBounds = g.getClipBounds();
 		// TODO: Draw only what's in clipBounds to scroll faster.

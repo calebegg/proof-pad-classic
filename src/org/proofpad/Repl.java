@@ -15,7 +15,6 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +39,15 @@ import org.proofpad.SExpUtils.ExpType;
 
 
 public class Repl extends JPanel {
+
+	public static class Message {
+		public Message(String msg, MsgType type) {
+			this.msg = msg;
+			this.type = type;
+		}
+		public String msg;
+		public MsgType type;
+	}
 
 	static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/media/info.png"));
 	static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/media/prompt.png"));
@@ -81,6 +89,9 @@ public class Repl extends JPanel {
 			case SUCCESS:
 				setIcon(ProofBar.successIcon);
 				break;
+			case WARNING:
+				setIcon(ProofBar.warningIcon);
+				break;
 			}
 		}
 	}
@@ -117,6 +128,7 @@ public class Repl extends JPanel {
 		
 	enum MsgType {
 		ERROR,
+		WARNING,
 		INPUT,
 		INFO,
 		SUCCESS
@@ -147,7 +159,7 @@ public class Repl extends JPanel {
 		output.setBackground(Color.WHITE);
 		font = new Font("Monospaced", Font.PLAIN, 14);
 		output.setFont(font);
-		final JScrollPane scroller = new JScrollPane(getOutput());
+		final JScrollPane scroller = new JScrollPane(output);
 		vertical = scroller.getVerticalScrollBar();
 		scroller.setBorder(BorderFactory.createEmptyBorder());
 		scroller.setPreferredSize(new Dimension(500,100));
@@ -326,77 +338,68 @@ public class Repl extends JPanel {
 			"(.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in " +
 			"ACL2\\. Please define it\\..*");
 	
-	public static List<String> cleanUpMsg(String result) {
-		return cleanUpMsg(result, null, null);
+	public static List<Message> summarize(String result) {
+		return summarize(result, null);
 	}
 	
-	private static List<String> cleanUpMsg(String result, Set<String> functions, MsgType msgtype) {
-		List<String> ret = new ArrayList<String>();
+	public static String joinString(String toJoin) {
+		return toJoin.replaceAll("[\n\r]+", " ").replaceAll("\\s+", " ").trim();
+	}
+	
+	public static List<Message> summarize(String result, MsgType type) {
+		List<Message> ret = new ArrayList<Message>();
 		Matcher match;
-		String joined = result.replaceAll("[\n\r]+", " ").replaceAll("\\s+", " ").trim();
+		String joined = joinString(result);
 		if ((match = welcomeMessage.matcher(joined)).matches()) {
 			Main.userData.addReplMsg("welcomeMessage");
-			ret.add("ACL2 started successfully.");
+			ret.add(new Message("ACL2 started successfully.", MsgType.INFO));
 		}
 		if ((match = guardViolation.matcher(joined)).matches()) {
-			ret.add("Guard violation in " + match.group(3).toLowerCase() + ".");
+			ret.add(new Message("Guard violation in " + match.group(3).toLowerCase() + ".", MsgType.ERROR));
 			Main.userData.addReplMsg("guardViolation");
 		}
 		if ((match = globalVar.matcher(joined)).matches()) {
-			ret.add("Global variables, such as " + match.group(1).toLowerCase() +
-					", are not allowed.");
+			ret.add(new Message("Global variables, such as " + match.group(1).toLowerCase() +
+					", are not allowed.", MsgType.ERROR));
 			Main.userData.addReplMsg("globalVar");
 		}
 		if ((match = wrongNumParams.matcher(joined)).matches()) {
-			ret.add(match.group(1).toLowerCase() +  " takes " + match.group(2) +
+			ret.add(new Message(match.group(1).toLowerCase() +  " takes " + match.group(2) +
 					" arguments but was given " + match.group(4) + " at " +
-					match.group(3).toLowerCase());
+					match.group(3).toLowerCase(), MsgType.ERROR));
 			Main.userData.addReplMsg("wrongNumParams");
 		}
 		if ((match = trivial.matcher(joined)).matches() ||
 				   (match = nonRec.matcher(joined)).matches() ||
 				   (match = admission.matcher(joined)).matches()) {
-			if (msgtype == MsgType.ERROR) {
-				ret.add("Admission of " + match.group(1).toLowerCase() + " failed.");
+			if (type == MsgType.ERROR) {
+				ret.add(new Message("Admission of " + match.group(1).toLowerCase() + " failed.", MsgType.ERROR));
 				Main.userData.addReplMsg("admissionFailed");
 			} else {
-				ret.add(match.group(1).toLowerCase() + " was admitted successfully.");
+				ret.add(new Message(match.group(1).toLowerCase() + " was admitted successfully.", MsgType.SUCCESS));
 				Main.userData.addReplMsg("admissionSucceeded");
 			}
 		}
 		if ((match = undefinedFunc.matcher(joined)).matches()) {
 			String func = match.group(1).toLowerCase();
-			ret.add("The function " + func + " is undefined.");
+			ret.add(new Message("The function " + func + " is undefined.", MsgType.ERROR));
 			Main.userData.addReplMsg("undefinedFunc");
 		}
 		if ((match = proved.matcher(joined)).find()) {
-			ret.add("Proof successful.");
+			ret.add(new Message("Proof successful.", MsgType.SUCCESS));
 			Main.userData.addReplMsg("proofSuccess");
 		}
-		if (joined.length() > 70) {
-			ret.add(joined.substring(0, 67) + " ...");
-			Main.userData.addReplMsg(ret.get(ret.size() - 1));
-		}
-		if (ret.isEmpty()) {
-			ret.add(joined);
-			Main.userData.addReplMsg(joined);
-		}
+		
+		// TODO: Sort these so errors are at the top
 		return ret;
 	}
 
-	public void displayResult(final String result, MsgType type) {
-		String traceFreeResult = result.replaceAll("\\s*\\d+>.*?\\n", "").replaceAll("\\s*<\\d+.*?\\n", "");
-		String shortResult = cleanUpMsg(traceFreeResult,
-				((Acl2Parser) definitions.getParser(0)).functions,
-				type).get(0);
-		if (shortResult.startsWith("ACL2 started successfully")) {
-			type = MsgType.INFO;
-		}
+	public JPanel createSummary(String resultText, MsgType type, MouseListener ml) {
 		final JPanel line = new JPanel();
 		line.setPreferredSize(new Dimension(200, 25));
 		line.setMaximumSize(new Dimension(Short.MAX_VALUE, 25));
 		line.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-		JTextArea text = new JTextArea(shortResult.trim());
+		JTextArea text = new JTextArea(resultText.trim());
 		text.setBorder(null);
 		text.setEditable(false);
 		text.setBackground(Color.LIGHT_GRAY);
@@ -430,21 +433,54 @@ public class Repl extends JPanel {
 			status.setForeground(Color.GRAY);
 			text.setForeground(Color.GRAY);
 			break;
+		case WARNING:
+			line.setBackground(ProofBar.WARNING_COLOR);
+			status.setBackground(ProofBar.WARNING_COLOR);
+			break;
 		}
 		text.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 		line.add(text);
-		if (!shortResult.equals(result.trim())) {
+		if (ml != null) {
+			line.addMouseListener(ml);
+			text.addMouseListener(ml);
 			line.add(new JLabel(moreIcon));
-			MouseListener ml = new MouseAdapter() {
+		}
+		return line;
+	}
+	
+	public void displayResult(final String result, MsgType type) {
+		List<Message> msgs = summarize(result, type);
+		String shortResult;
+		if (msgs.isEmpty()) {
+			String joinedMsg = joinString(result);
+			if (joinedMsg.length() > 78) {
+				shortResult = joinedMsg.substring(0, 74) + " ...";
+			} else {
+				shortResult = joinedMsg;
+			}
+		} else {
+			if (msgs.size() > 1) {
+				shortResult = msgs.get(0).msg + "[+ " + (msgs.size() - 1) + "]";
+			} else {
+				type = msgs.get(0).type;
+				shortResult = msgs.get(0).msg;			
+			}
+		}
+		if (shortResult.startsWith("ACL2 started successfully")) {
+			type = MsgType.INFO;
+		}
+
+		MouseListener ml = null;
+		if (!shortResult.equals(result.trim())) {
+			ml = new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
 					// TODO: Highlight the currently selected item and reset it in Runnable after.
 					parent.setPreviewText(result, null);
 				}
 			};
-			line.addMouseListener(ml);
-			text.addMouseListener(ml);
 		}
+		final JPanel line = createSummary(shortResult, type, ml);
 		synchronized (this) {
 			getOutput().add(line);
 		}
