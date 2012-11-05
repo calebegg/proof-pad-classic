@@ -416,6 +416,7 @@ public class ProofBar extends JComponent {
 		acl2.admit(":ubt! " + idx + "\n", Acl2.doNothingCallback);
 		// Enter logic mode
 		acl2.admit(":logic\n", Acl2.doNothingCallback);
+		acl2.admit("(set-ld-redefinition-action nil state)", Acl2.doNothingCallback);
 	}
 
 	/**
