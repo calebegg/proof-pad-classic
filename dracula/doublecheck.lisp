@@ -3,6 +3,7 @@
 (set-state-ok t)
 
 (defconst *default-repeat* 50)
+(defconst *default-limit* 1001)
 
 (defun random-between-fn (low high state)
   (mv-let (random state)
@@ -178,7 +179,7 @@
                       (second args))
                      ((eql (third args) ':limit)
                       (fourth args))
-                     (t 60)))
+                     (t *default-limit*)))
         (vars (cond ((<= (len args) 3) (first args))
                     ((<= (len args) 5) (third args))
                     ((<= (len args) 7) (fifth args))))
