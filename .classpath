@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="rsyntaxtextarea.jar" sourcepath="/Users/calebegg/Downloads/rsyntaxtextarea_2.0.1_Source"/>
-	<classpathentry exported="true" kind="lib" path="OrangeExtensions-1.2.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="OrangeExtensions-1.2.jar"/>
+	<classpathentry kind="lib" path="rsyntaxtextarea.jar"/>
 	<classpathentry kind="lib" path="xstream-1.4.3.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
