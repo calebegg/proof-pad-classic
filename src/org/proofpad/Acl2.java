@@ -15,7 +15,6 @@ import javax.swing.text.Segment;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.proofpad.Repl.MsgType;
 
-
 public class Acl2 extends Thread {
 	public interface RestartListener {
 		public void acl2Restarted();
