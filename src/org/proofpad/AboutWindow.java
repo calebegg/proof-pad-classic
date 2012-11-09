@@ -5,9 +5,15 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import javax.swing.Box;
@@ -159,6 +165,29 @@ public class AboutWindow extends JDialog {
 			licenseTabs.addTab(license.title, textScroller);
 		}
 		add(licenseTabs);
+		
+		String hash = "";
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			InputStream is = new FileInputStream(new File(Main.getJarPath()));
+			byte[] buffer = new byte[1024];
+			int read;
+			do {				
+				read = is.read(buffer);
+				md.update(buffer);
+			} while (read != -1);
+			is.close();
+			for (byte b : md.digest()) {
+				hash += String.format("%02x", b);
+			}
+			hash = hash.substring(0, 5);
+		} catch (NoSuchAlgorithmException e) {
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) { }
+		JLabel versionLabel = new JLabel("Release number: " + Main.RELEASE + ", Release code: " + hash);
+		versionLabel.setFont(versionLabel.getFont().deriveFont(10.0f));
+		versionLabel.setAlignmentX(CENTER_ALIGNMENT);
+		add(versionLabel);
 		
 		add(Box.createVerticalStrut(6));
 		
