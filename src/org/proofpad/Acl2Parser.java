@@ -78,6 +78,7 @@ public class Acl2Parser extends AbstractParser {
 	private Map<CacheKey, CacheSets> cache = Main.cache.getBookCache();
 	private File acl2Dir;
 	private final List<ParseListener> parseListeners = new LinkedList<Acl2Parser.ParseListener>();
+	private final Map<String, Acl2ParserNotice> funcNotices = new HashMap<String, Acl2Parser.Acl2ParserNotice>();
 	
 	public Acl2Parser(File workingDir, File acl2Dir) {
 		this.workingDir = workingDir;
@@ -455,6 +456,7 @@ public class Acl2Parser extends AbstractParser {
 	}
 
 	public class Acl2ParserNotice extends DefaultParserNotice {
+		public String funcName;
 		public Acl2ParserNotice(Acl2Parser parser, String msg, int line, int offs, int len, int level) {
 			super(parser, msg, line, offs, len);
 			//System.out.println("ERROR on line " + line + ": " + msg);
@@ -507,6 +509,13 @@ public class Acl2Parser extends AbstractParser {
 					if (top.name.equals("defun") && top.params.size() == 1) {
 						if (!macros.contains(tokenName) && !functions.contains(tokenName)) {
 							functions.add(tokenName);
+							if (funcNotices.containsKey(tokenName)) {
+								Acl2ParserNotice notice = funcNotices.get(tokenName);
+								notice.setToolTipText(String.format(
+										"<html>The function <b>%s</b> is defined below. Move the " +
+										"definition above this call.</html>",
+										htmlEncode(notice.funcName)));
+							}
 						} else {
 							result.addNotice(new Acl2ParserNotice(this,
 									"A function with this name is already defined", line, token,
@@ -671,9 +680,12 @@ public class Acl2Parser extends AbstractParser {
 							!macros.contains(top.name) &&
 							!isIgnored) {
 						Main.userData.addParseError("undefinedCallable");
-						result.addNotice(new Acl2ParserNotice(this, "<html><b>" +
-							htmlEncode(top.name) + "</b> is undefined.</html>",
-							line, token, ParserNotice.ERROR));
+						Acl2ParserNotice undefinedFuncNotice = new Acl2ParserNotice(this,
+								String.format("<html>The function <b>%s</b> is undefined.</html>",
+										htmlEncode(top.name)), line, token, ParserNotice.ERROR);
+						undefinedFuncNotice.funcName = top.name;
+						funcNotices.put(top.name, undefinedFuncNotice);
+						result.addNotice(undefinedFuncNotice);
 					}
 					if (token.type == Token.RESERVED_WORD ||
 							token.type == Token.RESERVED_WORD_2) {
