@@ -117,6 +117,8 @@ public class Acl2 extends Thread {
 
 	private InfoBar currentInfobar;
 
+	private boolean isRestarting = false;
+
 	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
 	private final static List<Character> markerChars = stringToCharacterList(marker);
 
@@ -157,7 +159,9 @@ public class Acl2 extends Thread {
 							fireRestartEvent();
 							
 							showAcl2TerminatedError();
-							return;
+							synchronized (this) {
+								wait();
+							}
 							//restart();
 						} catch (IllegalThreadStateException e) { }
 						backoff = Math.min(backoff + 1, 12); // Maxes out at about 4 seconds.
@@ -194,7 +198,7 @@ public class Acl2 extends Thread {
 					if (in.ready()) {
 						backoff = 0;
 						char c = (char) in.read();
-//						System.out.print(c);
+						//System.out.print(c);
 						buffer.add(c);
 						if (buffer.size() > 100) {
 							buffer.remove(0);
@@ -216,14 +220,12 @@ public class Acl2 extends Thread {
 									acl2IsSlowShown = false;
 								}
 								String response = sb.toString().substring(0, sb.length() - p.size());
-								if (outputQueue.size() > 0 && !response.contains("DEFUN __TRACE-")) {
+								if (outputQueue.size() > 0) {
 									fullSuccess &= !errorOccured;
 									fullOutput += response;
 								}
-								if (!response.contains("DEFUN __TRACE-")) {
-									outputQueue.add(new OutputEvent(response,
-											errorOccured ? Repl.MsgType.ERROR : Repl.MsgType.SUCCESS));
-								}
+								outputQueue.add(new OutputEvent(response,
+										errorOccured ? Repl.MsgType.ERROR : Repl.MsgType.SUCCESS));
 								if (errorOccured) {
 									//Main.userData.addAcl2Error(response);
 								}
@@ -250,6 +252,7 @@ public class Acl2 extends Thread {
 		}
 	}
 	private void showAcl2TerminatedError() {
+		if (isRestarting) return;
 		fireErrorEvent("ACL2 has terminated.", new InfoButton[] { new InfoButton("Restart",
 				new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
@@ -351,10 +354,6 @@ public class Acl2 extends Thread {
 	}
 	
 	public void admit(String code, Callback callback) {
-		admit(code, callback, false);
-	}
-	
-	private void admit(String code, Callback callback, boolean trace) {
 		if (out == null) return;
 		lastAdmittedTimestamp = System.currentTimeMillis();
 		code = code + '\n';
@@ -392,15 +391,11 @@ public class Acl2 extends Thread {
 			if (initializing) {
 				numInitExps++;
 			}
-			if (!current.contains("__trace") || trace) {
-				callbacks.add(callback);
-			}
+			callbacks.add(callback);
 			current = current.replaceAll("\\(q\\)", ":q\n"); // The only :command that has no function equivalent
 			try {
 				out.write(current + "\n");
-				if (!current.contains("__trace") || trace) {
-					out.write("(cw \"" + marker + "\")\n");
-				}
+				out.write("(cw \"" + marker + "\")\n");
 			} catch (IOException e) { }
 		}
 		synchronized (this) {
@@ -415,12 +410,19 @@ public class Acl2 extends Thread {
 		}
 		return r;
 	}
+
 	public void restart() throws IOException {
+		isRestarting = true;
 		backoff = 0;
 		terminate();
 		initialize();
+		synchronized (this) {
+			notify();
+		}
 		fireRestartEvent();
+		isRestarting = false;
 	}
+
 	private void fireRestartEvent() {
 		for (RestartListener l : restartListeners) {
 			l.acl2Restarted();
@@ -436,10 +438,18 @@ public class Acl2 extends Thread {
 //				out.flush();
 //			} catch (IOException e) { }
 		}
+		new Thread(new Runnable() {
+			@Override public void run() {
+				try {
+					sleep(5000);
+				} catch (InterruptedException e) { }
+				Acl2.this.interrupt();
+			}
+		}).start();
 		try {
 			acl2.waitFor();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			acl2.destroy();
 		}
 	}
 	
@@ -480,9 +490,6 @@ public class Acl2 extends Thread {
 	}
 	public void undo() {
 		admit(":u\n", doNothingCallback);		
-	}
-	public void trace(String inputText, Callback callback) {
-		admit(inputText, callback, true);
 	}
 	public String getAcl2Path() {
 		return acl2Path;
