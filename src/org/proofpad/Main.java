@@ -53,6 +53,11 @@ public class Main {
 	public static final String displayName = "Proof Pad";
 	public static final int RELEASE = 2;
 	public static final Border WINDOW_BORDER = BorderFactory.createEmptyBorder(4, 4, 4, 4);
+	public static final boolean OSX = System.getProperty("os.name").indexOf("Mac") != -1;
+	public static final boolean WIN =
+	System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
+	public static final boolean JAVA_7 = System.getProperty("java.version").startsWith("1.7");
+	
 	private static String userDataPath = new File(getJarPath()).getParent() +
 			System.getProperty("file.separator") +
 			"user_data.dat";
@@ -323,8 +328,4 @@ public class Main {
 			}
 		}).start();
 	}
-
-	public static final boolean OSX = System.getProperty("os.name").indexOf("Mac") != -1;
-	public static final boolean WIN =
-	System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
 }

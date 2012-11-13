@@ -83,6 +83,8 @@ import org.proofpad.Repl.MsgType;
 
 
 public class IdeWindow extends JFrame {
+	static final Color activeToolbar = new Color(.8627f, .8627f, .8627f);
+	static final Color inactiveToolbar = new Color(.9529f, .9529f, .9529f);
 	public static final Color transparent = new Color(1f, 1f, 1f, 0f);
 	static JFileChooser fc = new JFileChooser();
 	static {
@@ -208,7 +210,7 @@ public class IdeWindow extends JFrame {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		editorScroller.setBorder(BorderFactory.createEmptyBorder());
 		editorScroller.setViewportBorder(BorderFactory.createEmptyBorder());
-		this.getRootPane().setBorder(BorderFactory.createEmptyBorder());
+		getRootPane().setBorder(BorderFactory.createEmptyBorder());
 		splitTop.add(editorScroller, BorderLayout.CENTER);
 
 		prefs = Preferences.userNodeForPackage(Main.class);
@@ -484,11 +486,7 @@ public class IdeWindow extends JFrame {
 		findBar.setLayout(new BoxLayout(findBar, BoxLayout.X_AXIS));
 		findBar.setBorder(InfoBar.INFO_BAR_BORDER);
 		findBar.setBackground(InfoBar.INFO_BAR_COLOR);
-		if (Main.OSX) {
-			// TODO: make this look more like safari?
-			// findBar.add(Box.createGlue());
-			// searchField.setPreferredSize(new Dimension(300, 0));
-		} else {
+		if (!Main.OSX) {
 			findBar.add(new JLabel("Find: "));
 		}
 		searchField.addActionListener(new ActionListener() {
@@ -551,6 +549,9 @@ public class IdeWindow extends JFrame {
 		findBar.add(done);
 		
 		toolbar = new Toolbar(this);
+		if (Main.OSX && Main.JAVA_7) {
+			toolbar.setBackground(activeToolbar);
+		}
 		menuBar = new MenuBar(this);
 		splitMain.add(toolbar, BorderLayout.NORTH);
 		setJMenuBar(menuBar);
@@ -665,16 +666,20 @@ public class IdeWindow extends JFrame {
 			@Override
 			public void windowActivated(WindowEvent arg0) {
 				proofBar.repaint();
+				// TODO: Remove these setBackground calls if this bug is ever fixed:
+				// http://java.net/jira/browse/MACOSX_PORT-775
+				if (Main.JAVA_7) toolbar.setBackground(activeToolbar);
+			}
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+				proofBar.repaint();
+				if (Main.JAVA_7) toolbar.setBackground(inactiveToolbar);
 			}
 			@Override
 			public void windowClosing(WindowEvent arg0) {
 				if (that.promptIfUnsavedAndClose()) {
 					updateWindowMenu();
 				}
-			}
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-				proofBar.repaint();
 			}
 			@Override
 			public void windowOpened(WindowEvent arg0) {
