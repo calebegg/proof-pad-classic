@@ -213,9 +213,13 @@ public class Main {
 			public void run() {
 				logtime("Start creating main window");
 				final Preferences prefs = Preferences.userNodeForPackage(Main.class);
-				IdeWindow win = new IdeWindow();
-				startingUp = false;
-				win.setVisible(true);
+				if (IdeWindow.windows.isEmpty()) {
+					IdeWindow win = new IdeWindow();
+					startingUp = false;
+					win.setVisible(true);
+				} else {
+					startingUp = false;
+				}
 				logtime("Main window visible");
 				Date now = new Date();
 				Date oneWeekAgo = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
