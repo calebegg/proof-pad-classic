@@ -497,6 +497,7 @@ public class Acl2Parser extends AbstractParser {
 			token = doc.getTokenListForLine(line);
 			while (token != null && token.isPaintable()) {
 				ParseToken top = (s.empty() ? null : s.peek());
+				String tokenName = token.getLexeme().toLowerCase();
 				if (top != null && top.name != null && !token.isWhitespace() &&
 						!token.isComment() && !token.isSingleChar(')') &&
 						!token.isSingleChar('`') && !token.isSingleChar(',') &&
@@ -504,18 +505,36 @@ public class Acl2Parser extends AbstractParser {
 					// In a parameter position.
 					top.params.add(token.getLexeme());
 					if (top.name.equals("defun") && top.params.size() == 1) {
-						functions.add(token.getLexeme().toLowerCase());
+						if (!macros.contains(tokenName) && !functions.contains(tokenName)) {
+							functions.add(tokenName);
+						} else {
+							result.addNotice(new Acl2ParserNotice(this,
+									"A function with this name is already defined", line, token,
+									ParserNotice.ERROR));
+						}
 					} else if ((top.name.equals("defmacro") || top.name.equals("defabbrev")) &&
 							top.params.size() == 1) {
-						macros.add(token.getLexeme());
+						if (!functions.contains(tokenName) && !macros.contains(tokenName)) {
+							macros.add(tokenName);
+						} else {
+							result.addNotice(new Acl2ParserNotice(this,
+									"A function with this name is already defined", line, token,
+									ParserNotice.ERROR));
+						}
 					} else if (top.name.equals("defconst") && top.params.size() == 1) {
-						constants.add(token.getLexeme());
-						String constName = token.getLexeme();
-						if (!constName.startsWith("*") || !constName.endsWith("*")) {
+						if (!tokenName.startsWith("*") || !tokenName.endsWith("*")) {
 							Main.userData.addParseError("constNames");
 							result.addNotice(new Acl2ParserNotice(this, 
 									"Constant names must begin and end with *.", line, token,
 									ParserNotice.ERROR));
+						} else {
+							if (!constants.contains(tokenName)) {
+								constants.add(tokenName);
+							} else {
+								result.addNotice(new Acl2ParserNotice(this,
+										"A constant with this name is already defined", line, token,
+										ParserNotice.ERROR));
+							}
 						}
 					}
 				}
