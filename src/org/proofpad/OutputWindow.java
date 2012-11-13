@@ -47,7 +47,7 @@ public class OutputWindow extends JFrame {
 		JButton closeButton = new JButton("Close");
 		closeButton.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				setVisible(false);
+				hideWindow();
 			}
 		});
 		bottom.add(closeButton);
@@ -91,6 +91,8 @@ public class OutputWindow extends JFrame {
 	
 	public void hideWindow() {
 		setVisible(false);
+		afterPreview.run();
+		afterPreview = null;
 	}
 
 }
