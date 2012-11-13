@@ -321,8 +321,7 @@ public class Acl2 extends Thread {
 			try {
 				acl2 = processBuilder.start();
 			} catch (IOException e) {
-				System.out.println("ACL2 failed at: " + maybeAcl2Path);
-				e.printStackTrace();
+				// Try the next path
 				continue;
 			}
 			acl2Path = maybeAcl2Path;

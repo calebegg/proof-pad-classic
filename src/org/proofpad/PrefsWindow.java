@@ -470,7 +470,7 @@ public class PrefsWindow extends JFrame {
 	}
 
 	private static Font getPrefFont() {
-		int fontSize = prefs.getInt("fontsize", 12);
+		int fontSize = Prefs.fontSize.get();
 		String defaultFamily;
 		if (Main.OSX) {
 			defaultFamily = "Monaco";

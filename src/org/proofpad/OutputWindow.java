@@ -67,6 +67,7 @@ public class OutputWindow extends JFrame {
 
 	public void showWithText(String output, Runnable after) {
 		JTextArea textComp = new JTextArea(output);
+		textComp.setFont(Prefs.font.get());
 		textComp.setEditable(false);
 		textComp.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		if (afterPreview != null) afterPreview.run();
