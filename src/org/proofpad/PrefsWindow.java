@@ -221,12 +221,22 @@ public class PrefsWindow extends JFrame {
 		c.gridx = 1;
 		final String[] opts = { "Ask every time", "Always send", "Never send" };
 		final JComboBox usageData = new JComboBox(opts);
-		usageData.setSelectedIndex(prefs.getInt("alwaysSend", 0));
+		usageData.setSelectedIndex(Prefs.alwaysSend.get());
 		usageData.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO: Clean this up, use constants.
-				prefs.putInt("alwaysSend", usageData.getSelectedIndex());
+				switch (usageData.getSelectedIndex()) {
+				case 0:
+					Prefs.alwaysSend.set(Prefs.Codes.ASK_EVERY_TIME);
+					break;
+				case 1:
+					Prefs.alwaysSend.set(Prefs.Codes.ALWAYS_SEND);
+					break;
+				case 2:
+					Prefs.alwaysSend.set(Prefs.Codes.NEVER_SEND);
+					break;
+				}
+				Prefs.alwaysSend.set(usageData.getSelectedIndex());
 			}
 		});
 		add(usageData, c);
