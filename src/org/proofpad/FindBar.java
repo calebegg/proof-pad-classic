@@ -3,8 +3,8 @@ package org.proofpad;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -32,8 +32,7 @@ public class FindBar extends JPanel {
 		final JTextField searchField = new JTextField();
 		findAction = new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			@Override public void actionPerformed(ActionEvent e) {
 				if (!findBarIsOpen) {
 					findBarIsOpen = true;
 					window.setInfoBar(FindBar.this);
@@ -53,25 +52,18 @@ public class FindBar extends JPanel {
 			add(new JLabel("Find: "));
 		}
 		searchField.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			@Override public void actionPerformed(ActionEvent arg0) {
 				searchFor(searchField.getText(), Direction.DOWN);
 			}
 		});
-		searchField.addKeyListener(new KeyListener() {
-			@Override
-			public void keyPressed(KeyEvent e) {
+		searchField.addKeyListener(new KeyAdapter() {
+			@Override public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 					findAction.actionPerformed(null);
 				}
 			}
-			
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-			}
-			
-			@Override
-			public void keyTyped(KeyEvent e) {
+
+			@Override public void keyTyped(KeyEvent e) {
 				char c = e.getKeyChar();
 				if (c == KeyEvent.CHAR_UNDEFINED || c == '\n' || c == '\b'
 						|| e.isAltDown() || e.isMetaDown() || e.isControlDown()) {
@@ -87,15 +79,13 @@ public class FindBar extends JPanel {
 		add(searchField);
 		JButton forward = new JButton(new ImageIcon(getClass().getResource("/media/find_down.png")));
 		forward.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			@Override public void actionPerformed(ActionEvent e) {
 				searchFor(searchField.getText(), Direction.DOWN);
 			}
 		});
 		JButton back = new JButton(new ImageIcon(getClass().getResource("/media/find_up.png")));
 		back.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			@Override public void actionPerformed(ActionEvent e) {
 				searchFor(searchField.getText(), Direction.UP);
 			}
 		});

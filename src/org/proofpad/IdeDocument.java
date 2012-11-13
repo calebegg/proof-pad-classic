@@ -11,7 +11,7 @@ import org.fife.ui.rsyntaxtextarea.Token;
 
 public class IdeDocument extends RSyntaxDocument {
 	private static final long serialVersionUID = 7048788640273203918L;
-	private ProofBar pb;
+	private final ProofBar pb;
 	class IndentToken {
 		public final String name;
 		public final int offset;
@@ -24,13 +24,11 @@ public class IdeDocument extends RSyntaxDocument {
 			this.type = type;
 			this.parent = parent;
 		}
-		@Override
-		public String toString() {
+		@Override public String toString() {
 			return "<" + name + ", " + offset + ", " + params + ">";
 		}
 	}
-	@Override
-	public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+	@Override public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
 		// Auto indentation
 		if (str.endsWith("\n")) {
 			boolean waitingForName = false;
@@ -129,8 +127,7 @@ public class IdeDocument extends RSyntaxDocument {
 			if (pb != null) pb.flashAt(offs);
 		}
 	}
-	@Override
-	public void remove(int offs, int len) throws BadLocationException {
+	@Override public void remove(int offs, int len) throws BadLocationException {
 		if (pb == null || offs > pb.getReadOnlyIndex()) {
 			super.remove(offs, len);
 		} else {

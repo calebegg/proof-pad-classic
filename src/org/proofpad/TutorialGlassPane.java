@@ -16,20 +16,17 @@ final class TutorialGlassPane extends JComponent {
 		window = ideWindow;
 		setVisible(false);
 		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
+			@Override public void mouseClicked(MouseEvent e) {
 				setVisible(false);
 			}
 		});
 	}
 
-	@Override
-	public boolean contains(int x, int y) {
+	@Override public boolean contains(int x, int y) {
 		return y > window.toolbar.getHeight();
 	}
 
-	@Override
-	public void paintComponent(Graphics g) {
+	@Override public void paintComponent(Graphics g) {
 		// More opaque over areas we want to write on
 		g.setColor(new Color(.95f, .95f, .95f, .7f));
 		g.fillRect(window.proofBar.getWidth() + 2, window.toolbar.getHeight(), getWidth(),

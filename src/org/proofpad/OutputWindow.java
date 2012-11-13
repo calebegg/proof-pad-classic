@@ -33,7 +33,7 @@ public class OutputWindow extends JFrame {
 		getRootPane().putClientProperty("Window.style", "small");
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		this.ideWindow = ideWindow;
-		this.setVisible(false);
+		setVisible(false);
 		getRootPane().setBorder(BorderFactory.createEmptyBorder());
 		getRootPane().setLayout(new BorderLayout());
 		JPanel bottom = new JPanel();

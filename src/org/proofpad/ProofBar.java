@@ -44,8 +44,7 @@ public class ProofBar extends JComponent {
 		public int getHeight() {
 			return pixelHeight(exp);
 		}
-		@Override
-		public String toString() {
+		@Override public String toString() {
 			return "<" + getHeight() + ", " + output.replace('\n', ' ').substring(0, Math.min(10, output.length())) + ">";
 		}
 	}
@@ -121,8 +120,7 @@ public class ProofBar extends JComponent {
 		mb.updateWith(data);
 		setCursor(HAND);
 		acl2.addRestartListener(new Acl2.RestartListener() {
-			@Override
-			public void acl2Restarted() {
+			@Override public void acl2Restarted() {
 				numProved = 0;
 				numProving = 0;
 				admissionIndices.clear();
@@ -132,8 +130,7 @@ public class ProofBar extends JComponent {
 		setPreferredSize(new Dimension(width, 0));
 		setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
 		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
+			@Override public void mouseClicked(MouseEvent e) {
 				if (numProving > 0) {
 					return;
 				}
@@ -189,24 +186,20 @@ public class ProofBar extends JComponent {
 				error = false;
 				repaint();
 			}
-			@Override
-			public void mouseEntered(MouseEvent e) {
+			@Override public void mouseEntered(MouseEvent e) {
 				hover = true;
 				repaint();
 			}
-			@Override
-			public void mouseExited(MouseEvent e) {
+			@Override public void mouseExited(MouseEvent e) {
 				hover = false;
 				repaint();
 			}
 		});
 		addMouseMotionListener(new MouseMotionListener() {
-			@Override
-			public void mouseDragged(MouseEvent e) {
+			@Override public void mouseDragged(MouseEvent e) {
 				mouseMoved(e);
 			}
-			@Override
-			public void mouseMoved(MouseEvent e) {
+			@Override public void mouseMoved(MouseEvent e) {
 				int begin = 0;
 				for (Expression ex : expressions) {
 					int height = pixelHeight(ex);
@@ -230,8 +223,7 @@ public class ProofBar extends JComponent {
 	}
 	
 
-	@Override
-	protected void paintComponent(Graphics gOld) {
+	@Override protected void paintComponent(Graphics gOld) {
 		// TODO: Draw warnings
 		Graphics2D g = (Graphics2D) gOld;
 		Rectangle clipBounds = g.getClipBounds();
@@ -348,7 +340,7 @@ public class ProofBar extends JComponent {
 
 	public void setLineHeight(int lineHeight) {
 		ProofBar.lineHeight = lineHeight;
-		this.repaint();
+		repaint();
 	}
 	
 	public void adjustHeights(java.util.LinkedList<Expression> newExps) {
@@ -439,8 +431,7 @@ public class ProofBar extends JComponent {
 			return;
 		}
 		acl2.admit(tried.contents, new Acl2.Callback() {
-			@Override
-			public boolean run(final boolean outerSuccess, String response) {
+			@Override public boolean run(final boolean outerSuccess, String response) {
 				setExpData(tried, outerSuccess, response);
 				if (!outerSuccess) {
 					proofCallback(outerSuccess);
@@ -448,8 +439,7 @@ public class ProofBar extends JComponent {
 				}
 				// Get the index
 				acl2.admit(":pbt :here", new Acl2.Callback() {
-					@Override
-					public boolean run(boolean s, String r) {
+					@Override public boolean run(boolean s, String r) {
 						int idx = -1;
 						try {
 							idx = Integer.parseInt(r.substring(4, r.length()).split(":")[0].trim());
@@ -522,8 +512,7 @@ public class ProofBar extends JComponent {
 		flashIndex = offs;
 		flashPhase = 1;
 		flashTimeout = new Runnable() {
-			@Override
-			public void run() {
+			@Override public void run() {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) { return; }
@@ -598,8 +587,7 @@ public class ProofBar extends JComponent {
 				ue.status = Status.UNTRIED;
 				ue.hash = ex.contents.hashCode();
 				acl2.admit(ex.contents, new Acl2.Callback() {
-					@Override
-					public boolean run(boolean success, String response) {
+					@Override public boolean run(boolean success, String response) {
 						setExpData(ex, success, response);
 						if (lastExp) {
 							alreadyShownAnError = false;

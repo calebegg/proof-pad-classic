@@ -63,7 +63,6 @@ import org.proofpad.InfoBar.InfoButton;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
 
-
 public class IdeWindow extends JFrame {
 	static final Color activeToolbar = new Color(.8627f, .8627f, .8627f);
 	static final Color inactiveToolbar = new Color(.9529f, .9529f, .9529f);
@@ -482,7 +481,7 @@ public class IdeWindow extends JFrame {
 			}
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-				if (IdeWindow.this.promptIfUnsavedAndClose()) {
+				if (promptIfUnsavedAndClose()) {
 					updateWindowMenu();
 				}
 			}
@@ -711,7 +710,7 @@ public class IdeWindow extends JFrame {
 
 	public void setSaved(boolean isSaved) {
 		this.isSaved = isSaved;
-		this.getRootPane().putClientProperty("Window.documentModified",
+		getRootPane().putClientProperty("Window.documentModified",
 				!isSaved);
 		saveButton.setEnabled(!isSaved);
 		menuBar.saveItem.setEnabled(!isSaved);

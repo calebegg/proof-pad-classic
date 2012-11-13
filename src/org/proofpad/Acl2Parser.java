@@ -82,7 +82,7 @@ public class Acl2Parser extends AbstractParser {
 	
 	public Acl2Parser(File workingDir, File acl2Dir) {
 		this.workingDir = workingDir;
-		this.setAcl2Dir(acl2Dir);
+		setAcl2Dir(acl2Dir);
 	}
 
 	private static Map<String, Range> paramCounts = new HashMap<String, Range>();

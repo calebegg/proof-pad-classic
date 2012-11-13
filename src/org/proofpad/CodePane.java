@@ -35,6 +35,58 @@ import org.fife.ui.rtextarea.RUndoManager;
 
 public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
+	private final class LookUpListener implements ActionListener {
+		public LookUpListener() {
+			super();
+		}
+
+		@Override public void actionPerformed(ActionEvent e) {
+			// First, check for a visible tooltip.
+		    ToolTipManager ttManager = ToolTipManager.sharedInstance();
+		    boolean tipShowing = false;
+		    int loc = -1;
+		    try {
+		    	Field f = ttManager.getClass().getDeclaredField("tipShowing");
+		    	f.setAccessible(true);
+		    	tipShowing = f.getBoolean(ttManager);
+		    } catch (Exception ex) {
+		    }
+		    if (tipShowing) {
+		    	Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
+		    	Point compLoc = getLocationOnScreen();
+				loc = viewToModel(new Point(mouseLoc.x - compLoc.x, mouseLoc.y - compLoc.y));
+		    } else {
+		    	loc = getCaretPosition();
+		    }
+		    if (loc == -1) {
+		    	return;
+		    }
+		    int line = 0;
+		    try {
+		    	line = getLineOfOffset(loc);
+		    } catch (BadLocationException e1) { }
+		    Token t = getTokenListForLine(line);
+		    while (t != null && t.textOffset + t.textCount < loc) {
+		    	t = t.getNextToken();
+		    }
+		    if (t != null) {
+		    	String name;
+		    	try {
+		    		name = t.getLexeme();
+		    	} catch (NullPointerException ex) {
+		    		return;
+		    	}
+		    	if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
+		    		try {
+		    			Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
+		    					+ name.toUpperCase() + ".html"));
+		    		} catch (IOException e1) {
+		    		} catch (URISyntaxException e1) { }
+		    	}
+		    }
+		}
+	}
+
 	public interface UndoManagerCreatedListener {
 		public void undoManagerCreated(UndoManager undoManager);
 	}
@@ -44,7 +96,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	private static final String[] welcomeMessage =
 		{"See Help > Tutorial for a basic overview."};
 	private ProofBar pb;
-	private List<Rectangle> fullMatch = new ArrayList<Rectangle>();
+	private final List<Rectangle> fullMatch = new ArrayList<Rectangle>();
 	int widthGuide = -1;
 	private UndoManagerCreatedListener undoManagerCreatedListener;
 	private RUndoManager undoManager;
@@ -69,57 +121,9 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		setBorder(BorderFactory.createEmptyBorder(0, leftMargin, 0, 0));
 		setTabSize(4);
 		setBackground(IdeWindow.transparent);
-		lookUpAction = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// First, check for a visible tooltip.
-		        ToolTipManager ttManager = ToolTipManager.sharedInstance();
-		        boolean tipShowing = false;
-		        int loc = -1;
-		        try {
-		        	Field f = ttManager.getClass().getDeclaredField("tipShowing");
-		        	f.setAccessible(true);
-		        	tipShowing = f.getBoolean(ttManager);
-		        } catch (Exception ex) {
-		        }
-		        if (tipShowing) {
-		        	Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
-		        	Point compLoc = getLocationOnScreen();
-					loc = viewToModel(new Point(mouseLoc.x - compLoc.x, mouseLoc.y - compLoc.y));
-		        } else {
-		        	loc = getCaretPosition();
-		        }
-		        if (loc == -1) {
-		        	return;
-		        }
-		        int line = 0;
-		        try {
-		        	line = getLineOfOffset(loc);
-		        } catch (BadLocationException e1) { }
-		        Token t = getTokenListForLine(line);
-		        while (t != null && t.textOffset + t.textCount < loc) {
-		        	t = t.getNextToken();
-		        }
-		        if (t != null) {
-		        	String name;
-		        	try {
-		        		name = t.getLexeme();
-		        	} catch (NullPointerException ex) {
-		        		return;
-		        	}
-		        	if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
-		        		try {
-		        			Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
-		        					+ name.toUpperCase() + ".html"));
-		        		} catch (IOException e1) {
-		        		} catch (URISyntaxException e1) { }
-		        	}
-		        }
-			}
-		};
+		lookUpAction = new LookUpListener();
 		addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
+			@Override public void keyPressed(KeyEvent e) {
 				if (pb == null) return;
 				if (Main.OSX && e.isAltDown() && e.isMetaDown()
 						&& (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_UP)) {
@@ -173,8 +177,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 				}
 			}
 			
-			@Override
-			public void keyReleased(KeyEvent e) {
+			@Override public void keyReleased(KeyEvent e) {
 				if (pb == null) return;
 				if (pb.getReadOnlyIndex() >= 0
 						&& getCaretPosition() < pb.getReadOnlyIndex() + 2) {
@@ -187,8 +190,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
 	}
 	
-	@Override
-	public void paintComponent(Graphics g) {
+	@Override public void paintComponent(Graphics g) {
 		int readOnlyHeight = (pb == null ? 0 : pb.readOnlyHeight);
 		// Paint read-write background
 		g.setColor(Color.WHITE);
@@ -290,14 +292,12 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		repaint();
 	}
 	
-	@Override
-	protected void fireCaretUpdate(CaretEvent e) {
+	@Override protected void fireCaretUpdate(CaretEvent e) {
 		super.fireCaretUpdate(e);
 		highlightBracketMatch();
 	}
 	
-	@Override
-	public Iterator<Token> iterator() {
+	@Override public Iterator<Token> iterator() {
 		final CodePane that = this;
 		Iterator<Token> it = new Iterator<Token>() {
 			int line = -1;
@@ -305,13 +305,11 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 			Token token = null;
 			boolean first = true;
 
-			@Override
-			public boolean hasNext() {
+			@Override public boolean hasNext() {
 				return first || token != null && token.type != Token.NULL;
 			}
 
-			@Override
-			public Token next() {
+			@Override public Token next() {
 				first = false;
 				if (token != null) {
 					token = token.getNextToken();
@@ -327,16 +325,14 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 				return token;
 			}
 
-			@Override
-			public void remove() {
+			@Override public void remove() {
 				throw new RuntimeException();
 			}	
 		};
 		return it;
 	}
 	
-	@Override
-	protected RUndoManager createUndoManager() {
+	@Override protected RUndoManager createUndoManager() {
 		undoManager = new RUndoManager(this);
 		if (undoManagerCreatedListener != null) {
 			undoManagerCreatedListener.undoManagerCreated(undoManager);
@@ -346,7 +342,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
 	public void setUndoManagerCreatedListener(
 			UndoManagerCreatedListener umcl) {
-		this.undoManagerCreatedListener = umcl;
+		undoManagerCreatedListener = umcl;
 		if (undoManager != null) {
 			umcl.undoManagerCreated(undoManager);
 		}

@@ -41,8 +41,11 @@ import org.proofpad.SExpUtils.ExpType;
 public class Repl extends JPanel {
 
 	private final class ReplKeyListener extends KeyAdapter {
-		@Override
-		public void keyPressed(KeyEvent e) {
+		public ReplKeyListener() {
+			super();
+		}
+
+		@Override public void keyPressed(KeyEvent e) {
 			maybeEnableButtons();
 			if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.getText().equals("")) {
 				// Prevent that awful backspace beep.
@@ -100,8 +103,7 @@ public class Repl extends JPanel {
 			}
 		}
 
-		@Override
-		public void keyTyped(KeyEvent e) {
+		@Override public void keyTyped(KeyEvent e) {
 			adjustBottomHeight();
 			maybeEnableButtons();
 		}
@@ -213,8 +215,7 @@ public class Repl extends JPanel {
 		add(split, BorderLayout.CENTER);
 		acl2 = newAcl2;
 		acl2.setOutputEventListener(new Acl2.OutputEventListener() {
-			@Override
-			public void handleOutputEvent(OutputEvent e) {
+			@Override public void handleOutputEvent(OutputEvent e) {
 				displayResult(e.output, e.type);
 			}
 		});
@@ -239,8 +240,7 @@ public class Repl extends JPanel {
 		input = new CodePane(null);
 		input.setDocument(new IdeDocument(null));
 		prompt.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
+			@Override public void mouseClicked(MouseEvent arg0) {
 				input.requestFocus();
 			}
 		});
@@ -252,8 +252,7 @@ public class Repl extends JPanel {
 		run = new JButton("run");
 		run.setEnabled(false);
 		run.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
+			@Override public void actionPerformed(ActionEvent event) {
 				runInputCode();
 				Main.userData.addUse("runButton", false);
 			}
@@ -474,8 +473,7 @@ public class Repl extends JPanel {
 		MouseListener ml = null;
 		if (!shortResult.equals(result.trim())) {
 			ml = new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent arg0) {
+				@Override public void mouseClicked(MouseEvent arg0) {
 					// TODO: Highlight the currently selected item and reset it in Runnable after.
 					parent.outputWindow.showWithText(result, null);
 				}
@@ -486,8 +484,7 @@ public class Repl extends JPanel {
 			getOutput().add(line);
 		}
 		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
+			@Override public void run() {
 				line.scrollRectToVisible(new Rectangle(line.getLocation(), line.getSize()));
 				vertical.setValue(vertical.getMaximum());
 			}
@@ -495,8 +492,7 @@ public class Repl extends JPanel {
 	}
 	
 
-	@Override
-	public void setFont(Font f) {
+	@Override public void setFont(Font f) {
 		super.setFont(f);
 		if (fontChangeList == null) return;
 		synchronized (fontChangeList) {
@@ -519,8 +515,7 @@ public class Repl extends JPanel {
 
 	void maybeEnableButtons() {
 		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
+			@Override public void run() {
 				boolean enable = input.getLastVisibleOffset() != 0;
 				run.setEnabled(enable);
 			}
