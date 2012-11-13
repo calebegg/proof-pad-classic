@@ -37,7 +37,7 @@ public class Toolbar extends JPanel {
 		JButton button;
 		button = new JButton(new ImageIcon(getClass().getResource("/media/open.png")));
 		button.setToolTipText("Open a file for editing. (" + modKeyStr + "O)");
-		button.addActionListener(IdeWindow.openAction);
+		button.addActionListener(OpenAction.instance);
 		button.addActionListener(new UserData.LogUse("openButton"));
 		button.putClientProperty("JButton.buttonType", "textured");
 		add(button);

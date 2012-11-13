@@ -66,4 +66,5 @@ public class Prefs {
 			fontSize.set(val.getSize());
 		}
 	};
+	protected static final BooleanPref incSearch = new BooleanPref("incsearch", true);
 }

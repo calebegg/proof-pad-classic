@@ -344,7 +344,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		return undoManager;
 	}
 
-	public void SetUndoManagerCreatedListener(
+	public void setUndoManagerCreatedListener(
 			UndoManagerCreatedListener umcl) {
 		this.undoManagerCreatedListener = umcl;
 		if (undoManager != null) {

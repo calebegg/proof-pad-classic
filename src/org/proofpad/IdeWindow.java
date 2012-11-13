@@ -6,8 +6,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -20,9 +18,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -34,7 +29,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -42,46 +36,32 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.prefs.Preferences;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.text.BadLocationException;
 import javax.swing.undo.UndoManager;
 
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rtextarea.Gutter;
-import org.fife.ui.rtextarea.SearchContext;
-import org.fife.ui.rtextarea.SearchEngine;
 import org.proofpad.Acl2.ErrorListener;
 import org.proofpad.InfoBar.InfoButton;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
-
-//import com.apple.eawt.FullScreenUtilities;
-
-//import com.apple.eawt.FullScreenAdapter;
-//import com.apple.eawt.AppEvent.FullScreenEvent;
-//import com.apple.eawt.FullScreenUtilities;
 
 
 public class IdeWindow extends JFrame {
@@ -102,38 +82,6 @@ public class IdeWindow extends JFrame {
 			}
 		});
 	}
-	public static final ActionListener openAction = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			File file;
-			if (Main.OSX) {
-				FileDialog fd = new FileDialog((Frame)null, "Open file");
-				fd.setFilenameFilter(new FilenameFilter() {
-					@Override
-					public boolean accept(File dir, String name) {
-						return name.endsWith(".lisp") || name.endsWith(".lsp")
-								|| name.endsWith(".acl2");
-					}
-				});
-				fd.setVisible(true);
-				String filename = fd.getFile();
-				file = filename == null ? null : new File(fd.getDirectory(), filename);
-			} else {
-				int response = fc.showOpenDialog(null);
-				file = response == JFileChooser.APPROVE_OPTION ? fc.getSelectedFile() : null;
-			}
-			if (file != null) {
-				IdeWindow window = new IdeWindow(file);
-				if (windows.size() == 1 &&
-						windows.get(0).isSaved &&
-						windows.get(0).openFile == null) {
-					windows.get(0).promptIfUnsavedAndClose();
-				}
-				window.setVisible(true);
-			}
-		}
-	};
-
 	private static final long serialVersionUID = -7435370608709935765L;
 	private static final int WINDOW_GAP = 10;
 	public static PrefsWindow prefsWindow = null;
@@ -191,7 +139,7 @@ public class IdeWindow extends JFrame {
 
 	public IdeWindow(File file) {
 		super();
-		//FullScreenUtilities.setWindowCanFullScreen(this, true);
+//		FullScreenUtilities.setWindowCanFullScreen(this, true);
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", true);
 		
 		windows.add(this);
@@ -394,79 +342,11 @@ public class IdeWindow extends JFrame {
 		reindentAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				int beginLine, endLine;
-				try {
-					beginLine = editor.getLineOfOffset(editor.getSelectionStart());
-					endLine = editor.getLineOfOffset(editor.getSelectionEnd());
-				} catch (BadLocationException e) {
-					return;
-				}
-				for (int line = beginLine; line <= endLine; line++) {
-					int offset;
-					try {
-						offset = editor.getLineStartOffset(line);
-					} catch (BadLocationException e) {
-						return;
-					}
-					int eolLen = 1;
-					try {
-						String lineStr = editor.getText(offset, editor.getLineEndOffset(line)
-								- offset);
-						Matcher whitespace = Pattern.compile("^[ \t]*").matcher(lineStr);
-						whitespace.find();
-						int whitespaceLen = whitespace.group().length();
-						
-						doc.remove(offset - eolLen, eolLen + whitespaceLen);
-						doc.insertString(offset - eolLen, "\n", null);
-					} catch (BadLocationException e) { }
-				}
+				Utils.reindent(editor);
 			}
 		};
 
-		setGlassPane(new JComponent() {
-			{
-				setVisible(false);
-				addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						setVisible(false);
-					}
-				});
-			}
-			private static final long serialVersionUID = 1L;
-			@Override
-			public boolean contains(int x, int y) {
-				return y > toolbar.getHeight();
-			}
-			@Override
-			public void paintComponent(Graphics g) {
-				// More opaque over areas we want to write on
-				g.setColor(new Color(.95f, .95f, .95f, .7f));
-				g.fillRect(proofBar.getWidth() + 2, toolbar.getHeight(), getWidth(),
-						editorScroller.getHeight() + 3);
-				g.fillRect(0, getHeight() - repl.getHeight(),
-						getWidth(), repl.getHeight() - repl.getInputHeight() - 10);
-				g.setColor(new Color(.9f, .9f, .9f, .4f));
-				g.fillRect(0, toolbar.getHeight(), getWidth(), getHeight());
-				g.setColor(new Color(0f, 0f, .7f));
-				g.setFont(editor.getFont().deriveFont(16f).deriveFont(Font.BOLD));
-				int lineHeight = (int) g.getFontMetrics().getLineMetrics("", g).getHeight();
-				g.drawString("1. Write your functions here.",
-						proofBar.getWidth() + 20,
-						toolbar.getHeight() + 30);
-				int step2Y = toolbar.getHeight() + editorScroller.getHeight() / 6 + 40;
-				g.drawString("2. Click to admit them.",
-						proofBar.getWidth() + 30,
-						step2Y);
-				g.drawLine(proofBar.getWidth() + 24,
-						   step2Y - lineHeight / 4,
-						   proofBar.getWidth() - 10,
-						   step2Y - lineHeight / 4);
-				g.drawString("3. Test them here.",
-						proofBar.getWidth() + 20,
-						getHeight() - (int) repl.input.getPreferredScrollableViewportSize().getHeight() - 30);
-			}
-		});
+		setGlassPane(new TutorialGlassPane(this));
 		tutorialAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -474,88 +354,8 @@ public class IdeWindow extends JFrame {
 			}
 		};
 		
-		final JPanel findBar = new JPanel();
-		final JTextField searchField = new JTextField();
-		findAction = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (!findBarIsOpen) {
-					findBarIsOpen = true;
-					setInfoBar(findBar);
-				} else {
-					findBarIsOpen = false;
-					closeInfoBar();
-				}
-				searchField.setText(editor.getSelectedText());
-				searchField.requestFocusInWindow();
-			}
-		};
-
-		findBar.setLayout(new BoxLayout(findBar, BoxLayout.X_AXIS));
-		findBar.setBorder(InfoBar.INFO_BAR_BORDER);
-		findBar.setBackground(InfoBar.INFO_BAR_COLOR);
-		if (!Main.OSX) {
-			findBar.add(new JLabel("Find: "));
-		}
-		searchField.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				searchFor(searchField.getText(), true);
-			}
-		});
-		searchField.addKeyListener(new KeyListener() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-					findAction.actionPerformed(null);
-				}
-			}
-			
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-			}
-			
-			@Override
-			public void keyTyped(KeyEvent e) {
-				char c = e.getKeyChar();
-				if (c == KeyEvent.CHAR_UNDEFINED || c == '\n' || c == '\b'
-						|| e.isAltDown() || e.isMetaDown() || e.isControlDown()) {
-					return;
-				}
-				if (prefs.getBoolean("incsearch", true)) {
-					editor.markAll(searchField.getText() + c, false, false,
-							false);
-				}
-			}
-		});
-		searchField.putClientProperty("JTextField.variant", "search");
-		findBar.add(searchField);
-		JButton forward = new JButton(new ImageIcon(getClass().getResource("/media/find_down.png")));
-		forward.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				searchFor(searchField.getText(), true);
-			}
-		});
-		JButton back = new JButton(new ImageIcon(getClass().getResource("/media/find_up.png")));
-		back.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				searchFor(searchField.getText(), false);
-			}
-		});
-		back.putClientProperty("JButton.buttonType", "segmentedRoundRect");
-		forward.putClientProperty("JButton.buttonType", "segmentedRoundRect");
-		back.putClientProperty("JButton.segmentPosition", "first");
-		forward.putClientProperty("JButton.segmentPosition", "last");
-		findBar.add(back);
-		findBar.add(forward);
-		findBar.add(Box.createHorizontalStrut(4));
-		JButton done = new JButton("done");
-		done.putClientProperty("JButton.buttonType", "roundRect");
-		done.addActionListener(findAction);
-		findBar.add(done);
-		
+		final FindBar findBar = new FindBar(this);
+		findAction = findBar.findAction;
 		toolbar = new Toolbar(this);
 		if (Main.OSX && Main.JAVA_7) {
 			toolbar.setBackground(activeToolbar);
@@ -641,7 +441,7 @@ public class IdeWindow extends JFrame {
 			}
 		});
 		
-		editor.SetUndoManagerCreatedListener(new CodePane.UndoManagerCreatedListener() {
+		editor.setUndoManagerCreatedListener(new CodePane.UndoManagerCreatedListener() {
 			@Override
 			public void undoManagerCreated(UndoManager undoManager) {
 				proofBar.undoManager = undoManager;
@@ -656,16 +456,13 @@ public class IdeWindow extends JFrame {
 				adjustMaximizedBounds();
 				setSaved(false);
 			}
-			@Override
-			public void changedUpdate(DocumentEvent e) {
+			@Override public void changedUpdate(DocumentEvent e) {
 				update(e);
 			}
-			@Override
-			public void insertUpdate(DocumentEvent e) {
+			@Override public void insertUpdate(DocumentEvent e) {
 				update(e);
 			}
-			@Override
-			public void removeUpdate(DocumentEvent e) {
+			@Override public void removeUpdate(DocumentEvent e) {
 				update(e);
 			}
 		});
@@ -700,8 +497,7 @@ public class IdeWindow extends JFrame {
 		repl.setHeightChangeListener(new Repl.HeightChangeListener() {
 			@Override
 			public void heightChanged(int delta) {
-				// :-( http://lists.apple.com/archives/java-dev/2009/Aug/msg00087.html
-				// setSize(new Dimension(getWidth(), getHeight() + delta));
+				setSize(new Dimension(getWidth(), getHeight() + delta));
 				split.setDividerLocation(split.getDividerLocation() - delta);
 			}
 		});
@@ -993,23 +789,6 @@ public class IdeWindow extends JFrame {
 		int maxHeight = getHeight() - visibleSize.height + Math.max(textSize.height, 200);
 		setMaximizedBounds(new Rectangle(getLocation(), new Dimension(
 				maxWidth + 5, maxHeight + 5999)));
-	}
-
-	void searchFor(String text, boolean forward) {
-		editor.clearMarkAllHighlights();
-		SearchContext sc = new SearchContext();
-		sc.setSearchFor(text);
-		sc.setSearchForward(forward);
-		boolean found = SearchEngine.find(editor, sc);
-		if (!found) {
-			int userCaret = editor.getCaretPosition();
-			editor.setCaretPosition(forward ? 0 : editor.getText().length());
-			found = SearchEngine.find(editor, sc);
-			if (!found) {
-				editor.setCaretPosition(userCaret);
-				Toolkit.getDefaultToolkit().beep();
-			}
-		}
 	}
 
 	public void includeBookAtCursor(String dirName, String path) {

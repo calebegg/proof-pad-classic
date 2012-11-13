@@ -65,7 +65,7 @@ public class MenuBar extends JMenuBar {
 		menu.add(item);
 		
 		item = new JMenuItem("Open...");
-		item.addActionListener(IdeWindow.openAction);
+		item.addActionListener(OpenAction.instance);
 		item.addActionListener(new UserData.LogUse("openMenuItem"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, modKey));
 		menu.add(item);
