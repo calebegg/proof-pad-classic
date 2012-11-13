@@ -137,7 +137,7 @@ BOOL Go(const char *commandLine)
 		NULL,          // process security attributes 
 		NULL,          // primary thread security attributes 
 		TRUE,          // handles are inherited 
-		0,             // creation flags 
+		CREATE_BREAKAWAY_FROM_JOB,             // creation flags 
 		NULL,          // use parent's environment 
 		NULL,          // use parent's current directory 
 		&siStartInfo,  // STARTUPINFO pointer 
@@ -157,7 +157,7 @@ BOOL Go(const char *commandLine)
 
 	if (!AssignProcessToJobObject( ghJob, piProcInfo.hProcess)) {
 		DWORD error = GetLastError();
-		std::cerr << "AssignProcessToJobObject failed" << std::endl;
+		std::cerr << "AssignProcessToJobObject failed: " << error << std::endl;
 		return FALSE;
 	}
 
@@ -166,7 +166,6 @@ BOOL Go(const char *commandLine)
 	// of the child process, for example. 
 
 	CloseHandle(piProcInfo.hThread);
-	
 	MonitorProcessClose(piProcInfo.hProcess);
 
 	WriteToPipe(stdInWrite, piProcInfo.hProcess);

@@ -301,7 +301,9 @@ public class IdeWindow extends JFrame {
 			JOptionPane.showMessageDialog(this, "ACL2 executable not found",
 					"Error", JOptionPane.ERROR_MESSAGE);
 		}
-		parser.setAcl2Dir(new File(acl2.getAcl2Path()).getParentFile());
+		if (acl2.getAcl2Path() != null) {
+			parser.setAcl2Dir(new File(acl2.getAcl2Path()).getParentFile());
+		}
 
 		undoAction = new ActionListener() {
 			@Override

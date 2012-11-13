@@ -173,20 +173,18 @@ public class Acl2 extends Thread {
 							try {
 								out.flush();
 							} catch (IOException e) {
-								e.printStackTrace();
+//								e.printStackTrace();
 							}
 						}
 					}).start();
 					if (lastAdmittedTimestamp < System.currentTimeMillis() - ACL2_IS_SLOW_DELAY &&
-							!acl2IsSlowShown && !callbacks.isEmpty()
-							&& !Main.WIN /* TODO: Remove this when ctrl+C on Windows is fixed */
-							) {
+							!acl2IsSlowShown && !callbacks.isEmpty()) {
 						acl2IsSlowShown = true;
 						currentInfobar = fireErrorEvent("ACL2 is taking a while.", new InfoButton[] {
 								new InfoButton("Interrupt",
 									new ActionListener() {
 										@Override public void actionPerformed(ActionEvent arg0) {
-											interrupt();
+											ctrlc();
 										}
 									})});
 						currentInfobar.addCloseListener(new CloseListener() {
@@ -242,7 +240,7 @@ public class Acl2 extends Thread {
 						}
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+//					e.printStackTrace();
 					failAllCallbacks();
 					fireRestartEvent();
 					showAcl2TerminatedError();
@@ -305,9 +303,10 @@ public class Acl2 extends Thread {
 		acl2IsSlowShown = false;
 
 		for (String maybeAcl2Path : acl2Paths) {
+			if (!new File(maybeAcl2Path).exists()) continue;
+			System.out.println(maybeAcl2Path);
 			if (Main.WIN) {
-				//processBuilder = new ProcessBuilder("ctrlc-windows.exe", acl2Path);
-				processBuilder = new ProcessBuilder(maybeAcl2Path);
+				processBuilder = new ProcessBuilder("C:\\Users\\calebegg\\Documents\\GitHub\\proof-pad\\ctrlc-windows.exe", maybeAcl2Path);
 			} else {
 				processBuilder = new ProcessBuilder("sh", "-c", "echo \"$$\"; exec \"$0\" \"$@\"" + maybeAcl2Path);
 			}
@@ -322,6 +321,7 @@ public class Acl2 extends Thread {
 				acl2 = processBuilder.start();
 			} catch (IOException e) {
 				// Try the next path
+				e.printStackTrace();
 				continue;
 			}
 			acl2Path = maybeAcl2Path;
@@ -429,20 +429,20 @@ public class Acl2 extends Thread {
 	}
 	
 	public void terminate() {
+		if (acl2 == null) return;
 		admit("(good-bye)", Acl2.doNothingCallback);
 		if (Main.WIN) {
-			// Depends on ctrlc-windows.exe
-//			try {
-//				out.write(0);
-//				out.flush();
-//			} catch (IOException e) { }
+			try {
+				out.write(0);
+				out.flush();
+			} catch (IOException e) { }
 		}
 		new Thread(new Runnable() {
 			@Override public void run() {
 				try {
 					sleep(5000);
 				} catch (InterruptedException e) { }
-				Acl2.this.interrupt();
+				Acl2.this.ctrlc();
 			}
 		}).start();
 		try {
@@ -451,13 +451,18 @@ public class Acl2 extends Thread {
 			acl2.destroy();
 		}
 	}
+
+	private void writeByte(int b) {
+		try {
+			out.write(b);
+			out.flush();
+		} catch (IOException e) { }
+	}
 	
-	@Override
-	public void interrupt() {
+	public void ctrlc() {
 		backoff = 0;
 		if (Main.WIN) {
-			// Depends on ctrlc-windows.exe
-			//writeByte(1);
+			writeByte(1);
 		} else {
 			try {
 				Runtime.getRuntime().exec(new String[] {"kill", "-s", "INT", Integer.toString(procId)});

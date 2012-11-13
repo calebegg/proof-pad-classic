@@ -296,7 +296,7 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (parent.acl2 != null && parent.acl2.isAlive()) {
-						parent.acl2.interrupt();
+						parent.acl2.ctrlc();
 					}
 				}
 			});
@@ -307,9 +307,7 @@ public class MenuBar extends JMenuBar {
 		} else {
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, modKey));
 		}
-		if (!WIN) {
-			menu.add(item);
-		}
+		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem(applyTitleCase("Admit next item"));
 		if (OSX) {
