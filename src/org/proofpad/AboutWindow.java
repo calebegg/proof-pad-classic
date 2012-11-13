@@ -142,8 +142,7 @@ public class AboutWindow extends JDialog {
 		button.setAlignmentX(CENTER_ALIGNMENT);
 		button.setBorder(null);
 		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			@Override public void actionPerformed(ActionEvent arg0) {
 				try {
 					Desktop.getDesktop().browse(new URI("https://github.com/calebegg/proof-pad/"));
 				} catch (IOException e) {
@@ -195,8 +194,7 @@ public class AboutWindow extends JDialog {
 			JButton close = new JButton("OK");
 			close.setAlignmentX(RIGHT_ALIGNMENT);
 			close.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
+				@Override public void actionPerformed(ActionEvent arg0) {
 					dispose();
 				}
 			});

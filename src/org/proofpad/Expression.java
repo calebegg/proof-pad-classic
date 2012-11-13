@@ -20,8 +20,9 @@ public class Expression {
 		this.nextIndex = nextIndex;
 		this.prev = prev;
 	}
-	@Override
-	public String toString() {
-		return "height: " + lines + ", contents: '" + contents + "', firstType: " + firstType + ", index: " + index;
+
+	@Override public String toString() {
+		return "height: " + lines + ", contents: '" + contents + "', firstType: " + firstType
+				+ ", index: " + index;
 	}
 }

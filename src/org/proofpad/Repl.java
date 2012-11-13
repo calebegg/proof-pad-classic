@@ -40,6 +40,76 @@ import org.proofpad.SExpUtils.ExpType;
 
 public class Repl extends JPanel {
 
+	private final class ReplKeyListener extends KeyAdapter {
+		public ReplKeyListener() {
+			super();
+		}
+
+		@Override public void keyPressed(KeyEvent e) {
+			maybeEnableButtons();
+			if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.getText().equals("")) {
+				// Prevent that awful backspace beep.
+				e.consume();
+			}
+			if (e.getKeyCode() == KeyEvent.VK_UP) {
+				if (input.getCaretLineNumber() != 0) {
+					return;
+				}
+				// TODO: Flash background color or something to indicate that the contents has
+				// changed? Maybe?
+				if (!input.getText().equals("") && !addedInputToHistory) {
+					history.add(input.getText());
+					addedInputToHistory = true;
+				}
+				if (historyIndex > 0) {
+					historyIndex--;
+					String historyEntry = history.get(historyIndex);
+					input.setText(historyEntry);
+					adjustBottomHeight();
+					input.setCaretPosition(0);
+				}
+			} else if (e.getKeyCode() == KeyEvent.VK_DOWN){
+				if (input.getCaretLineNumber() != input.getLineCount() - 1) {
+					return;
+				}
+				if (historyIndex < history.size()) {
+					historyIndex++;
+					if (historyIndex == history.size()) {
+						resetInput();
+					} else {
+						String historyEntry = history.get(historyIndex);
+						input.setText(historyEntry);
+						adjustBottomHeight();
+						input.setCaretPosition(input.getText().length());
+					}
+				}
+			} else if (e.getKeyChar() == '\n') {
+				int parenLevel = 0;
+				for (Token t : input) {
+					if (t == null || t.type == Token.NULL) {
+						break;
+					}
+					if (t.isSingleChar('(')) {
+						parenLevel++;
+					} else if (t.isSingleChar(')')) {
+						parenLevel--;
+					}
+				}
+				if (parenLevel <= 0) {
+					Main.userData.addUse("runButton", true);
+					e.consume();
+					runInputCode();
+				}
+			}
+		}
+
+		@Override public void keyTyped(KeyEvent e) {
+			adjustBottomHeight();
+			maybeEnableButtons();
+		}
+	}
+
+
 	public static class Message {
 		public Message(String msg, MsgType type) {
 			this.msg = msg;
@@ -109,19 +179,19 @@ public class Repl extends JPanel {
 	private static final long serialVersionUID = -4551996064006604257L;
 	private static final int MAX_BOTTOM_HEIGHT = 100;
 	final Acl2 acl2;
-	private JPanel output;
+	private final JPanel output;
 	JScrollBar vertical;
 	final ArrayList<String> history;
-	private CodePane definitions;
+	private final CodePane definitions;
 	protected int historyIndex = 0;
 	boolean addedInputToHistory = false;
-	private Font font;
+	private final Font font;
 	private final List<JComponent> fontChangeList = new LinkedList<JComponent>();
 	CodePane input;
 	JScrollPane inputScroller;
-	private JSplitPane split;
+	private final JSplitPane split;
 	private HeightChangeListener heightChangeListener;
-	private JPanel bottom;
+	private final JPanel bottom;
 	IdeWindow parent;
 	protected JButton run;
 	private int oldNeededHeight = 26;
@@ -145,8 +215,7 @@ public class Repl extends JPanel {
 		add(split, BorderLayout.CENTER);
 		acl2 = newAcl2;
 		acl2.setOutputEventListener(new Acl2.OutputEventListener() {
-			@Override
-			public void handleOutputEvent(OutputEvent e) {
+			@Override public void handleOutputEvent(OutputEvent e) {
 				displayResult(e.output, e.type);
 			}
 		});
@@ -171,8 +240,7 @@ public class Repl extends JPanel {
 		input = new CodePane(null);
 		input.setDocument(new IdeDocument(null));
 		prompt.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
+			@Override public void mouseClicked(MouseEvent arg0) {
 				input.requestFocus();
 			}
 		});
@@ -184,78 +252,12 @@ public class Repl extends JPanel {
 		run = new JButton("run");
 		run.setEnabled(false);
 		run.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
+			@Override public void actionPerformed(ActionEvent event) {
 				runInputCode();
 				Main.userData.addUse("runButton", false);
 			}
 		});
-		input.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				maybeEnableButtons();
-				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.getText().equals("")) {
-					// Prevent that awful backspace beep.
-					e.consume();
-				}
-				if (e.getKeyCode() == KeyEvent.VK_UP) {
-					if (input.getCaretLineNumber() != 0) {
-						return;
-					}
-					// TODO: Flash background color or something to indicate that the contents has
-					// changed? Maybe?
-					if (!input.getText().equals("") && !addedInputToHistory) {
-						history.add(input.getText());
-						addedInputToHistory = true;
-					}
-					if (historyIndex > 0) {
-						historyIndex--;
-						String historyEntry = history.get(historyIndex);
-						input.setText(historyEntry);
-						adjustBottomHeight();
-						input.setCaretPosition(0);
-					}
-				} else if (e.getKeyCode() == KeyEvent.VK_DOWN){
-					if (input.getCaretLineNumber() != input.getLineCount() - 1) {
-						return;
-					}
-					if (historyIndex < history.size()) {
-						historyIndex++;
-						if (historyIndex == history.size()) {
-							resetInput();
-						} else {
-							String historyEntry = history.get(historyIndex);
-							input.setText(historyEntry);
-							adjustBottomHeight();
-							input.setCaretPosition(input.getText().length());
-						}
-					}
-				}
-			}
-			@Override
-			public void keyTyped(KeyEvent e) {
-				adjustBottomHeight();
-				if (e.getKeyChar() == '\n') {
-					int parenLevel = 0;
-					for (Token t : input) {
-						if (t == null || t.type == Token.NULL) {
-							break;
-						}
-						if (t.isSingleChar('(')) {
-							parenLevel++;
-						} else if (t.isSingleChar(')')) {
-							parenLevel--;
-						}
-					}
-					if (parenLevel <= 0) {
-						Main.userData.addUse("runButton", true);
-						e.consume();
-						runInputCode();
-					}
-				}
-				maybeEnableButtons();
-			}
-		});
+		input.addKeyListener(new ReplKeyListener());
 		bottom.add(run);
 		JPanel bottomWrapper = new JPanel();
 		bottomWrapper.setLayout(new BorderLayout());
@@ -471,8 +473,7 @@ public class Repl extends JPanel {
 		MouseListener ml = null;
 		if (!shortResult.equals(result.trim())) {
 			ml = new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent arg0) {
+				@Override public void mouseClicked(MouseEvent arg0) {
 					// TODO: Highlight the currently selected item and reset it in Runnable after.
 					parent.outputWindow.showWithText(result, null);
 				}
@@ -483,8 +484,7 @@ public class Repl extends JPanel {
 			getOutput().add(line);
 		}
 		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
+			@Override public void run() {
 				line.scrollRectToVisible(new Rectangle(line.getLocation(), line.getSize()));
 				vertical.setValue(vertical.getMaximum());
 			}
@@ -492,8 +492,7 @@ public class Repl extends JPanel {
 	}
 	
 
-	@Override
-	public void setFont(Font f) {
+	@Override public void setFont(Font f) {
 		super.setFont(f);
 		if (fontChangeList == null) return;
 		synchronized (fontChangeList) {
@@ -516,8 +515,7 @@ public class Repl extends JPanel {
 
 	void maybeEnableButtons() {
 		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
+			@Override public void run() {
 				boolean enable = input.getLastVisibleOffset() != 0;
 				run.setEnabled(enable);
 			}

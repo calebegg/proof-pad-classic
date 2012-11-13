@@ -102,8 +102,7 @@ public class Main {
 		}
 		
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-			@Override
-			public void uncaughtException(Thread t, Throwable e) {
+			@Override public void uncaughtException(Thread t, Throwable e) {
 				String stackTrace = e + ": " + e.getMessage();
 				StackTraceElement[] stes = e.getStackTrace();
 				for (StackTraceElement ste : stes) {
@@ -131,8 +130,7 @@ public class Main {
 		if (Main.OSX) {
 			Application app = Application.getApplication();
 			app.setOpenFileHandler(new OpenFilesHandler() {
-				@Override
-				public void openFiles(OpenFilesEvent e) {
+				@Override public void openFiles(OpenFilesEvent e) {
 					for (Object file : e.getFiles()) {
 						IdeWindow win = new IdeWindow((File) file);
 						win.setVisible(true);
@@ -140,14 +138,12 @@ public class Main {
 				}
 			});
 			app.setAboutHandler(new AboutHandler() {
-				@Override
-				public void handleAbout(AboutEvent e) {
+				@Override public void handleAbout(AboutEvent e) {
 					new AboutWindow().setVisible(true);
 				}
 			});
 			app.setQuitHandler(new QuitHandler() {
-				@Override
-				public void handleQuitRequestWith(QuitEvent qe,
+				@Override public void handleQuitRequestWith(QuitEvent qe,
 						QuitResponse qr) {
 					for (Iterator<IdeWindow> ii = IdeWindow.windows.iterator(); ii.hasNext();) {
 						IdeWindow win = ii.next();
@@ -164,8 +160,7 @@ public class Main {
 				}
 			});
 			app.setPreferencesHandler(new PreferencesHandler() {
-				@Override
-				public void handlePreferences(PreferencesEvent arg0) {
+				@Override public void handlePreferences(PreferencesEvent arg0) {
 					if (IdeWindow.prefsWindow == null) {
 						IdeWindow.prefsWindow = new PrefsWindow();
 					}
@@ -173,22 +168,18 @@ public class Main {
 				}
 			});
 			app.addAppEventListener(new AppForegroundListener() {
-				@Override
-				public void appMovedToBackground(AppForegroundEvent arg0) {
+				@Override public void appMovedToBackground(AppForegroundEvent arg0) {
 					if (IdeWindow.windows.size() == 0 && !startingUp) {
 						Main.quit();
 					}
 				}
-				@Override
-				public void appRaisedToForeground(AppForegroundEvent arg0) {}
+				@Override public void appRaisedToForeground(AppForegroundEvent arg0) {}
 			});
 			app.addAppEventListener(new AppReOpenedListener() {
-				@Override
-				public void appReOpened(AppReOpenedEvent arg0) {
+				@Override public void appReOpened(AppReOpenedEvent arg0) {
 					if (IdeWindow.windows.size() == 0 && !startingUp) {
 						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
+							@Override public void run() {
 								new IdeWindow().setVisible(true);
 							}
 						});
@@ -202,8 +193,7 @@ public class Main {
 				PopupMenu dockMenu = new PopupMenu();
 				MenuItem item = new MenuItem("New");
 				item.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
+					@Override public void actionPerformed(ActionEvent e) {
 						IdeWindow ide = new IdeWindow();
 						ide.setVisible(true);
 					}
@@ -214,8 +204,7 @@ public class Main {
 			}
 		}
 		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
+			@Override public void run() {
 				logtime("Start creating main window");
 				final Preferences prefs = Preferences.userNodeForPackage(Main.class);
 				if (IdeWindow.windows.isEmpty()) {
@@ -290,8 +279,7 @@ public class Main {
 		final ProgressMonitor pm = new ProgressMonitor(null, "Sending user data", null, 0, 100);
 		pm.setProgress(0);
 		new Thread(new Runnable() {
-			@Override
-			public void run() {
+			@Override public void run() {
 				System.out.println("Sending user data");
 				XStream xs = new XStream(new StaxDriver());
 				String xml = xs.toXML(userData);

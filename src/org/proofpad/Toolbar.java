@@ -37,7 +37,7 @@ public class Toolbar extends JPanel {
 		JButton button;
 		button = new JButton(new ImageIcon(getClass().getResource("/media/open.png")));
 		button.setToolTipText("Open a file for editing. (" + modKeyStr + "O)");
-		button.addActionListener(IdeWindow.openAction);
+		button.addActionListener(OpenAction.instance);
 		button.addActionListener(new UserData.LogUse("openButton"));
 		button.putClientProperty("JButton.buttonType", "textured");
 		add(button);
@@ -95,8 +95,7 @@ public class Toolbar extends JPanel {
 		updateButton = button;
 		button.setToolTipText("An update is available.");
 		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			@Override public void actionPerformed(ActionEvent arg0) {
 				try {
 					Desktop.getDesktop().browse(new URI("http://proofpad.org/"));
 				} catch (IOException e) {
@@ -124,8 +123,7 @@ public class Toolbar extends JPanel {
 	
 	public void checkForUpdate() {
 		new Thread(new Runnable() {
-			@Override
-			public void run() {
+			@Override public void run() {
 				try {
 					Scanner s = new Scanner(new URL("http://proofpad.org/CURRENT").openStream());
 					int currentVersion = s.nextInt();

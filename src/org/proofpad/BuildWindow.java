@@ -20,9 +20,9 @@ public class BuildWindow extends JFrame {
 	private static final long serialVersionUID = 8394742808899908090L;
 	private static final boolean OSX = Main.OSX;
 	private static final boolean WIN = Main.WIN;
-	private File file;
-	private String acl2Dir;
-	private JProgressBar progress;
+	private final File file;
+	private final String acl2Dir;
+	private final JProgressBar progress;
 	Acl2 builder;
 
 	public BuildWindow(File file, String acl2Dir) {
@@ -30,7 +30,7 @@ public class BuildWindow extends JFrame {
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 		this.file = file;
 		this.acl2Dir = acl2Dir;
-		getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
+		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		getRootPane().setBorder(Main.WINDOW_BORDER);
 		progress = new JProgressBar();
 		progress.setIndeterminate(true);
@@ -40,8 +40,7 @@ public class BuildWindow extends JFrame {
 		JButton cancel = new JButton("Cancel");
 		cancel.setAlignmentX(CENTER_ALIGNMENT);
 		cancel.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			@Override public void actionPerformed(ActionEvent arg0) {
 				if (builder != null)
 					builder.terminate();
 				dispose();
@@ -84,19 +83,14 @@ public class BuildWindow extends JFrame {
 				builder.terminate();
 				return;
 			}
-			builder.admit(
-					"(ccl:save-application \""
-					+ filename
-					+ "\" :toplevel-function #'__main__ :prepend-kernel t)",
-					new Acl2.Callback() {
-						@Override
-						public boolean run(boolean success,
-								String response) {
-							builder.terminate();
-							dispose();
-							return false;
-						}
-					});
+			builder.admit("(ccl:save-application \"" + filename
+					+ "\" :toplevel-function #'__main__ :prepend-kernel t)", new Acl2.Callback() {
+				@Override public boolean run(boolean success, String response) {
+					builder.terminate();
+					dispose();
+					return false;
+				}
+			});
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
