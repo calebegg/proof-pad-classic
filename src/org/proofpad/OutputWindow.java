@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -18,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -77,15 +79,35 @@ public class OutputWindow extends JFrame {
 		JScrollPane textScroller = new JScrollPane(textComp);
 		textScroller.setBorder(BorderFactory.createEmptyBorder());
 		getRootPane().add(textScroller, BorderLayout.CENTER);
-		setSize(new Dimension(75 * getFontMetrics(ideWindow.getFont()).charWidth('a'),
-				textComp.getPreferredScrollableViewportSize().height + 100));
+		int height = textComp.getPreferredScrollableViewportSize().height + 100;
+		int width = 80 * getFontMetrics(ideWindow.getFont()).charWidth('a');
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		if (height > screenSize.height) {
+			height = screenSize.height;
+			System.out.println(width);
+			width += new JScrollBar().getPreferredSize().width;
+			System.out.println(width);
+		}
+		setSize(width, height);
 		Point whereToGo = ideWindow.moveForOutputWindow();
 		setLocation(whereToGo);
 		setFocusableWindowState(false);
 		setVisible(true);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override public void run() {
+				toFront();
 				setFocusableWindowState(true);
+				new Thread(new Runnable() {
+					@Override public void run() {
+						try {
+							Thread.sleep(3000);
+						} catch (InterruptedException e) { }
+						getRootPane().revalidate();
+						repaint();
+					}
+				}).start();
+				getRootPane().revalidate();
+				repaint();
 			}
 		});
 	}
