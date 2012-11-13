@@ -91,7 +91,9 @@ public class OutputWindow extends JFrame {
 	
 	public void hideWindow() {
 		setVisible(false);
-		afterPreview.run();
+		if (afterPreview != null) {
+			afterPreview.run();
+		}
 		afterPreview = null;
 	}
 
