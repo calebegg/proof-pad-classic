@@ -435,6 +435,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	"KWOTE" |
 	"KWOTE-LST" |
 	"LAST" |
+	"LD" |
 	"LEN" |
 	"LENGTH" |
 	"LET" |
