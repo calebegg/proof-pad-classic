@@ -309,7 +309,7 @@ public class PrefsWindow extends JFrame {
 		
 		
 		info.setMaximumSize(new Dimension(400, Integer.MAX_VALUE));
-		if (IdeWindow.OSX) {
+		if (Main.OSX) {
 			info.putClientProperty("JComponent.sizeVariant", "small");
 		} else {
 			info.setFont(info.getFont().deriveFont(10f));
@@ -462,9 +462,9 @@ public class PrefsWindow extends JFrame {
 	private static Font getPrefFont() {
 		int fontSize = prefs.getInt("fontsize", 12);
 		String defaultFamily;
-		if (IdeWindow.OSX) {
+		if (Main.OSX) {
 			defaultFamily = "Monaco";
-		} else if (IdeWindow.WIN) {
+		} else if (Main.WIN) {
 			defaultFamily = "Consolas";
 		} else {
 			defaultFamily = "monospaced";

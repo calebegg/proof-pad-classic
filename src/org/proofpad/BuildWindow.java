@@ -18,8 +18,8 @@ import javax.swing.JProgressBar;
 public class BuildWindow extends JFrame {
 
 	private static final long serialVersionUID = 8394742808899908090L;
-	private static final boolean OSX = IdeWindow.OSX;
-	private static final boolean WIN = IdeWindow.WIN;
+	private static final boolean OSX = Main.OSX;
+	private static final boolean WIN = Main.WIN;
 	private File file;
 	private String acl2Dir;
 	private JProgressBar progress;

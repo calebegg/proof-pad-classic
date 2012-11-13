@@ -476,7 +476,7 @@ public class Repl extends JPanel {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
 					// TODO: Highlight the currently selected item and reset it in Runnable after.
-					parent.setPreviewText(result, null);
+					parent.outputWindow.showWithText(result, null);
 				}
 			};
 		}

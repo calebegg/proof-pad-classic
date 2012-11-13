@@ -55,7 +55,7 @@ public class BookViewer extends JFrame {
 			} else {
 				pathLen = 0;
 			}
-			if (IdeWindow.WIN) {
+			if (Main.WIN) {
 				path = path.replace("\\", "/");
 			}
 			return path.substring(pathLen, path.length() - 5);
@@ -138,7 +138,7 @@ public class BookViewer extends JFrame {
 			}
 		});
 		buttons.add(Box.createGlue());
-		if (IdeWindow.OSX) {
+		if (Main.OSX) {
 			buttons.add(cancel);
 			buttons.add(include);
 		} else {

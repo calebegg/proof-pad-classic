@@ -112,6 +112,8 @@ public class ProofBar extends JComponent {
 
 	final MoreBar mb;
 
+	boolean alreadyShownAnError = false;
+
 	public ProofBar(final Acl2 acl2, final MoreBar mb) {
 		super();
 		this.acl2 = acl2;
@@ -569,15 +571,23 @@ public class ProofBar extends JComponent {
 		acl2.admit("(set-ld-redefinition-action '(:doit . :erase) state)", Acl2.doNothingCallback);
 		unprovenStates = new ArrayList<UnprovenExp>();
 		int unprovenIdx = 0;
-		for (final Expression ex : expressions) {
+		for (int i = 0; i < expressions.size(); i++) {
+			final Expression ex = expressions.get(i);
+			final boolean lastExp = i == expressions.size() - 2; // TODO: Will '2' always work?
 			if (provedSoFar > 0) {
 				provedSoFar--;
+				if (lastExp) {
+					alreadyShownAnError = false;
+				}
 			} else {
 				final UnprovenExp ue;
 				if (unprovenIdx < unprovenStates.size()) {
 					ue = unprovenStates.get(unprovenIdx);
 					unprovenIdx++;
 					if (ue.hash == ex.contents.hashCode()) {
+						if (lastExp) {
+							alreadyShownAnError = false;
+						}
 						continue;
 					}
 				} else {
@@ -591,6 +601,9 @@ public class ProofBar extends JComponent {
 					@Override
 					public boolean run(boolean success, String response) {
 						setExpData(ex, success, response);
+						if (lastExp) {
+							alreadyShownAnError = false;
+						}
 						repaint();
 						ue.status = success ? Status.SUCCESS : Status.FAILURE;
 						return false;
@@ -608,7 +621,8 @@ public class ProofBar extends JComponent {
 		ExpData expData = new ExpData(exp, response);
 		data.set(exp.expNum, expData);
 		mb.repaint();
-		if (!success) {
+		if (!success && Prefs.showOutputOnError.get() && !alreadyShownAnError) {
+			alreadyShownAnError = true;
 			mb.selectExpression(expData);
 		}
 	}

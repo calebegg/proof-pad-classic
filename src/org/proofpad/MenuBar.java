@@ -25,8 +25,8 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
 
 public class MenuBar extends JMenuBar {
 	static final int RECENT_MENU_ITEMS = 10;
-	private static final boolean WIN = IdeWindow.WIN || Main.FAKE_WINDOWS;
-	private static final boolean OSX = IdeWindow.OSX && !Main.FAKE_WINDOWS;
+	private static final boolean WIN = Main.WIN || Main.FAKE_WINDOWS;
+	private static final boolean OSX = Main.OSX && !Main.FAKE_WINDOWS;
 	private static final boolean TITLE_CASE = !WIN;
 	private static final long serialVersionUID = -3469258243341307842L;
 	static final int modKey = Main.FAKE_WINDOWS ? KeyEvent.CTRL_DOWN_MASK : Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();

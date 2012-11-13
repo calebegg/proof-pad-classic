@@ -611,7 +611,7 @@ public class Acl2Parser extends AbstractParser {
 									dir = null;
 								}
 							}
-							if (IdeWindow.WIN) {
+							if (Main.WIN) {
 								bookName.replaceAll("\\\\/", "\\");
 							}
 							File book = new File(dir, bookName.substring(1, bookName.length() - 1) + ".lisp");
@@ -662,7 +662,7 @@ public class Acl2Parser extends AbstractParser {
 						Map<String, String> docs = Main.cache.getDocs();
 						String upperToken = token.getLexeme().toUpperCase();
 						if (docs.containsKey(upperToken)) {
-							String modKey = IdeWindow.OSX ? "\u2325\u2318" : "Ctrl + Alt + ";
+							String modKey = Main.OSX ? "\u2325\u2318" : "Ctrl + Alt + ";
 							String msg = "<html>" + docs.get(upperToken) + "<br><font " +
 									"color=\"gray\" size=\"2\">" + modKey +
 									"L for more.</font></html>";

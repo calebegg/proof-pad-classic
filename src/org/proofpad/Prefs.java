@@ -25,5 +25,6 @@ public class Prefs {
 			javaPrefs.putBoolean(name, val);
 		}
 	}
-	static BooleanPref showErrors = new BooleanPref("showerrors", true);
+	public static final BooleanPref showErrors = new BooleanPref("showerrors", true);
+	public static final BooleanPref showOutputOnError = new BooleanPref("showoutputonerror", true);
 }

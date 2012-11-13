@@ -16,14 +16,16 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class Toolbar extends JPanel {
 	private static final int BUTTON_GAP = 6;
-	private static final boolean OSX = IdeWindow.OSX;
+	private static final boolean OSX = Main.OSX;
 	private static final String modKeyStr = (OSX ? "\u2318" : "Ctrl + ");
 	private static final long serialVersionUID = -333358626303272834L;
 	JButton updateButton;
+	final JLabel prerelease;
 
 	public Toolbar(final IdeWindow parent) {
 		if (OSX) {
@@ -102,9 +104,12 @@ public class Toolbar extends JPanel {
 			}
 		});
 		button.addActionListener(new UserData.LogUse("updateButton"));
+		prerelease = new JLabel("Prerelease: " + Main.RELEASE);
 		button.setVisible(false);
-		checkForUpdate();
+		prerelease.setVisible(false);
 		button.putClientProperty("JButton.buttonType", "textured");
+		checkForUpdate();
+		add(prerelease);
 		add(button);
 		add(Box.createHorizontalStrut(BUTTON_GAP));
 		button = new JButton();
@@ -123,8 +128,11 @@ public class Toolbar extends JPanel {
 			public void run() {
 				try {
 					Scanner s = new Scanner(new URL("http://proofpad.org/CURRENT").openStream());
-					if (s.nextInt() > Main.RELEASE) {
+					int currentVersion = s.nextInt();
+					if (currentVersion > Main.RELEASE) {
 						updateButton.setVisible(true);
+					} else if (currentVersion < Main.RELEASE) {
+						prerelease.setVisible(true);
 					}
 					s.close();
 				} catch (MalformedURLException e) {

@@ -2,6 +2,7 @@ package org.proofpad;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
@@ -55,7 +56,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -70,8 +70,9 @@ import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rtextarea.Gutter;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
+import org.proofpad.Acl2.ErrorListener;
+import org.proofpad.InfoBar.InfoButton;
 import org.proofpad.PrefsWindow.FontChangeListener;
-import org.proofpad.Repl.Message;
 import org.proofpad.Repl.MsgType;
 
 //import com.apple.eawt.FullScreenUtilities;
@@ -82,9 +83,6 @@ import org.proofpad.Repl.MsgType;
 
 
 public class IdeWindow extends JFrame {
-	public static final boolean OSX = System.getProperty("os.name").indexOf("Mac") != -1;
-	public static final boolean WIN =
-			System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
 	public static final Color transparent = new Color(1f, 1f, 1f, 0f);
 	static JFileChooser fc = new JFileChooser();
 	static {
@@ -104,7 +102,7 @@ public class IdeWindow extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			File file;
-			if (OSX) {
+			if (Main.OSX) {
 				FileDialog fd = new FileDialog((Frame)null, "Open file");
 				fd.setFilenameFilter(new FilenameFilter() {
 					@Override
@@ -133,6 +131,7 @@ public class IdeWindow extends JFrame {
 	};
 
 	private static final long serialVersionUID = -7435370608709935765L;
+	private static final int WINDOW_GAP = 10;
 	public static PrefsWindow prefsWindow = null;
 	static List<IdeWindow> windows = new LinkedList<IdeWindow>();
 	private static int untitledCount = 1;
@@ -145,8 +144,6 @@ public class IdeWindow extends JFrame {
 	Repl repl;
 	Toolbar toolbar;
 
-	JSplitPane previewSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-	final int splitDividerDefaultSize = previewSplit.getDividerSize();
 	final CodePane editor;
 	JButton undoButton;
 	JButton redoButton;
@@ -176,6 +173,9 @@ public class IdeWindow extends JFrame {
 	Runnable afterPreview;
 	JPanel westPanel;
 	Preferences prefs;
+	public OutputWindow outputWindow;
+	boolean findBarIsOpen;
+	private JPanel splitTop;
 
 	public IdeWindow() {
 		this((File)null);
@@ -194,14 +194,11 @@ public class IdeWindow extends JFrame {
 		windows.add(this);
 		openFile = file;
 		workingDir = openFile == null ? null : openFile.getParentFile();
-		previewSplit.setBorder(BorderFactory.createEmptyBorder());
-		previewSplit.setDividerSize(0);
-		previewSplit.setResizeWeight(0);
+		outputWindow = new OutputWindow(this);
 		final JPanel splitMain = new JPanel();
-		previewSplit.setLeftComponent(splitMain);
 		splitMain.setLayout(new BorderLayout());
-		add(previewSplit);
-		final JPanel splitTop = new JPanel();
+		add(splitMain);
+		splitTop = new JPanel();
 		splitTop.setLayout(new BorderLayout());
 		final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		split.setTopComponent(splitTop);
@@ -220,7 +217,7 @@ public class IdeWindow extends JFrame {
 		if (prefs.getBoolean("customacl2", false)) {
 			acl2Paths.add(prefs.get("acl2Path", ""));
 		} else {
-			if (WIN) {
+			if (Main.WIN) {
 				// HACK: oh no oh no oh no
 				acl2Paths.add("C:\\PROGRA~1\\PROOFP~1\\acl2\\run_acl2.exe");
 				acl2Paths.add("C:\\PROGRA~2\\PROOFP~1\\acl2\\run_acl2.exe");
@@ -241,28 +238,39 @@ public class IdeWindow extends JFrame {
 		
 		parser = new Acl2Parser(workingDir, null);
 		acl2 = new Acl2(acl2Paths, workingDir, parser);
+		acl2.setErrorListener(new ErrorListener() {
+			@Override public InfoBar handleError(String msg, InfoButton[] btns) {
+				InfoBar infoBar = new InfoBar(msg, btns);
+				setInfoBar(infoBar);
+				return infoBar;
+			}
+		});
 		moreBar = new MoreBar(this);
 		proofBar = new ProofBar(acl2, moreBar);
 		editor = new CodePane(proofBar);
 		final JPanel editorContainer = new JPanel();
 		editorContainer.setBackground(Color.WHITE);
 		editorContainer.setLayout(new BorderLayout());
-		westPanel = new JPanel();
-		westPanel.setBackground(Color.WHITE);
+		westPanel = new JPanel() {
+			private static final long serialVersionUID = 31966860737290397L;
+
+			@Override public Dimension getPreferredSize() {
+				return new Dimension(super.getPreferredSize().width,
+						editor.getHeight());
+			}
+		};
 		westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.X_AXIS));
+		westPanel.setBackground(Color.WHITE);
 		westPanel.add(proofBar);
 		gutter = new Gutter(editor);
 		gutter.setBackground(Color.WHITE);
 		westPanel.add(gutter);
-		//editorContainer.add(westPanel, BorderLayout.WEST);
 		editorScroller.setRowHeaderView(westPanel);
 		editorScroller.setVerticalScrollBar(moreBar);
-		//editorContainer.add(moreBar, BorderLayout.EAST);
 		editorContainer.add(editor, BorderLayout.CENTER);
 		editorScroller.setViewportView(editorContainer);
 		editorScroller.getVerticalScrollBar().setUnitIncrement(editor.getLineHeight());
 		editorScroller.getHorizontalScrollBar().setUnitIncrement(editor.getLineHeight());
-		editorScroller.setRowHeaderView(proofBar);
 		helpAction = editor.getHelpAction();
 		repl = new Repl(this, acl2, editor);
 		proofBar.setLineHeight(editor.getLineHeight());
@@ -461,24 +469,22 @@ public class IdeWindow extends JFrame {
 		findAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (splitTop.getComponentCount() == 1) {
-					splitTop.add(findBar, BorderLayout.NORTH);
+				if (!findBarIsOpen) {
+					findBarIsOpen = true;
+					setInfoBar(findBar);
 				} else {
-					splitTop.remove(findBar);
-					editor.clearMarkAllHighlights();
+					findBarIsOpen = false;
+					closeInfoBar();
 				}
-				splitTop.revalidate();
 				searchField.setText(editor.getSelectedText());
 				searchField.requestFocusInWindow();
 			}
 		};
 
 		findBar.setLayout(new BoxLayout(findBar, BoxLayout.X_AXIS));
-		findBar.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK),
-				BorderFactory.createEmptyBorder(0, 5, 0, 5)));
-		findBar.setBackground(new Color(.9f, .9f, .9f));
-		if (OSX) {
+		findBar.setBorder(InfoBar.INFO_BAR_BORDER);
+		findBar.setBackground(InfoBar.INFO_BAR_COLOR);
+		if (Main.OSX) {
 			// TODO: make this look more like safari?
 			// findBar.add(Box.createGlue());
 			// searchField.setPreferredSize(new Dimension(300, 0));
@@ -518,14 +524,14 @@ public class IdeWindow extends JFrame {
 		});
 		searchField.putClientProperty("JTextField.variant", "search");
 		findBar.add(searchField);
-		JButton forward = new JButton(new ImageIcon("media/find_down.png"));
+		JButton forward = new JButton(new ImageIcon(getClass().getResource("/media/find_down.png")));
 		forward.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				searchFor(searchField.getText(), true);
 			}
 		});
-		JButton back = new JButton(new ImageIcon("media/find_up.png"));
+		JButton back = new JButton(new ImageIcon(getClass().getResource("/media/find_up.png")));
 		back.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -692,7 +698,7 @@ public class IdeWindow extends JFrame {
 		} else {
 			setTitle("untitled"
 				+ (untitledCount == 1 ? "" : " " + (untitledCount))
-				+ (!OSX ? " - Proof Pad" : ""));
+				+ (!Main.OSX ? " - Proof Pad" : ""));
 			untitledCount++;
 		}
 		updateWindowMenu();
@@ -702,7 +708,7 @@ public class IdeWindow extends JFrame {
 		setMinimumSize(new Dimension(550, 300));
 
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-		if (WIN || OSX) {
+		if (Main.WIN || Main.OSX) {
 			setLocation((screen.width - 600) / 2 + 50 * windows.size(),
 					(screen.height - 800) / 2 + 50 * windows.size());
 		}
@@ -751,6 +757,20 @@ public class IdeWindow extends JFrame {
 		split.setDividerLocation(.65);
 	}
 
+	protected void setInfoBar(JComponent comp) {
+		Component child = ((BorderLayout) splitTop.getLayout()).getLayoutComponent(BorderLayout.NORTH);
+		if (child != null) splitTop.remove(child);
+		splitTop.add(comp, BorderLayout.NORTH);
+		splitTop.revalidate();
+	}
+	
+	protected void closeInfoBar() {
+		Component child = ((BorderLayout) splitTop.getLayout()).getLayoutComponent(BorderLayout.NORTH);
+		splitTop.remove(child);
+		editor.clearMarkAllHighlights();
+		splitTop.revalidate();
+	}
+
 	static void updateWindowMenu() {
 		for (IdeWindow window : windows) {
 			MenuBar bar = window.menuBar;
@@ -761,97 +781,7 @@ public class IdeWindow extends JFrame {
 	}
 	
 	public void setPreviewComponent(JComponent c, Runnable after) {
-		if (!isVisible()) return;
-		if (afterPreview != null) afterPreview.run();
-		afterPreview = after;
-		int oldDividerLoc = previewSplit.getDividerLocation();
-		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createEmptyBorder());
-		panel.setLayout(new BorderLayout());
-		previewSplit.setRightComponent(panel);
-		panel.add(c, BorderLayout.CENTER);
-		JButton closeButton = new JButton("<<");
-		JPanel bottom = new JPanel();
-		bottom.setLayout(new BoxLayout(bottom, BoxLayout.X_AXIS));
-		bottom.add(Box.createGlue());
-		bottom.add(closeButton);
-		closeButton.addActionListener(new ActionListener() {
-			@Override public void actionPerformed(ActionEvent arg0) {
-				closePreviewPane();
-			}
-		});
-		panel.add(bottom, BorderLayout.SOUTH);
-		boolean wasPreviewOpen = previewSplit.getDividerSize() > 0;
-		previewSplit.setDividerSize(splitDividerDefaultSize);
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		Point loc = getLocationOnScreen();
-		int paneWidth = 75 * getFontMetrics(c.getFont()).charWidth('a');
-		final int winWidth = getWidth();
-		if (!wasPreviewOpen) {
-			int newX = (int) Math.min(screenSize.getWidth() - winWidth - paneWidth, loc.x) - 30;
-			setBounds(newX, loc.y, winWidth + paneWidth + splitDividerDefaultSize, getHeight());
-			// TODO: This doesn't work well on OS X, but might work on Windows or Linux.
-//			final int steps = 5;
-//			final int dx = (newX - loc.x) / steps;
-//			final int dw = (paneWidth + splitDividerDefaultSize) / steps;
-//			new Timer(30, new ActionListener() {
-//				int i = 0;
-//				@Override
-//				public void actionPerformed(ActionEvent e) {
-//					RepaintManager.currentManager(that.getRootPane()).markCompletelyClean(that.getRootPane());
-//					i++;
-//					Point winLoc = getLocationOnScreen();
-//					if (i == steps) {
-//						((Timer) e.getSource()).stop();
-//					} else {
-//						setBounds(winLoc.x + dx, winLoc.y, getWidth() + dw, getHeight());
-//					}
-//				}
-//			}).start();
-			previewSplit.setDividerLocation(winWidth);
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					previewSplit.setDividerLocation(winWidth);
-				}
-			});
-		} else {
-			previewSplit.setDividerLocation(oldDividerLoc);
-		}
-		adjustMaximizedBounds();
-	}
 
-	public void closePreviewPane() {
-		int paneWidth = previewSplit.getRightComponent().getWidth();
-		Point loc = getLocationOnScreen();
-		previewSplit.setDividerSize(0);
-		previewSplit.setRightComponent(null);
-		setBounds(loc.x, loc.y, getWidth() - paneWidth - splitDividerDefaultSize, getHeight());
-		if (afterPreview != null) {
-			afterPreview.run();
-		}
-		afterPreview = null;
-	}
-	
-	public void setPreviewText(String result, Runnable after) {
-		JPanel summaries = new JPanel();
-		summaries.setLayout(new BoxLayout(summaries, BoxLayout.Y_AXIS));
-		JTextArea resBox = new JTextArea();
-		resBox.setText(result);
-		resBox.setFont(getFont());
-		resBox.setEditable(false);
-		List<Message> msgs = Repl.summarize(result, null);
-		for (Message msg : msgs) {
-			JComponent line = repl.createSummary(msg.msg, msg.type, null);
-			summaries.add(line);
-		}
-		JPanel comp = new JPanel();
-		comp.setBorder(BorderFactory.createEmptyBorder());
-		comp.setLayout(new BorderLayout());
-		comp.add(summaries, BorderLayout.NORTH);
-		comp.add(new JScrollPane(resBox), BorderLayout.CENTER);
-		setPreviewComponent(comp, after);
 	}
 
 	public void fixUndoRedoStatus() {
@@ -899,7 +829,7 @@ public class IdeWindow extends JFrame {
 			} else {
 				windows.remove(that);
 			}
-			if (windows.size() == 0 && !OSX) {
+			if (windows.size() == 0 && !Main.OSX) {
 				Main.quit();
 			}
 			return true;
@@ -910,7 +840,7 @@ public class IdeWindow extends JFrame {
 	boolean saveFile() {
 		if (openFile == null) {
 			File file = null;
-			if (OSX) {
+			if (Main.OSX) {
 				FileDialog fd = new FileDialog(this, "Save As...");
 				fd.setMode(FileDialog.SAVE);
 				fd.setVisible(true);
@@ -962,7 +892,7 @@ public class IdeWindow extends JFrame {
 			bw.close();
 			setSaved(true);
 			getRootPane().putClientProperty("Window.documentFile", openFile);
-			setTitle(openFile.getName() + (!OSX ? " - Proof Pad" : ""));
+			setTitle(openFile.getName() + (!Main.OSX ? " - Proof Pad" : ""));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -987,7 +917,7 @@ public class IdeWindow extends JFrame {
 
 	protected void openAndDisplay(File file) {
 		getRootPane().putClientProperty("Window.documentFile", file);
-		setTitle(file.getName() + (!OSX ? " - Proof Pad" : ""));
+		setTitle(file.getName() + (!Main.OSX ? " - Proof Pad" : ""));
 		openFile = file;
 		Scanner scan = null;
 		try {
@@ -1032,13 +962,13 @@ public class IdeWindow extends JFrame {
 		for (IdeWindow w : windows) {
 			w.menuBar.updateRecentMenu();
 		}
-		if (OSX && !Main.FAKE_WINDOWS) {
+		if (Main.OSX && !Main.FAKE_WINDOWS) {
 			Main.menuBar.updateRecentMenu();
 		}
 	}
 
 	public void adjustMaximizedBounds() {
-		if (!OSX) return;
+		if (!Main.OSX) return;
 		Dimension visibleSize = editorScroller.getViewport().getExtentSize();
 		Dimension textSize = editor.getPreferredScrollableViewportSize();
 		int widthGuideWidth = editor.getFontMetrics(editor.getFont()).charWidth('a') *
@@ -1047,9 +977,6 @@ public class IdeWindow extends JFrame {
 		int maxWidth = Math.max(getWidth() - visibleSize.width + textWidth
 				+ proofBar.getWidth() + moreBar.getWidth(), 550);
 		int maxHeight = getHeight() - visibleSize.height + Math.max(textSize.height, 200);
-		if (previewSplit.getDividerSize() > 0) {
-			maxWidth += previewSplit.getRightComponent().getWidth();
-		}
 		setMaximizedBounds(new Rectangle(getLocation(), new Dimension(
 				maxWidth + 5, maxHeight + 5999)));
 	}
@@ -1077,4 +1004,28 @@ public class IdeWindow extends JFrame {
 				       "\n",
 				       editor.getCaretPosition() - editor.getCaretOffsetFromLineStart());
 	}
+
+	public Point moveForOutputWindow() {
+		Point ret = new Point();
+		Point myPos = getLocationOnScreen();
+		ret.y = myPos.y;
+		int myWidth = getWidth() + WINDOW_GAP;
+		int outputWidth = outputWindow.getWidth() + WINDOW_GAP;
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int newX = screenSize.width - outputWidth - myWidth;
+		int newY = myPos.y;
+		if (outputWindow.getHeight() > screenSize.height - myPos.y) {
+			newY = 0;
+			ret.y = 0;
+		}
+		if (newX <= 0) newX = 0;
+		if (myPos.x > newX) {
+			ret.x = screenSize.width - outputWidth;
+			setLocation(newX, newY);
+		} else {
+			ret.x = myPos.x + myWidth;
+		}
+		return ret;
+	}
 }
+

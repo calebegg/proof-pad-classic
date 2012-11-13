@@ -1,4 +1,6 @@
 package org.proofpad;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,9 +15,16 @@ import java.util.prefs.Preferences;
 import javax.swing.text.Segment;
 
 import org.fife.ui.rsyntaxtextarea.Token;
+import org.proofpad.InfoBar.CloseListener;
+import org.proofpad.InfoBar.InfoButton;
 import org.proofpad.Repl.MsgType;
 
 public class Acl2 extends Thread {
+	private static final int ACL2_IS_SLOW_DELAY = 15000;
+	public interface ErrorListener {
+		public InfoBar handleError(String msg, InfoButton[] btns);
+	}
+
 	public interface RestartListener {
 		public void acl2Restarted();
 	}
@@ -35,7 +44,6 @@ public class Acl2 extends Thread {
 	
 	public interface Callback {
 		/**
-		 * 
 		 * @param success
 		 * @param response
 		 * @return Whether or not to print this output to the REPL.
@@ -92,6 +100,8 @@ public class Acl2 extends Thread {
 	private int procId;
 
 	private boolean fullSuccess = true;
+	boolean acl2IsSlowShown;
+	private long lastAdmittedTimestamp = 0;
 	private String fullOutput = "";
 
 	int numInitExps;
@@ -102,6 +112,10 @@ public class Acl2 extends Thread {
 	private final List<String> acl2Paths;
 
 	String acl2Path;
+
+	private ErrorListener errorListener;
+
+	private InfoBar currentInfobar;
 
 	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
 	private final static List<Character> markerChars = stringToCharacterList(marker);
@@ -127,8 +141,7 @@ public class Acl2 extends Thread {
 		}
 		List<Character> buffer = new LinkedList<Character>();
 		if (acl2 == null) {
-			//throw new NullPointerException("Call initialize() first");
-			fireOutputEvent(new OutputEvent("ACL2 was not correctly started.", MsgType.ERROR));
+			fireOutputEvent(new OutputEvent("ACL2 was not started correctly.", MsgType.ERROR));
 			Main.userData.addError("ACL2 failed to start.");
 			return;
 		}
@@ -142,9 +155,8 @@ public class Acl2 extends Thread {
 							// If we get here, the process has terminated.
 							failAllCallbacks();
 							fireRestartEvent();
-							fireOutputEvent(new OutputEvent("ACL2 has terminated. Use Tools > " +
-									"Restart ACL2 to restart.", MsgType.INFO));
-							Main.userData.addError("ACL2 terminated.");
+							
+							showAcl2TerminatedError();
 							return;
 							//restart();
 						} catch (IllegalThreadStateException e) { }
@@ -161,6 +173,24 @@ public class Acl2 extends Thread {
 							}
 						}
 					}).start();
+					if (lastAdmittedTimestamp < System.currentTimeMillis() - ACL2_IS_SLOW_DELAY &&
+							!acl2IsSlowShown && !callbacks.isEmpty()
+							&& !Main.WIN /* TODO: Remove this when ctrl+C on Windows is fixed */
+							) {
+						acl2IsSlowShown = true;
+						currentInfobar = fireErrorEvent("ACL2 is taking a while.", new InfoButton[] {
+								new InfoButton("Interrupt",
+									new ActionListener() {
+										@Override public void actionPerformed(ActionEvent arg0) {
+											interrupt();
+										}
+									})});
+						currentInfobar.addCloseListener(new CloseListener() {
+							@Override public void onClose() {
+								acl2IsSlowShown = false;
+							}
+						});
+					}
 					if (in.ready()) {
 						backoff = 0;
 						char c = (char) in.read();
@@ -180,6 +210,11 @@ public class Acl2 extends Thread {
 						for (List<Character> p : prompt) {
 							if (buffer.size() > p.size() &&
 									buffer.subList(buffer.size() - p.size(), buffer.size()).equals(p)) {
+								lastAdmittedTimestamp = System.currentTimeMillis();
+								if (acl2IsSlowShown && currentInfobar != null) {
+									currentInfobar.close();
+									acl2IsSlowShown = false;
+								}
 								String response = sb.toString().substring(0, sb.length() - p.size());
 								if (outputQueue.size() > 0 && !response.contains("DEFUN __TRACE-")) {
 									fullSuccess &= !errorOccured;
@@ -208,14 +243,31 @@ public class Acl2 extends Thread {
 					e.printStackTrace();
 					failAllCallbacks();
 					fireRestartEvent();
-					fireOutputEvent(new OutputEvent("ACL2 has terminated. Use Tools > " +
-							"Restart ACL2 to restart.", MsgType.INFO));
-					Main.userData.addError(e.getMessage());
+					showAcl2TerminatedError();
 					return;
 				}
 			}
 		}
 	}
+	private void showAcl2TerminatedError() {
+		fireErrorEvent("ACL2 has terminated.", new InfoButton[] { new InfoButton("Restart",
+				new ActionListener() {
+			@Override public void actionPerformed(ActionEvent arg0) {
+				try {
+					restart();
+				} catch (IOException e) { }
+			}
+		})
+		});
+		Main.userData.addError("ACL2 terminated.");
+	}
+	private InfoBar fireErrorEvent(String string, InfoButton[] infoButton) {
+		if (errorListener != null) {
+			return errorListener.handleError(string, infoButton);
+		}
+		return null;
+	}
+	
 	private void failAllCallbacks() {
 		List<Callback> callbacksCopy = new LinkedList<Callback>(callbacks);
 		for (Callback callback : callbacksCopy) {
@@ -224,6 +276,7 @@ public class Acl2 extends Thread {
 		callbacks.clear();
 	}
 	private void fireOutputEvents(boolean success) {
+		
 		if (outputQueue.size() > 0) {
 			outputQueue.remove(0);
 		}
@@ -246,9 +299,10 @@ public class Acl2 extends Thread {
 
 	public void initialize() throws IOException {
 		ProcessBuilder processBuilder;
+		acl2IsSlowShown = false;
 
 		for (String maybeAcl2Path : acl2Paths) {
-			if (IdeWindow.WIN) {
+			if (Main.WIN) {
 				//processBuilder = new ProcessBuilder("ctrlc-windows.exe", acl2Path);
 				processBuilder = new ProcessBuilder(maybeAcl2Path);
 			} else {
@@ -271,13 +325,13 @@ public class Acl2 extends Thread {
 			acl2Path = maybeAcl2Path;
 			workingDir = maybeWorkingDir;
 			in = new BufferedReader(new InputStreamReader(acl2.getInputStream()));
-			if (!IdeWindow.WIN) {
-				//procId = Integer.parseInt(in.readLine());
+			if (!Main.WIN) {
+				procId = Integer.parseInt(in.readLine());
 			}
 			out = new BufferedWriter(new OutputStreamWriter(acl2.getOutputStream()));
 			out.write("(cw \"" + marker + "\")\n");
 			String draculaPath;
-			if (IdeWindow.WIN) {
+			if (Main.WIN) {
 				draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "/") + "/dracula";
 			} else {
 				try {
@@ -302,6 +356,7 @@ public class Acl2 extends Thread {
 	
 	private void admit(String code, Callback callback, boolean trace) {
 		if (out == null) return;
+		lastAdmittedTimestamp = System.currentTimeMillis();
 		code = code + '\n';
 		code = code
 				.replaceAll(";.*?\r?\n", "")
@@ -374,7 +429,7 @@ public class Acl2 extends Thread {
 	
 	public void terminate() {
 		admit("(good-bye)", Acl2.doNothingCallback);
-		if (IdeWindow.WIN) {
+		if (Main.WIN) {
 			// Depends on ctrlc-windows.exe
 //			try {
 //				out.write(0);
@@ -391,7 +446,7 @@ public class Acl2 extends Thread {
 	@Override
 	public void interrupt() {
 		backoff = 0;
-		if (IdeWindow.WIN) {
+		if (Main.WIN) {
 			// Depends on ctrlc-windows.exe
 			//writeByte(1);
 		} else {
@@ -431,5 +486,11 @@ public class Acl2 extends Thread {
 	}
 	public String getAcl2Path() {
 		return acl2Path;
+	}
+	public ErrorListener getErrorListener() {
+		return errorListener;
+	}
+	public void setErrorListener(ErrorListener errorListener) {
+		this.errorListener = errorListener;
 	}
 }
