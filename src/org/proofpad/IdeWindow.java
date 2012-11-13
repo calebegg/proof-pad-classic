@@ -14,6 +14,8 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -140,7 +142,6 @@ public class IdeWindow extends JFrame {
 	
 	File openFile;
 	boolean isSaved = true;
-	IdeWindow that = this;
 	private File workingDir;
 	private Acl2Parser parser;
 	Repl repl;
@@ -268,8 +269,15 @@ public class IdeWindow extends JFrame {
 		gutter.setBackground(Color.WHITE);
 		westPanel.add(gutter);
 		editorScroller.setRowHeaderView(westPanel);
-		editorScroller.setVerticalScrollBar(moreBar);
+//		editorScroller.setVerticalScrollBar(moreBar);
+		splitTop.add(moreBar, BorderLayout.EAST);
 		editorContainer.add(editor, BorderLayout.CENTER);
+		editorScroller.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+			@Override public void adjustmentValueChanged(AdjustmentEvent e) {
+				moreBar.setScrollbarVal(editorScroller.getVerticalScrollBar().getValue());
+				moreBar.repaint();
+			}
+		});
 		editorScroller.setViewportView(editorContainer);
 		editorScroller.getVerticalScrollBar().setUnitIncrement(editor.getLineHeight());
 		editorScroller.getHorizontalScrollBar().setUnitIncrement(editor.getLineHeight());
@@ -290,7 +298,7 @@ public class IdeWindow extends JFrame {
 			acl2.start();
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(that, "ACL2 executable not found",
+			JOptionPane.showMessageDialog(this, "ACL2 executable not found",
 					"Error", JOptionPane.ERROR_MESSAGE);
 		}
 		parser.setAcl2Dir(new File(acl2.getAcl2Path()).getParentFile());
@@ -340,7 +348,7 @@ public class IdeWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (!saveFile()) {
-					JOptionPane.showMessageDialog(that,
+					JOptionPane.showMessageDialog(IdeWindow.this,
 							"Save the current file in order to build", "Build did not complete",
 							JOptionPane.INFORMATION_MESSAGE);
 					return;
@@ -356,7 +364,7 @@ public class IdeWindow extends JFrame {
 		includeBookAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				BookViewer viewer = new BookViewer(that);
+				BookViewer viewer = new BookViewer(IdeWindow.this);
 				viewer.setVisible(true);
 			}
 		};
@@ -677,7 +685,7 @@ public class IdeWindow extends JFrame {
 			}
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-				if (that.promptIfUnsavedAndClose()) {
+				if (IdeWindow.this.promptIfUnsavedAndClose()) {
 					updateWindowMenu();
 				}
 			}
@@ -829,10 +837,11 @@ public class IdeWindow extends JFrame {
 		if (response == 1 || isSaved) {
 			dispose();
 			acl2.terminate();
+			outputWindow.dispose();
 			if (ii != null) {
 				ii.remove();
 			} else {
-				windows.remove(that);
+				windows.remove(IdeWindow.this);
 			}
 			if (windows.size() == 0 && !Main.OSX) {
 				Main.quit();

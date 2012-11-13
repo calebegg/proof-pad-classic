@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -18,11 +17,11 @@ import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JScrollBar;
+import javax.swing.JComponent;
 
 import org.proofpad.ProofBar.ExpData;
 
-public class MoreBar extends JScrollBar {
+public class MoreBar extends JComponent {
 	
 	private static final ImageIcon moreIcon = Repl.moreIcon;
 	private static final long serialVersionUID = -2510084974061378819L;
@@ -33,13 +32,14 @@ public class MoreBar extends JScrollBar {
 
 	List<ExpData> data;
 	private final IdeWindow win;
+	private int scrollbarVal;
 	
 	public MoreBar(final IdeWindow win) {
 		super();
 		this.win = win;
-		int scrollWidth = new JScrollBar().getPreferredSize().width;
-		setPreferredSize(new Dimension(width + scrollWidth, 0));
+		setPreferredSize(new Dimension(width, 0));
 		setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.LIGHT_GRAY));
+		setBackground(Color.WHITE);
 		MouseListener[] mls = getMouseListeners();
 		// Shift mouse listeners over 10px so they match the scrollbar's expectations
 		for (final MouseListener ml : mls) {
@@ -77,7 +77,7 @@ public class MoreBar extends JScrollBar {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getX() >= width) return;
-				int top = getValue();
+				int top = getScrollbarVal();
 				int offset = -top;
 				if (data == null) return;
 				for (ExpData ex : data) {
@@ -96,19 +96,9 @@ public class MoreBar extends JScrollBar {
 	@Override
 	protected void paintComponent(Graphics gOld) {
 		Graphics2D g = (Graphics2D) gOld;
-		// Draw the old scrollbar
-		Rectangle clip = g.getClipBounds();
-		clip.width -= width;
-		clip.x += width;
-		g.setClip(clip);
-		g.translate(width / 2, 0); // TODO: Why is this /2?
-		super.paintComponent(g);
-		g.translate(-width / 2, 0);
-		clip.x -= width;
-		clip.width += width;
-		g.setClip(clip);
 		// Draw the More Bar.
-		int top = getValue();
+		int top = scrollbarVal;
+		g.clearRect(0, 0, width, getHeight());
 		g.setColor(Color.GRAY);
 		g.drawLine(width, 0, width, getHeight());
 		int offset = -top;
@@ -128,7 +118,7 @@ public class MoreBar extends JScrollBar {
 						angle = Math.toRadians(180);
 					}
 					g.setColor(ProofBar.UNTRIED_COLOR);
-					g.fillRect(0, offset, width, height);
+					g.fillRect(0, offset + 1, width, height - 1);
 					drewSelected = true;
 				} else if (ex.exp.expNum == oldIdx) {
 					if (currTime - rotateStart < 200) {
@@ -199,5 +189,13 @@ public class MoreBar extends JScrollBar {
 				e.getModifiers(), e.getX() - width / 2, e.getY(), e.getXOnScreen() - width / 2,
 				e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(), e.getButton());
 		return ret;
+	}
+
+	public int getScrollbarVal() {
+		return scrollbarVal;
+	}
+
+	public void setScrollbarVal(int scrollbarVal) {
+		this.scrollbarVal = scrollbarVal;
 	}
 }
