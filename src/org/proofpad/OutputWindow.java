@@ -11,18 +11,22 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+
+import org.proofpad.Repl.Message;
 
 public class OutputWindow extends JFrame {
 	private static final long serialVersionUID = -763205019202829248L;
@@ -72,10 +76,24 @@ public class OutputWindow extends JFrame {
 		textComp.setFont(Prefs.font.get());
 		textComp.setEditable(false);
 		textComp.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		
+		JPanel summaries = new JPanel();
+		summaries.setLayout(new BoxLayout(summaries, BoxLayout.Y_AXIS));
+		List<Message> msgs = Repl.summarize(output, null);
+		for (Message msg : msgs) {
+			JComponent line = ideWindow.repl.createSummary(msg.msg, msg.type, null);
+			summaries.add(line);
+		}
+		Component oldPgStartComp = ((BorderLayout) getRootPane().getLayout())
+				.getLayoutComponent(BorderLayout.PAGE_START);
+		if (oldPgStartComp != null) getRootPane().remove(oldPgStartComp);
+		getRootPane().add(summaries, BorderLayout.PAGE_START);
+		
 		if (afterPreview != null) afterPreview.run();
 		afterPreview = after;
-		Component oldComp = ((BorderLayout) getRootPane().getLayout()).getLayoutComponent(BorderLayout.CENTER);
-		if (oldComp != null) getRootPane().remove(oldComp);
+		Component oldCenterComp = ((BorderLayout) getRootPane().getLayout())
+				.getLayoutComponent(BorderLayout.CENTER);
+		if (oldCenterComp != null) getRootPane().remove(oldCenterComp);
 		JScrollPane textScroller = new JScrollPane(textComp);
 		textScroller.setBorder(BorderFactory.createEmptyBorder());
 		getRootPane().add(textScroller, BorderLayout.CENTER);
