@@ -63,6 +63,8 @@ import org.proofpad.InfoBar.InfoButton;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
 
+import com.apple.eawt.FullScreenUtilities;
+
 public class IdeWindow extends JFrame {
 	static final Color activeToolbar = new Color(.8627f, .8627f, .8627f);
 	static final Color inactiveToolbar = new Color(.9529f, .9529f, .9529f);
@@ -83,7 +85,6 @@ public class IdeWindow extends JFrame {
 	}
 	private static final long serialVersionUID = -7435370608709935765L;
 	private static final int WINDOW_GAP = 10;
-	public static PrefsWindow prefsWindow = null;
 	static List<IdeWindow> windows = new LinkedList<IdeWindow>();
 	private static int untitledCount = 1;
 	
@@ -117,6 +118,7 @@ public class IdeWindow extends JFrame {
 	ActionListener undoPrevAction;
 	ActionListener clearReplScrollback;
 	ActionListener tutorialAction;
+	ActionListener saveAsAction;
 
 	MoreBar moreBar;
 	Gutter gutter;
@@ -138,7 +140,7 @@ public class IdeWindow extends JFrame {
 
 	public IdeWindow(File file) {
 		super();
-//		FullScreenUtilities.setWindowCanFullScreen(this, true);
+		FullScreenUtilities.setWindowCanFullScreen(this, true);
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", true);
 		
 		windows.add(this);
@@ -154,8 +156,7 @@ public class IdeWindow extends JFrame {
 		split.setTopComponent(splitTop);
 		split.setResizeWeight(1);
 		splitMain.add(split, BorderLayout.CENTER);
-		editorScroller = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		editorScroller = new JScrollPane();
 		editorScroller.setBorder(BorderFactory.createEmptyBorder());
 		editorScroller.setViewportBorder(BorderFactory.createEmptyBorder());
 		getRootPane().setBorder(BorderFactory.createEmptyBorder());
@@ -217,7 +218,7 @@ public class IdeWindow extends JFrame {
 		westPanel.add(gutter);
 		editorScroller.setRowHeaderView(westPanel);
 //		editorScroller.setVerticalScrollBar(moreBar);
-		splitTop.add(moreBar, BorderLayout.EAST);
+		splitTop.add(moreBar, BorderLayout.LINE_END);
 		editorContainer.add(editor, BorderLayout.CENTER);
 		editorScroller.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
 			@Override public void adjustmentValueChanged(AdjustmentEvent e) {
@@ -253,8 +254,7 @@ public class IdeWindow extends JFrame {
 		}
 
 		undoAction = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			@Override public void actionPerformed(ActionEvent arg0) {
 				editor.undoLastAction();
 				fixUndoRedoStatus();
 				editor.requestFocus();
@@ -262,8 +262,7 @@ public class IdeWindow extends JFrame {
 		};
 		
 		redoAction = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			@Override public void actionPerformed(ActionEvent arg0) {
 				editor.redoLastAction();
 				fixUndoRedoStatus();
 				editor.requestFocus();
@@ -271,15 +270,19 @@ public class IdeWindow extends JFrame {
 		};
 		
 		saveAction = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			@Override public void actionPerformed(ActionEvent e) {
 				saveFile();
 			}
 		};
 		
+		saveAsAction = new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				saveFileAs();
+			}
+		};
+		
 		printAction = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			@Override public void actionPerformed(ActionEvent e) {
 				PrinterJob job = PrinterJob.getPrinterJob();
 				job.setPrintable(editor);
 				boolean doPrint = job.printDialog();
@@ -294,8 +297,7 @@ public class IdeWindow extends JFrame {
 		};
 		
 		buildAction = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			@Override public void actionPerformed(ActionEvent arg0) {
 				if (!saveFile()) {
 					JOptionPane.showMessageDialog(IdeWindow.this,
 							"Save the current file in order to build", "Build did not complete",
@@ -362,7 +364,7 @@ public class IdeWindow extends JFrame {
 			toolbar.setBackground(activeToolbar);
 		}
 		menuBar = new MenuBar(this);
-		splitMain.add(toolbar, BorderLayout.NORTH);
+		splitMain.add(toolbar, BorderLayout.PAGE_START);
 		setJMenuBar(menuBar);
 		
 		// Preferences
@@ -568,14 +570,16 @@ public class IdeWindow extends JFrame {
 	}
 
 	protected void setInfoBar(JComponent comp) {
-		Component child = ((BorderLayout) splitTop.getLayout()).getLayoutComponent(BorderLayout.NORTH);
+		Component child = ((BorderLayout) splitTop.getLayout())
+				.getLayoutComponent(BorderLayout.PAGE_START);
 		if (child != null) splitTop.remove(child);
-		splitTop.add(comp, BorderLayout.NORTH);
+		splitTop.add(comp, BorderLayout.PAGE_START);
 		splitTop.revalidate();
 	}
 	
 	protected void closeInfoBar() {
-		Component child = ((BorderLayout) splitTop.getLayout()).getLayoutComponent(BorderLayout.NORTH);
+		Component child = ((BorderLayout) splitTop.getLayout())
+				.getLayoutComponent(BorderLayout.PAGE_START);
 		splitTop.remove(child);
 		editor.clearMarkAllHighlights();
 		splitTop.revalidate();
@@ -646,6 +650,14 @@ public class IdeWindow extends JFrame {
 			return true;
 		}
 		return false;
+	}
+	
+	void saveFileAs() {
+		File oldOpenFile = openFile;
+		openFile = null;
+		if (!saveFile()) {
+			openFile = oldOpenFile;
+		}
 	}
 
 	boolean saveFile() {

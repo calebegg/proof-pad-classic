@@ -67,4 +67,5 @@ public class Prefs {
 		}
 	};
 	protected static final BooleanPref incSearch = new BooleanPref("incsearch", true);
+	public static final BooleanPref showToolbar = new BooleanPref("toolbarvisible", true);
 }

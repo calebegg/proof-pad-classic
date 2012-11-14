@@ -1,7 +1,9 @@
 package org.proofpad;
 
 import java.awt.Desktop;
+import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +14,7 @@ import java.net.URI;
 import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -22,14 +25,23 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
+import org.proofpad.PrefsWindow.ToolbarVisibleListener;
+
+/*
+ * GNOME HIG: http://developer.gnome.org/hig-book/3.4/menus-standard.html.en
+ * Windows HIG: http://msdn.microsoft.com/en-us/library/windows/desktop/aa511502.aspx
+ * https://developer.apple.com/library/mac/#documentation/userexperience/Conceptual/AppleHIGuidelines/Menus/Menus.html#//apple_ref/doc/uid/TP30000356-SW3
+ */
 
 public class MenuBar extends JMenuBar {
 	static final int RECENT_MENU_ITEMS = 10;
 	private static final boolean WIN = Main.WIN || Main.FAKE_WINDOWS;
 	private static final boolean OSX = Main.OSX && !Main.FAKE_WINDOWS;
+	private static final boolean LINUX = !OSX && !WIN;
 	private static final boolean TITLE_CASE = !WIN;
 	private static final long serialVersionUID = -3469258243341307842L;
-	static final int modKey = Main.FAKE_WINDOWS ? KeyEvent.CTRL_DOWN_MASK : Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+	static final int modKey = Main.FAKE_WINDOWS ? KeyEvent.CTRL_DOWN_MASK : Toolkit
+			.getDefaultToolkit().getMenuShortcutKeyMask();
 	public JMenuItem undo;
 	public JMenuItem redo;
 	private JMenu windowMenu;
@@ -43,10 +55,7 @@ public class MenuBar extends JMenuBar {
 		
 		final ActionListener prefsAction = new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				if (IdeWindow.prefsWindow == null) {
-					IdeWindow.prefsWindow = new PrefsWindow();
-				}
-				IdeWindow.prefsWindow.setVisible(true);
+				PrefsWindow.getInstance().setVisible(true);
 			}
 		};
 		
@@ -71,7 +80,7 @@ public class MenuBar extends JMenuBar {
 		updateRecentMenu();
 		menu.add(recentMenu);
 		
-		menu.addSeparator();
+		if (OSX) menu.addSeparator();
 		
 		item = new JMenuItem("Close");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, modKey));
@@ -88,6 +97,8 @@ public class MenuBar extends JMenuBar {
 		item.addActionListener(new UserData.LogUse("closeMenuItem"));
 		menu.add(item);
 		
+		if (!OSX) menu.addSeparator();
+		
 		item = new JMenuItem("Save");
 		saveItem = item;
 		if (parent == null) {
@@ -99,20 +110,34 @@ public class MenuBar extends JMenuBar {
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, modKey));
 		menu.add(item);
 		
-		item = new JMenuItem("Duplicate");
-		if (parent == null) {
-			item.setEnabled(false);
+		if (OSX) {
+			item = new JMenuItem("Duplicate");
+			if (parent == null) {
+				item.setEnabled(false);
+			} else {
+				item.addActionListener(new ActionListener(){
+					@Override public void actionPerformed(ActionEvent e) {
+						IdeWindow dupWin = new IdeWindow(parent.editor.getText());
+						dupWin.setVisible(true);
+					}
+				});
+				item.addActionListener(new UserData.LogUse("duplicateMenuItem"));
+			}
+			menu.add(item);
 		} else {
-			item.addActionListener(new ActionListener(){
-				@Override public void actionPerformed(ActionEvent e) {
-					IdeWindow dupWin = new IdeWindow(parent.editor.getText());
-					dupWin.setVisible(true);
-				}
-			});
-			item.addActionListener(new UserData.LogUse("duplicateMenuItem"));
+			item = new JMenuItem("Save As...");
+			if (parent == null) {
+				item.setEnabled(false);
+			} else {
+				item.addActionListener(parent.saveAsAction);
+				item.addActionListener(new UserData.LogUse("saveAsMenuItem"));
+			}
+			menu.add(item);
 		}
-		menu.add(item);
 
+		// TODO: Save a copy... (Linux only)
+		// TODO: Revert (Linux only)
+		
 		menu.addSeparator();
 		
 		item = new JMenuItem("Print...");
@@ -195,6 +220,25 @@ public class MenuBar extends JMenuBar {
 		item.addActionListener(new UserData.LogUse("pasteMenuItem"));
 		menu.add(item);
 		
+		JMenuItem selectAllItem = new JMenuItem(applyTitleCase("Select all"));
+		selectAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, modKey));
+		if (parent == null) {
+			selectAllItem.setEnabled(false);
+		} else {
+			selectAllItem.addActionListener(new ActionListener() {
+				@Override public void actionPerformed(ActionEvent arg0) {
+					parent.editor.selectAll();
+				}
+			});
+			selectAllItem.addActionListener(new UserData.LogUse("selectAllMenuItem"));
+		}
+		
+		if (!OSX) {
+			menu.addSeparator();
+			menu.add(selectAllItem);
+			menu.addSeparator();
+		}
+		
 		item = new JMenuItem("Delete");
 		if (parent == null) {
 			item.setEnabled(false);
@@ -212,18 +256,7 @@ public class MenuBar extends JMenuBar {
 		}
 		menu.add(item);
 		
-		item = new JMenuItem(applyTitleCase("Select all"));
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, modKey));
-		if (parent == null) {
-			item.setEnabled(false);
-		} else {
-			item.addActionListener(new ActionListener() {
-				@Override public void actionPerformed(ActionEvent arg0) {
-					parent.editor.selectAll();
-				}
-			});
-			item.addActionListener(new UserData.LogUse("selectAllMenuItem"));
-		}
+		if (OSX) menu.add(selectAllItem);
 		
 		menu.addSeparator();
 		
@@ -254,7 +287,7 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(new UserData.LogUse("reindentMenuItem"));
 		}
 		menu.add(item);
-		if (!OSX && !WIN) {
+		if (LINUX) {
 			menu.addSeparator();
 			item = new JMenuItem("Preferences...");
 			item.addActionListener(prefsAction);
@@ -262,8 +295,97 @@ public class MenuBar extends JMenuBar {
 			menu.add(item);
 		}
 		add(menu);
-		/* ******* ACL2 Menu ******* */
-		menu = new JMenu("Tools");
+		
+		/* ******* View Menu ******* */
+		menu = new JMenu("View");
+		final JMenuItem showToolbarItem;
+		if (OSX) {
+			showToolbarItem = new JMenuItem(getToolbarLabelPrefix() + "Toolbar");
+			PrefsWindow.addToolbarVisibleListener(new ToolbarVisibleListener() {
+				@Override public void toolbarVisible(boolean visible) {
+					showToolbarItem.setText(getToolbarLabelPrefix() + "Toolbar");
+				}
+			});
+		} else {
+			showToolbarItem = new JCheckBoxMenuItem("Toolbar");
+			showToolbarItem.setSelected(Prefs.showToolbar.get());
+			PrefsWindow.addToolbarVisibleListener(new ToolbarVisibleListener() {
+				@Override public void toolbarVisible(boolean visible) {
+					showToolbarItem.setSelected(visible);
+				}
+			});
+		}
+		showToolbarItem.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				PrefsWindow.toggleToolbarVisible();
+				showToolbarItem.setText(getToolbarLabelPrefix() + "Toolbar");
+			}
+		});
+		showToolbarItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, modKey
+				| KeyEvent.ALT_DOWN_MASK));
+		menu.add(showToolbarItem);
+		item = new JMenuItem(applyTitleCase("Zoom in"));
+		if (OSX) {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, modKey
+					| KeyEvent.SHIFT_DOWN_MASK));
+		} else {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, modKey));
+		}
+		item.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				Font font = Prefs.font.get();
+				Prefs.font.set(font.deriveFont((float) (font.getSize() + 2)));
+				PrefsWindow.fireFontChangeEvent();
+			}
+		});
+		menu.add(item);
+		item = new JMenuItem(applyTitleCase("Zoom out"));
+		if (OSX) {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, modKey
+					| KeyEvent.SHIFT_DOWN_MASK));
+		} else {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, modKey));
+		}		item.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				Font font = Prefs.font.get();
+				Prefs.font.set(font.deriveFont((float) (font.getSize() - 2)));
+				PrefsWindow.fireFontChangeEvent();
+			}
+		});
+		menu.add(item);
+		if (LINUX) {
+			item = new JMenuItem(applyTitleCase("Normal size"));
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, modKey));
+			item.addActionListener(new ActionListener() {
+				@Override public void actionPerformed(ActionEvent e) {
+					Font font = Prefs.font.get();
+					Prefs.font.set(font.deriveFont((float) Prefs.fontSize.def));
+					PrefsWindow.fireFontChangeEvent();
+				}
+			});
+			menu.add(item);
+		}
+		item = new JMenuItem(applyTitleCase("Full screen"));
+		if (OSX) {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.SHIFT_DOWN_MASK
+					| KeyEvent.CTRL_DOWN_MASK));
+		} else {
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
+		}
+		if (parent == null) item.setEnabled(false);
+		item.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent arg0) {
+				GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(parent);
+			}
+		});
+		if (!OSX) {
+			menu.addSeparator();
+			menu.add(item);
+		}
+		add(menu);
+		
+		/* ******* Tools/ACL2 Menu ******* */
+		menu = new JMenu("Tools"); // Formerly "ACL2"
 		item = new JMenuItem("Restart ACL2");
 		item.setEnabled(parent != null);
 		item.addActionListener(new ActionListener() {
@@ -405,7 +527,7 @@ public class MenuBar extends JMenuBar {
 		item.addActionListener(new UserData.LogUse("reportBugMenuItem"));
 		menu.add(item);
 		if (!OSX) {
-			item = new JMenuItem("About");
+			item = new JMenuItem("About Proof Pad");
 			item.addActionListener(new ActionListener() {
 				@Override public void actionPerformed(ActionEvent e) {
 					new AboutWindow().setVisible(true);
@@ -415,6 +537,17 @@ public class MenuBar extends JMenuBar {
 			menu.add(item);
 		}
 		add(menu);
+	}
+
+	static String getToolbarLabelPrefix() {
+		String prefix = "";
+		if (OSX) {
+			prefix = "Hide ";
+			if (!Prefs.showToolbar.get()) {
+				prefix = "Show ";
+			}
+		}
+		return prefix;
 	}
 
 	public void updateRecentMenu() {

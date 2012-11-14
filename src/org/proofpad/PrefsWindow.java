@@ -17,6 +17,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -24,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -33,19 +35,21 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class PrefsWindow extends JFrame {
+public class PrefsWindow extends JDialog {
 
 	private class Separator extends JComponent {
 		private static final long serialVersionUID = 7305509836424390157L;
@@ -74,7 +78,7 @@ public class PrefsWindow extends JFrame {
 	}
 	
 	private static final long serialVersionUID = -5097145621288246384L;
-	Font font;
+	private static PrefsWindow instance = null;
 	static Preferences prefs = Preferences.userNodeForPackage(Main.class);
 	private static List<FontChangeListener> fontChangeListeners =
 			new LinkedList<FontChangeListener>();
@@ -85,16 +89,28 @@ public class PrefsWindow extends JFrame {
 	private static List<ShowLineNumbersListener> showLineNumbersListeners =
 			new LinkedList<PrefsWindow.ShowLineNumbersListener>();
 	
-	public PrefsWindow() {
-		super("Settings");
+	public static PrefsWindow getInstance() {
+		if (instance == null) {
+			instance = new PrefsWindow();
+		}
+		return instance;
+	}
+	
+	private PrefsWindow() {
+		super((JFrame)null, "Settings");
 		final PrefsWindow that = this;
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(4, 25, 4, 25));
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
-		font = getPrefFont();
 		final int widthGuide = prefs.getInt("widthguide", 60);
 		setResizable(false);
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "HIDE");
+		getRootPane().getActionMap().put("HIDE", new AbstractAction() {
+			private static final long serialVersionUID = -5310527346557745533L;
+			@Override public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+			}
+		});
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		//setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.NONE;
@@ -118,7 +134,7 @@ public class PrefsWindow extends JFrame {
 					}
 				}
 				//monospaced.toArray(new String[0]);
-				fontPicker.setSelectedItem(font.getFamily());
+				fontPicker.setSelectedItem(Prefs.font.get().getFamily());
 				fontPicker.setEnabled(true);
 			}
 		});
@@ -126,7 +142,7 @@ public class PrefsWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newFamily = (String) fontPicker.getSelectedItem();
-				font = new Font(newFamily, font.getStyle(), font.getSize());
+				Prefs.font.set(new Font(newFamily, Font.PLAIN, Prefs.font.get().getSize()));
 				fireFontChangeEvent();
 			}
 		});
@@ -149,7 +165,7 @@ public class PrefsWindow extends JFrame {
 		final JComboBox fontSizeComboBox =
 				new JComboBox(new String[] {"8", "10", "12", "14", "16", "20", "24" });
 		fontSizeComboBox.setEditable(true);
-		fontSizeComboBox.setSelectedItem(Integer.toString(font.getSize()));
+		fontSizeComboBox.setSelectedItem(Integer.toString(Prefs.font.get().getSize()));
 		((JTextField) fontSizeComboBox.getEditor().getEditorComponent()).setInputVerifier(
 				new InputVerifier() {
 					@Override
@@ -172,8 +188,13 @@ public class PrefsWindow extends JFrame {
 				} catch (NumberFormatException ex) {
 					return;
 				}
-				font = font.deriveFont(newSize);
+				Prefs.font.set(Prefs.font.get().deriveFont(newSize));
 				fireFontChangeEvent();
+			}
+		});
+		addFontChangeListener(new FontChangeListener() {
+			@Override public void fontChanged(Font font) {
+				fontSizeComboBox.setSelectedItem(Integer.toString(font.getSize()));
 			}
 		});
 		add(fontSizeComboBox, c);
@@ -287,11 +308,16 @@ public class PrefsWindow extends JFrame {
 		c.gridx = 1;
 		c.gridy++;
 		final JCheckBox showToolbar = new JCheckBox("Show the toolbar");
-		showToolbar.setSelected(prefs.getBoolean("toolbarvisible", true));
+		showToolbar.setSelected(Prefs.showToolbar.get());
 		showToolbar.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				fireToolbarVisibleEvent();
+				toggleToolbarVisible();
+			}
+		});
+		addToolbarVisibleListener(new ToolbarVisibleListener() {
+			@Override public void toolbarVisible(boolean visible) {
+				showToolbar.setSelected(visible);
 			}
 		});
 		add(showToolbar, c);
@@ -396,7 +422,7 @@ public class PrefsWindow extends JFrame {
 		c.gridx = 1;
 		c.gridy++;
 		c.weightx = 1.0;
-		c.anchor = GridBagConstraints.EAST;
+		c.anchor = GridBagConstraints.LINE_END;
 		final JButton closeButton = new JButton("Close");
 		closeButton.addActionListener(new ActionListener() {
 			@Override
@@ -404,7 +430,9 @@ public class PrefsWindow extends JFrame {
 				that.setVisible(false);
 			}
 		});
-		add(closeButton, c);
+		if (!Main.OSX) { 
+			add(closeButton, c);
+		}
 		addWindowFocusListener(new WindowAdapter() {
 			@Override
 			public void windowGainedFocus(WindowEvent arg0) {
@@ -447,19 +475,18 @@ public class PrefsWindow extends JFrame {
 		}
 		prefs.putInt("widthguide", value);
 	}
-	protected void fireFontChangeEvent() {
+	protected static void fireFontChangeEvent() {
 		for (FontChangeListener fcl : fontChangeListeners) {
-			fcl.fontChanged(font);
+			fcl.fontChanged(Prefs.font.get());
 		}
-		prefs.putInt("fontsize", font.getSize());
-		prefs.put("fontfamily", font.getFamily());
 	}
-	protected static void fireToolbarVisibleEvent() {
-		boolean visible = !prefs.getBoolean("toolbarvisible", true);
+	protected static void toggleToolbarVisible() {
+		boolean visible = !Prefs.showToolbar.get();
 		for (ToolbarVisibleListener tvl : toolbarVisibleListeners) {
 			tvl.toolbarVisible(visible);
 		}
 		prefs.putBoolean("toolbarvisible", visible);
+		Prefs.showToolbar.set(visible);
 	}
 
 	protected static void fireShowLineNumbersEvent(boolean selected) {
