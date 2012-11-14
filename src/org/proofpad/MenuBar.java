@@ -496,8 +496,6 @@ public class MenuBar extends JMenuBar {
 		}
 		/* ******* */
 		menu = new JMenu(OSX ? "Help " : "Help");
-		item = new JMenuItem("Index");
-		item = new JMenuItem(applyTitleCase("Quick guide"));
 		item = new JMenuItem("Look up...");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey | KeyEvent.ALT_DOWN_MASK));
 		if (parent == null) {
