@@ -104,6 +104,7 @@ public class MoreBar extends JComponent {
 		g.drawLine(width, 0, width, getHeight());
 		int offset = -top;
 		if (data == null) return;
+		boolean first = true;
 		try {
 			boolean drewSelected = false;
 			for (ExpData ex : data) {
@@ -119,7 +120,7 @@ public class MoreBar extends JComponent {
 						angle = Math.toRadians(180);
 					}
 					g.setColor(ProofBar.UNTRIED_COLOR);
-					g.fillRect(0, offset + 1, width, height - 1);
+					g.fillRect(0, offset + (first ? 0 : 1), width, height - (first ? 0 : 1));
 					drewSelected = true;
 				} else if (ex.exp.expNum == oldIdx) {
 					if (currTime - rotateStart < 200) {
@@ -140,6 +141,7 @@ public class MoreBar extends JComponent {
 					g.setTransform(savedTx);
 				}
 				offset += height;
+				first = false;
 			}
 			if (!drewSelected) {
 				// We lost the reference to the selected result string; it's gone, so we should
