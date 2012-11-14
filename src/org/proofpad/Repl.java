@@ -347,24 +347,24 @@ public class Repl extends JPanel {
 	}
 	
 	public static List<Message> summarize(String result, MsgType type) {
-		List<Message> ret = new ArrayList<Message>();
+		List<Message> msgs = new ArrayList<Message>();
 		Matcher match;
 		String joined = joinString(result);
 		if ((match = welcomeMessage.matcher(joined)).matches()) {
 			Main.userData.addReplMsg("welcomeMessage");
-			ret.add(new Message("ACL2 started successfully.", MsgType.INFO));
+			msgs.add(new Message("ACL2 started successfully.", MsgType.INFO));
 		}
 		if ((match = guardViolation.matcher(joined)).matches()) {
-			ret.add(new Message("Guard violation in " + match.group(3).toLowerCase() + ".", MsgType.ERROR));
+			msgs.add(new Message("Guard violation in " + match.group(3).toLowerCase() + ".", MsgType.ERROR));
 			Main.userData.addReplMsg("guardViolation");
 		}
 		if ((match = globalVar.matcher(joined)).matches()) {
-			ret.add(new Message("Global variables, such as " + match.group(1).toLowerCase() +
+			msgs.add(new Message("Global variables, such as " + match.group(1).toLowerCase() +
 					", are not allowed.", MsgType.ERROR));
 			Main.userData.addReplMsg("globalVar");
 		}
 		if ((match = wrongNumParams.matcher(joined)).matches()) {
-			ret.add(new Message(match.group(1).toLowerCase() +  " takes " + match.group(2) +
+			msgs.add(new Message(match.group(1).toLowerCase() +  " takes " + match.group(2) +
 					" arguments but was given " + match.group(4) + " at " +
 					match.group(3).toLowerCase(), MsgType.ERROR));
 			Main.userData.addReplMsg("wrongNumParams");
@@ -373,24 +373,35 @@ public class Repl extends JPanel {
 				   (match = nonRec.matcher(joined)).matches() ||
 				   (match = admission.matcher(joined)).matches()) {
 			if (type == MsgType.ERROR) {
-				ret.add(new Message("Admission of " + match.group(1).toLowerCase() + " failed.", MsgType.ERROR));
+				msgs.add(new Message("Admission of " + match.group(1).toLowerCase() + " failed.", MsgType.ERROR));
 				Main.userData.addReplMsg("admissionFailed");
 			} else {
-				ret.add(new Message(match.group(1).toLowerCase() + " was admitted successfully.", MsgType.SUCCESS));
+				msgs.add(new Message(match.group(1).toLowerCase() + " was admitted successfully.", MsgType.SUCCESS));
 				Main.userData.addReplMsg("admissionSucceeded");
 			}
 		}
 		if ((match = undefinedFunc.matcher(joined)).matches()) {
 			String func = match.group(1).toLowerCase();
-			ret.add(new Message("The function " + func + " is undefined.", MsgType.ERROR));
+			msgs.add(new Message("The function " + func + " is undefined.", MsgType.ERROR));
 			Main.userData.addReplMsg("undefinedFunc");
 		}
 		if ((match = proved.matcher(joined)).find()) {
-			ret.add(new Message("Proof successful.", MsgType.SUCCESS));
+			msgs.add(new Message("Proof successful.", MsgType.SUCCESS));
 			Main.userData.addReplMsg("proofSuccess");
 		}
 		
-		// TODO: Sort these so errors are at the top
+		List<Message> error = new ArrayList<Message>();
+		List<Message> normal = new ArrayList<Message>();
+		for (Message m : msgs) {
+			if (m.type == MsgType.ERROR) {
+				error.add(m);
+			} else {
+				normal.add(m);
+			}
+		}
+		List<Message> ret = new ArrayList<Message>();
+		ret.addAll(error);
+		ret.addAll(normal);
 		return ret;
 	}
 
@@ -404,11 +415,11 @@ public class Repl extends JPanel {
 		text.setEditable(false);
 		text.setBackground(Color.LIGHT_GRAY);
 		text.setOpaque(false);
-		text.setFont(definitions.getFont());
+		text.setFont(Prefs.font.get());
 		line.setLayout(new BoxLayout(line, BoxLayout.X_AXIS));
 		line.setBackground(Color.WHITE);
 		StatusLabel status = new StatusLabel();
-		status.setFont(definitions.getFont());
+		status.setFont(Prefs.font.get());
 		synchronized(fontChangeList) {
 			fontChangeList.add(status);
 			fontChangeList.add(text);
