@@ -26,24 +26,22 @@ public class Acl2 extends Thread {
 		BufferedReader in;
 		final List<Character> spool = new LinkedList<Character>();
 		public Spooler(BufferedReader in) {
+			super("Process spooler");
 			this.in = in;
 		}
 		@Override public void run() {
 			int i = 0;
-			System.out.println("Here we go.");
 			while (true) {
 				i++;
 				if (i > 10000) {
-					System.out.println("Uh oh.");
 					return;
 				}
 				try {
 					int c = in.read();
 					if (c == -1) {
-						System.out.println("Stream is done");
 						return;
 					}
-					System.out.print((char) c);
+//					System.out.print((char) c);
 					synchronized (this) {
 						spool.add((char) c);
 						notify();
@@ -163,6 +161,7 @@ public class Acl2 extends Thread {
 		this(acl2Paths, workingDir, null, parser);
 	}
 	public Acl2(List<String> acl2Paths, File workingDir, Callback callback, Acl2Parser parser) {
+		super("ACL2 background thread");
 		this.acl2Paths = acl2Paths;
 		sb = new StringBuilder();
 		this.workingDir = workingDir;
@@ -320,7 +319,6 @@ public class Acl2 extends Thread {
 
 		for (String maybeAcl2Path : acl2Paths) {
 			if (!new File(maybeAcl2Path).exists()) continue;
-			System.out.println(maybeAcl2Path);
 			if (Main.WIN) {
 				String ctrlcPath = new File(Main.getJarPath()).getParent() + "\\ctrlc-windows.exe";
 				processBuilder = new ProcessBuilder(ctrlcPath, maybeAcl2Path);
@@ -375,20 +373,17 @@ public class Acl2 extends Thread {
 					try {
 						Thread.sleep(4000);
 					} catch (InterruptedException e) { }
-					System.out.println("Checking the process");
 					try {
 						acl2Proc.exitValue();
 						// If we get here, the process has terminated.
-						System.out.println("Process terminated.");
 						failAllCallbacks();
 						fireRestartEvent();
 						showAcl2TerminatedError();
 						return;
 					} catch (IllegalThreadStateException e) { }
-					System.out.println("Looks good. See you in 4.");
 				}
 			}
-		});
+		}, "ACL2 monitor");
 		acl2Monitor.start();
 		initializing = false;
 	}
