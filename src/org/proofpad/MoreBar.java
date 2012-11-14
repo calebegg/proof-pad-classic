@@ -98,6 +98,7 @@ public class MoreBar extends JComponent {
 		Graphics2D g = (Graphics2D) gOld;
 		// Draw the More Bar.
 		int top = scrollbarVal;
+		g.setBackground(Color.WHITE);
 		g.clearRect(0, 0, width, getHeight());
 		g.setColor(Color.GRAY);
 		g.drawLine(width, 0, width, getHeight());
