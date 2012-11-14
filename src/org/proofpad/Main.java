@@ -23,10 +23,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -103,22 +100,7 @@ public class Main {
 		
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override public void uncaughtException(Thread t, Throwable e) {
-				String stackTrace = e + ": " + e.getMessage();
-				StackTraceElement[] stes = e.getStackTrace();
-				for (StackTraceElement ste : stes) {
-					stackTrace += "\n" + ste;
-				}
-				JTextArea errorText = new JTextArea();
-				JScrollPane sp = new JScrollPane(errorText);
-				errorText.setText(stackTrace);
-				errorText.setCaretPosition(0);
-				errorText.setEditable(false);
-				JFrame errorWindow = new JFrame("Error");
-				errorWindow.add(sp);
-				errorWindow.pack();
-				errorWindow.setLocationRelativeTo(null);
-				errorWindow.setVisible(true);
-				userData.addError(stackTrace);
+				new ErrorWindow(e).setVisible(true);
 			}
 		});
 		
@@ -161,10 +143,7 @@ public class Main {
 			});
 			app.setPreferencesHandler(new PreferencesHandler() {
 				@Override public void handlePreferences(PreferencesEvent arg0) {
-					if (IdeWindow.prefsWindow == null) {
-						IdeWindow.prefsWindow = new PrefsWindow();
-					}
-					IdeWindow.prefsWindow.setVisible(true);
+					PrefsWindow.getInstance().setVisible(true);
 				}
 			});
 			app.addAppEventListener(new AppForegroundListener() {
