@@ -30,8 +30,8 @@ public class BookViewer extends JFrame {
 	private static final long serialVersionUID = 1276853161919844567L;
 	
 	private class BookView {
-		private File f;
-		private String symbol;
+		private final File f;
+		private final String symbol;
 		public BookView(File f, String symbol) {
 			this.f = f;
 			this.symbol = symbol;
@@ -145,7 +145,7 @@ public class BookViewer extends JFrame {
 			buttons.add(include);
 			buttons.add(cancel);
 		}
-		add(buttons, BorderLayout.SOUTH);
+		add(buttons, BorderLayout.PAGE_END);
 		setPreferredSize(new Dimension(300, 600));
 		pack();
 		setLocationRelativeTo(parent);

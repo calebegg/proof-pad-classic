@@ -64,7 +64,7 @@ public class OutputWindow extends JFrame {
 			@Override public void windowClosed(WindowEvent e) { }
 			@Override public void windowActivated(WindowEvent e) { }
 		});
-		getRootPane().add(bottom, BorderLayout.SOUTH);
+		getRootPane().add(bottom, BorderLayout.PAGE_END);
 	}
 
 	public void showWithText(String output, Runnable after) {
