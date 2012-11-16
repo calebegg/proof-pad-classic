@@ -36,6 +36,7 @@ functionEnd
 section "install"
 	setOutPath $INSTDIR
 	File "proofpad.jar"
+	File "ctrlc-windows.exe"
 	File "media\icon.ico"
 	File /r "acl2"
  
