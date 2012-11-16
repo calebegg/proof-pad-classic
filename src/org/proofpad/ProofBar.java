@@ -9,6 +9,8 @@ import java.awt.LinearGradientPaint;
 import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -21,6 +23,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.Timer;
 import javax.swing.undo.UndoManager;
 
 import org.proofpad.ProofBar.UnprovenExp.Status;
@@ -499,10 +502,18 @@ public class ProofBar extends JComponent {
 		}
 		repaint();
 	}
-	
+
 	public void resetProgress() {
 		numProved = 0;
 		numProving = 0;
+		unprovenStates = new ArrayList<UnprovenExp>();
+		Timer t = new Timer(1000, new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				admitUnprovenExps();
+			}
+		});
+		t.setRepeats(false);
+		t.start();
 	}
 
 	public void flashAt(int offs) {

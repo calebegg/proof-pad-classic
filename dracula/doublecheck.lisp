@@ -3,7 +3,7 @@
 (set-state-ok t)
 
 (defconst *default-repeat* 50)
-(defconst *default-limit* 1001)
+(defconst *default-limit* 60)
 
 (defun random-between-fn (low high state)
   (mv-let (random state)
@@ -111,7 +111,7 @@
 (defmacro repeat-times (times limit body)
   (if (zp limit)
     `(mv state (hard-error nil
-                           "Wasn't able to generate enough data."
+                           "Wasn't able to generate enough data. Check your :where clauses (make sure they are satisfiable) and try increasing the :limit for the property"
                            nil))
     `(if (zp ,times)
          (mv state nil)

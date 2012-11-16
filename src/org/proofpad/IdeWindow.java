@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
+import java.awt.IllegalComponentStateException;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -62,8 +63,6 @@ import org.proofpad.Acl2.ErrorListener;
 import org.proofpad.InfoBar.InfoButton;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
-
-import com.apple.eawt.FullScreenUtilities;
 
 public class IdeWindow extends JFrame {
 	static final Color activeToolbar = new Color(.8627f, .8627f, .8627f);
@@ -140,7 +139,7 @@ public class IdeWindow extends JFrame {
 
 	public IdeWindow(File file) {
 		super();
-		FullScreenUtilities.setWindowCanFullScreen(this, true);
+//		FullScreenUtilities.setWindowCanFullScreen(this, true);
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", true);
 		
 		windows.add(this);
@@ -813,7 +812,12 @@ public class IdeWindow extends JFrame {
 
 	public Point moveForOutputWindow() {
 		Point ret = new Point();
-		Point myPos = getLocationOnScreen();
+		Point myPos;
+		try {
+			myPos = getLocationOnScreen();
+		} catch (IllegalComponentStateException e) {
+			return null;
+		}
 		ret.y = myPos.y;
 		int myWidth = getWidth() + WINDOW_GAP;
 		int outputWidth = outputWindow.getWidth() + WINDOW_GAP;

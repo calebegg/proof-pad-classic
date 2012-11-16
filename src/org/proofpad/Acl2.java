@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.EventListener;
@@ -23,19 +24,14 @@ public class Acl2 extends Thread {
 	private static final int ACL2_IS_SLOW_DELAY = 15000;
 	
 	private static class Spooler extends Thread {
-		BufferedReader in;
+		InputStream in;
 		final List<Character> spool = new LinkedList<Character>();
-		public Spooler(BufferedReader in) {
+		public Spooler(InputStream in) {
 			super("Process spooler");
 			this.in = in;
 		}
 		@Override public void run() {
-			int i = 0;
 			while (true) {
-				i++;
-				if (i > 10000) {
-					return;
-				}
 				try {
 					int c = in.read();
 					if (c == -1) {
@@ -154,6 +150,8 @@ public class Acl2 extends Thread {
 
 	private Thread acl2Monitor;
 
+	private boolean isTerminating;
+
 	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
 	private final static List<Character> markerChars = stringToCharacterList(marker);
 
@@ -254,6 +252,8 @@ public class Acl2 extends Thread {
 					fireOutputEvents(fullSuccess);
 					fullSuccess = true;
 				}
+			} catch (InterruptedException e) {
+				continue;
 			} catch (Exception e) {
 				e.printStackTrace();
 				failAllCallbacks();
@@ -291,8 +291,8 @@ public class Acl2 extends Thread {
 		}
 		callbacks.clear();
 	}
+	
 	private void fireOutputEvents(boolean success) {
-		
 		if (outputQueue.size() > 0) {
 			outputQueue.remove(0);
 		}
@@ -345,7 +345,7 @@ public class Acl2 extends Thread {
 			if (!Main.WIN) {
 				procId = Integer.parseInt(in.readLine());
 			}
-			sp = new Spooler(in);
+			sp = new Spooler(acl2Proc.getInputStream());
 			sp.start();
 			out = new BufferedWriter(new OutputStreamWriter(acl2Proc.getOutputStream()));
 			writeAndFlush("(cw \"" + marker + "\")\n");
@@ -373,6 +373,7 @@ public class Acl2 extends Thread {
 					try {
 						Thread.sleep(4000);
 					} catch (InterruptedException e) { }
+					if (acl2Proc == null) return;
 					try {
 						acl2Proc.exitValue();
 						// If we get here, the process has terminated.
@@ -459,10 +460,12 @@ public class Acl2 extends Thread {
 		isRestarting = true;
 		terminate();
 		initialize();
+		this.interrupt();
 		synchronized (this) {
 			notify();
 		}
 		fireRestartEvent();
+		failAllCallbacks();
 		isRestarting = false;
 	}
 
@@ -473,17 +476,19 @@ public class Acl2 extends Thread {
 	}
 	
 	public void terminate() {
+		isTerminating = true;
 		if (acl2Proc == null) return;
 		admit("(good-bye)", Acl2.doNothingCallback);
 		if (Main.WIN) {
 			writeByte(0);
 		}
+		// Give it five seconds to shut down
 		new Thread(new Runnable() {
 			@Override public void run() {
 				try {
 					sleep(5000);
 				} catch (InterruptedException e) { }
-				Acl2.this.ctrlc();
+				if (isTerminating) Acl2.this.interrupt();
 			}
 		}).start();
 		try {
@@ -491,6 +496,7 @@ public class Acl2 extends Thread {
 		} catch (InterruptedException e) {
 			acl2Proc.destroy();
 		}
+		isTerminating = false;
 	}
 
 	private void writeByte(int b) {
