@@ -38,6 +38,7 @@ public class ErrorWindow extends JDialog {
 			sb.append("\n" + ste);
 		}
 		final String stackTrace = sb.toString();
+		// TODO: Long error messages should have ellipses. max width?
 		JLabel errLabel = new JLabel("<html>An unexpected error occurred:<br>" + stackTrace.split("\n")[0]
 				+ "</html>");
 		errLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
