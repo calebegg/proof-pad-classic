@@ -653,7 +653,7 @@ public class Acl2Parser extends AbstractParser {
 								bookCache = cache.get(key);
 							} else {
 								try {
-									System.out.println("Book exists? " + book.exists());
+									System.out.println("Book exists? " + book);
 									bookCache = parseBook(book, getAcl2Dir(), cache);
 									cache.put(key, bookCache);
 								} catch (FileNotFoundException e) {

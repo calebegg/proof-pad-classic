@@ -118,6 +118,7 @@ public class IdeWindow extends JFrame {
 	ActionListener clearReplScrollback;
 	ActionListener tutorialAction;
 	ActionListener saveAsAction;
+	ActionListener showAcl2Output;
 
 	MoreBar moreBar;
 	Gutter gutter;
@@ -353,6 +354,12 @@ public class IdeWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				getGlassPane().setVisible(!getGlassPane().isVisible());
+			}
+		};
+		
+		showAcl2Output = new ActionListener() {
+			@Override public void actionPerformed(ActionEvent arg0) {
+				new Acl2OutputWindow(acl2).setVisible(true);
 			}
 		};
 		
@@ -623,7 +630,8 @@ public class IdeWindow extends JFrame {
 	
 	boolean promptIfUnsavedAndQuit(Iterator<IdeWindow> ii) {
 		int response = -1;
-		if (!isSaved) {
+		boolean isEmpty = editor.getText().length() == 0;
+		if (!isSaved && !isEmpty) {
 			response = JOptionPane.showOptionDialog(this,
 					"You have unsaved changes. Do"
 							+ " you want to save before closing?",
@@ -634,7 +642,7 @@ public class IdeWindow extends JFrame {
 		if (response == 0) {
 			saveFile();
 		}
-		if (response == 1 || isSaved) {
+		if (response == 1 || isSaved || isEmpty) {
 			dispose();
 			acl2.terminate();
 			outputWindow.dispose();
