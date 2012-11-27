@@ -363,7 +363,7 @@ public class Acl2 extends Thread {
 				e.printStackTrace();
 				continue;
 			}
-			acl2Path = maybeAcl2Path;
+			acl2Path = maybeAcl2Path.replaceAll("\\\\ ", " ");
 			workingDir = maybeWorkingDir;
 			BufferedReader in = new BufferedReader(new InputStreamReader(acl2Proc.getInputStream()));
 			if (!Main.WIN) {
@@ -385,6 +385,7 @@ public class Acl2 extends Thread {
 			}
 			initializing = true;
 			numInitExps = 0;
+			System.out.println("DRACULA: " + draculaPath);
 			admit("(add-include-book-dir :teachpacks \"" + draculaPath + "\")", doNothingCallback);
 			admit("(set-compile-fns nil)", doNothingCallback);
 			break;
