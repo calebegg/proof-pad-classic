@@ -118,6 +118,7 @@ public class IdeWindow extends JFrame {
 	ActionListener clearReplScrollback;
 	ActionListener tutorialAction;
 	ActionListener saveAsAction;
+	ActionListener showAcl2Output;
 
 	MoreBar moreBar;
 	Gutter gutter;
@@ -353,6 +354,12 @@ public class IdeWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				getGlassPane().setVisible(!getGlassPane().isVisible());
+			}
+		};
+		
+		showAcl2Output = new ActionListener() {
+			@Override public void actionPerformed(ActionEvent arg0) {
+				new Acl2OutputWindow(acl2).setVisible(true);
 			}
 		};
 		

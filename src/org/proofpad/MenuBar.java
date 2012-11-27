@@ -534,6 +534,14 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(new UserData.LogUse("aboutMenuItem"));
 			menu.add(item);
 		}
+		item = new JMenuItem(applyTitleCase("Show full ACL2 output"));
+		if (parent == null) {
+			item.setEnabled(false);
+		} else {
+			item.addActionListener(parent.showAcl2Output);
+			item.addActionListener(new UserData.LogUse("acl2FullOutput"));
+		}
+		menu.add(item);
 		add(menu);
 	}
 

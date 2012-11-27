@@ -21,9 +21,15 @@ import org.proofpad.InfoBar.InfoButton;
 import org.proofpad.Repl.MsgType;
 
 public class Acl2 extends Thread {
+	public interface OutputChangeListener {
+		void outputChanged(String string);
+	}
+
 	private static final int ACL2_IS_SLOW_DELAY = 15000;
 	
-	private static class Spooler extends Thread {
+	public final StringBuilder logOutput = new StringBuilder();
+	
+	private class Spooler extends Thread {
 		InputStream in;
 		final List<Character> spool = new LinkedList<Character>();
 		public Spooler(InputStream in) {
@@ -37,6 +43,8 @@ public class Acl2 extends Thread {
 					if (c == -1) {
 						return;
 					}
+					logOutput.append((char) c);
+					fireOutputChangeEvent();
 //					System.out.print((char) c);
 					synchronized (this) {
 						spool.add((char) c);
@@ -150,7 +158,9 @@ public class Acl2 extends Thread {
 
 	private Thread acl2Monitor;
 
-	private boolean isTerminating;
+	boolean isTerminating;
+
+	private final LinkedList<OutputChangeListener> outputChangeListeners = new LinkedList<OutputChangeListener>();
 
 	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
 	private final static List<Character> markerChars = stringToCharacterList(marker);
@@ -158,6 +168,20 @@ public class Acl2 extends Thread {
 	public Acl2(List<String> acl2Paths, File workingDir, Acl2Parser parser) {
 		this(acl2Paths, workingDir, null, parser);
 	}
+
+	protected void fireOutputChangeEvent() {
+		for (OutputChangeListener ocl : outputChangeListeners) {
+			ocl.outputChanged(logOutput.toString());
+		}
+	}
+	public void addOutputChangeListener(OutputChangeListener ocl) {
+		outputChangeListeners.add(ocl);
+		ocl.outputChanged(logOutput.toString());
+	}
+	public void removeOutputChangeListener(OutputChangeListener ocl) {
+		outputChangeListeners.remove(ocl);
+	}
+	
 	public Acl2(List<String> acl2Paths, File workingDir, Callback callback, Acl2Parser parser) {
 		super("ACL2 background thread");
 		this.acl2Paths = acl2Paths;
@@ -177,7 +201,7 @@ public class Acl2 extends Thread {
 		}
 		List<Character> buffer = new LinkedList<Character>();
 		if (acl2Proc == null) {
-			fireOutputEvent(new OutputEvent("ACL2 was not started correctly.", MsgType.ERROR));
+			fireOutputEvent(new OutputEvent("ACL2 did not start correctly.", MsgType.ERROR));
 			Main.userData.addError("ACL2 failed to start.");
 			return;
 		}
@@ -316,9 +340,9 @@ public class Acl2 extends Thread {
 	public void initialize() throws IOException {
 		ProcessBuilder processBuilder;
 		acl2IsSlowShown = false;
+		System.out.println(acl2Paths);
 
 		for (String maybeAcl2Path : acl2Paths) {
-			if (!new File(maybeAcl2Path).exists()) continue;
 			if (Main.WIN) {
 				String ctrlcPath = new File(Main.getJarPath()).getParent() + "\\ctrlc-windows.exe";
 				processBuilder = new ProcessBuilder(ctrlcPath, maybeAcl2Path);
@@ -387,6 +411,7 @@ public class Acl2 extends Thread {
 		}, "ACL2 monitor");
 		acl2Monitor.start();
 		initializing = false;
+		System.out.println("Acl2 started successfully: " + acl2Proc);
 	}
 	
 	private void writeAndFlush(String string) {
