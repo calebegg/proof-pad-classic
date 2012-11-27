@@ -623,7 +623,8 @@ public class IdeWindow extends JFrame {
 	
 	boolean promptIfUnsavedAndQuit(Iterator<IdeWindow> ii) {
 		int response = -1;
-		if (!isSaved) {
+		boolean isEmpty = editor.getText().length() == 0;
+		if (!isSaved && !isEmpty) {
 			response = JOptionPane.showOptionDialog(this,
 					"You have unsaved changes. Do"
 							+ " you want to save before closing?",
@@ -634,7 +635,7 @@ public class IdeWindow extends JFrame {
 		if (response == 0) {
 			saveFile();
 		}
-		if (response == 1 || isSaved) {
+		if (response == 1 || isSaved || isEmpty) {
 			dispose();
 			acl2.terminate();
 			outputWindow.dispose();
