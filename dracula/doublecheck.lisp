@@ -7,7 +7,7 @@
 
 (defun random-between-fn (low high state)
   (mv-let (random state)
-    (random$ (- high low) state)
+    (random$ (- (+ 1 high) low) state)
     (mv (+ random low) state)))
 
 (defmacro random-between (low high)
@@ -90,6 +90,9 @@
    `(mv-let (ln state)
            (random-data-size)
        (random-between-list-fn ,lo ,hi ln state)))
+
+(defmacro random-between-list-of-length (lo hi ln)
+   `(random-between-list-fn ,lo ,hi ,ln state))
 
 (defun random-increasing-list-fn (ln state)
    (if (zp ln)
