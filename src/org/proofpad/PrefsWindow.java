@@ -49,6 +49,8 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.proofpad.Prefs.BooleanPref;
+
 public class PrefsWindow extends JDialog {
 
 	private class Separator extends JComponent {
@@ -235,9 +237,25 @@ public class PrefsWindow extends JDialog {
 		guideSpinner.setEditor(new JSpinner.NumberEditor(guideSpinner));
 		add(guideSpinner, c);
 		
+		c.gridx = 1;
+		c.gridy++;
+		final JCheckBox showToolbar = new JCheckBox("Show the toolbar");
+		showToolbar.setSelected(Prefs.showToolbar.get());
+		showToolbar.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				toggleToolbarVisible();
+			}
+		});
+		addToolbarVisibleListener(new ToolbarVisibleListener() {
+			@Override public void toolbarVisible(boolean visible) {
+				showToolbar.setSelected(visible);
+			}
+		});
+		add(showToolbar, c);
+		
 		c.gridx = 0;
 		c.gridy++;
-		
 		add(new JLabel("Usage data:"), c);
 		c.gridx = 1;
 		final String[] opts = { "Ask every time", "Always send", "Never send" };
@@ -268,7 +286,7 @@ public class PrefsWindow extends JDialog {
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		add(new Separator(), c);
 		c.gridwidth = GridBagConstraints.NONE;
-
+		
 		c.gridx = 1;
 		c.gridy++;
 		final JCheckBox showErrors = new JCheckBox("Highlight potential errors with a red underline");
@@ -307,20 +325,8 @@ public class PrefsWindow extends JDialog {
 		
 		c.gridx = 1;
 		c.gridy++;
-		final JCheckBox showToolbar = new JCheckBox("Show the toolbar");
-		showToolbar.setSelected(Prefs.showToolbar.get());
-		showToolbar.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				toggleToolbarVisible();
-			}
-		});
-		addToolbarVisibleListener(new ToolbarVisibleListener() {
-			@Override public void toolbarVisible(boolean visible) {
-				showToolbar.setSelected(visible);
-			}
-		});
-		add(showToolbar, c);
+		final JCheckBox autoMatch = makeCheckboxForPref(Prefs.autoClose);
+		add(autoMatch, c);
 		
 		c.gridx = 0;
 		c.gridy++;
@@ -449,6 +455,18 @@ public class PrefsWindow extends JDialog {
 		pack();
 		acl2Path.setText(prefs.get("acl2Path", ""));
 		setLocationRelativeTo(null);
+	}
+
+	private static JCheckBox makeCheckboxForPref(final BooleanPref pref) {
+		final JCheckBox autoMatch = new JCheckBox("Smart match parentheses");
+		autoMatch.setSelected(Prefs.autoClose.get());
+		autoMatch.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				pref.set(autoMatch.isSelected());
+			}
+		});
+		return autoMatch;
 	}
 
 

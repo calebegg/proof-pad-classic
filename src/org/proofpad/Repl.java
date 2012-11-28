@@ -238,7 +238,7 @@ public class Repl extends JPanel {
 		bottom.setBackground(Color.WHITE);
 		JLabel prompt = new StatusLabel(MsgType.INPUT);
 		input = new CodePane(null);
-		input.setDocument(new IdeDocument(null));
+		input.setDocument(new IdeDocument(null, input.getCaret()));
 		prompt.addMouseListener(new MouseAdapter() {
 			@Override public void mouseClicked(MouseEvent arg0) {
 				input.requestFocus();

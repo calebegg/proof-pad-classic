@@ -232,7 +232,7 @@ public class IdeWindow extends JFrame {
 		helpAction = editor.getHelpAction();
 		repl = new Repl(this, acl2, editor);
 		proofBar.setLineHeight(editor.getLineHeight());
-		final IdeDocument doc = new IdeDocument(proofBar);
+		final IdeDocument doc = new IdeDocument(proofBar, editor.getCaret());
 		editor.setDocument(doc);
 		parser.addParseListener(new Acl2Parser.ParseListener() {
 			@Override

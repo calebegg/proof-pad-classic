@@ -730,7 +730,7 @@ public class Acl2Parser extends AbstractParser {
 		book.lastModified();
 		Acl2Parser bookParser = new Acl2Parser(book.getParentFile(), acl2Dir);
 		bookParser.cache = cache;
-		RSyntaxDocument bookDoc = new IdeDocument(null);
+		RSyntaxDocument bookDoc = new IdeDocument();
 		bookDoc.insertString(0, bookContents, null);
 		bookParser.parse(bookDoc, null);
 		bookCache = new CacheSets();

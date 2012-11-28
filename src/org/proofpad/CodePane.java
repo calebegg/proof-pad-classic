@@ -10,8 +10,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -24,6 +24,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ToolTipManager;
 import javax.swing.event.CaretEvent;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.undo.UndoManager;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -122,7 +123,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		setTabSize(4);
 		setBackground(IdeWindow.transparent);
 		lookUpAction = new LookUpListener();
-		addKeyListener(new KeyAdapter() {
+		addKeyListener(new KeyListener() {
 			@Override public void keyPressed(KeyEvent e) {
 				if (pb == null) return;
 				if (Main.OSX && e.isAltDown() && e.isMetaDown()
@@ -167,9 +168,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 						|| pb.getReadOnlyIndex() == -1) {
 					return;
 				}
-				if (getCaretColor() == IdeWindow.transparent) {
-					e.consume();
-				}
 				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 					if (getCaretPosition() - 3 < pb.getReadOnlyIndex()) {
 						e.consume();
@@ -184,6 +182,25 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 					setCaretColor(IdeWindow.transparent);
 				} else {
 					setCaretColor(Color.BLACK);
+				}
+			}
+
+			@Override public void keyTyped(KeyEvent e) {
+				// Parentheses wrapping
+				int selectionStart = getSelectionStart();
+				int selectionEnd = getSelectionEnd();
+				if (e.getKeyChar() == '(' && selectionStart != selectionEnd) {
+					e.consume();
+					try {
+						SimpleAttributeSet attrSet = new SimpleAttributeSet();
+						attrSet.addAttribute("autoins", Boolean.TRUE);
+						getDocument().insertString(selectionStart, "(", attrSet);
+						getDocument().insertString(selectionEnd + 1, ")", attrSet);
+					} catch (BadLocationException e1) {
+						e1.printStackTrace();
+					}
+					setSelectionStart(selectionStart + 1);
+					setSelectionEnd(selectionEnd + 1);
 				}
 			}
 		});

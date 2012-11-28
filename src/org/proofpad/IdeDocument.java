@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Caret;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -12,6 +13,7 @@ import org.fife.ui.rsyntaxtextarea.Token;
 public class IdeDocument extends RSyntaxDocument {
 	private static final long serialVersionUID = 7048788640273203918L;
 	private final ProofBar pb;
+	private final Caret caret;
 	class IndentToken {
 		public final String name;
 		public final int offset;
@@ -118,9 +120,21 @@ public class IdeDocument extends RSyntaxDocument {
 				}
 			}
 		}
+		// Read-only & flashing of proof bar
 		if (pb == null || offs > pb.getReadOnlyIndex()) {
+			// Insert line break automatically if it's right on the read-only offset
 			if (pb != null && pb.getReadOnlyIndex() >= 0 && offs == pb.getReadOnlyIndex() + 1 && !str.startsWith("\n")) {
 				str = '\n' + str;
+			}
+			// Insertion/collapsing of parentheses
+			if (caret != null && Prefs.autoClose.get()
+					&& (a == null || !a.containsAttribute("autoins", Boolean.TRUE))) {
+				if (str.equals(")") && getText(offs, 1).equals(str)) {
+					super.remove(offs, 1);
+				} else if (str.equals("(")) {
+					super.insertString(offs, ")", a);
+					caret.setDot(caret.getDot() - 1);
+				}
 			}
 			super.insertString(offs, str, a);
 		} else {
@@ -129,15 +143,22 @@ public class IdeDocument extends RSyntaxDocument {
 	}
 	@Override public void remove(int offs, int len) throws BadLocationException {
 		if (pb == null || offs > pb.getReadOnlyIndex()) {
+			if (caret != null && Prefs.autoClose.get() && len == 1 && getText(offs, 2).equals("()")) {
+				len = 2;
+			}
 			super.remove(offs, len);
 		} else {
 			if (pb != null) pb.flashAt(offs);
 		}
 	}
-	public IdeDocument(ProofBar pb) {
+	public IdeDocument(ProofBar pb, Caret caret) {
 		super(SyntaxConstants.SYNTAX_STYLE_LISP);
 		this.pb = pb;
+		this.caret = caret;
 		setSyntaxStyle(new Acl2TokenMaker());
+	}
+	public IdeDocument() {
+		this(null, null);
 	}
 	public int lineCount() {
 		return getDefaultRootElement().getElementCount();
