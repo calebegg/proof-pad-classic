@@ -6,11 +6,16 @@ import java.util.prefs.Preferences;
 public class Prefs {
 	public static final BooleanPref showErrors = new BooleanPref("showerrors", true);
 	public static final BooleanPref showOutputOnError = new BooleanPref("showoutputonerror", true);
-	public static final IntPref alwaysSend = new IntPref("alwaysSend", Codes.ASK_EVERY_TIME);
-	public static final IntPref fontSize = new IntPref("fontsize", 12);
 	public static final BooleanPref incSearch = new BooleanPref("incsearch", true);
 	public static final BooleanPref showToolbar = new BooleanPref("toolbarvisible", true);
 	public static final BooleanPref autoClose = new BooleanPref("autoclose", true);
+	public static final BooleanPref customAcl2 = new BooleanPref("customacl2", false);
+	public static final BooleanPref firstRun = new BooleanPref("firstRun", true);
+	public static final BooleanPref showLineNumbers = new BooleanPref("linenums", false);
+	public static final IntPref alwaysSend = new IntPref("alwaysSend", Codes.ASK_EVERY_TIME);
+	public static final IntPref fontSize = new IntPref("fontsize", 12);
+	public static final IntPref widthGuide = new IntPref("widthguide", 60);
+	public static final StringPref acl2Path = new StringPref("acl2Path", "");
 
 	public static class Codes {
 		public static int ASK_EVERY_TIME = 0;
@@ -38,11 +43,9 @@ public class Prefs {
 		BooleanPref(String name, Boolean def) {
 			super(name, def);
 		}
-
 		@Override public Boolean get() {
 			return javaPrefs.getBoolean(name, def);
 		}
-
 		@Override public void set(Boolean val) {
 			javaPrefs.putBoolean(name, val);
 		}
@@ -52,13 +55,23 @@ public class Prefs {
 		IntPref(String name, Integer def) {
 			super(name, def);
 		}
-
 		@Override public Integer get() {
 			return javaPrefs.getInt(name, def);
 		}
-
 		@Override public void set(Integer val) {
 			javaPrefs.putInt(name, val);
+		}
+	}
+	
+	static class StringPref extends Pref<String> {
+		StringPref(String name, String def) {
+			super(name, def);
+		}
+		@Override public String get() {
+			return javaPrefs.get(name, def);
+		}
+		@Override public void set(String val) {
+			javaPrefs.get(name, val);
 		}
 	}
 

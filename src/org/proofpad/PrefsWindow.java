@@ -23,7 +23,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -81,7 +80,6 @@ public class PrefsWindow extends JDialog {
 	
 	private static final long serialVersionUID = -5097145621288246384L;
 	private static PrefsWindow instance = null;
-	static Preferences prefs = Preferences.userNodeForPackage(Main.class);
 	private static List<FontChangeListener> fontChangeListeners =
 			new LinkedList<FontChangeListener>();
 	private static List<WidthGuideChangeListener> widthGuideChangeListeners =
@@ -103,7 +101,7 @@ public class PrefsWindow extends JDialog {
 		final PrefsWindow that = this;
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(4, 25, 4, 25));
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
-		final int widthGuide = prefs.getInt("widthguide", 60);
+		final int widthGuide = Prefs.widthGuide.get();
 		setResizable(false);
 		getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "HIDE");
 		getRootPane().getActionMap().put("HIDE", new AbstractAction() {
@@ -302,11 +300,11 @@ public class PrefsWindow extends JDialog {
 		c.gridx = 1;
 		c.gridy++;
 		final JCheckBox incSearch = new JCheckBox("Find as you type");
-		incSearch.setSelected(prefs.getBoolean("incsearch", true));
+		incSearch.setSelected(Prefs.incSearch.get());
 		incSearch.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				prefs.putBoolean("incsearch", incSearch.isSelected());
+				Prefs.incSearch.set(incSearch.isSelected());
 			}
 		});
 		add(incSearch, c);
@@ -314,7 +312,7 @@ public class PrefsWindow extends JDialog {
 		c.gridx = 1;
 		c.gridy++;
 		final JCheckBox showLineNums = new JCheckBox("Show line numbers");
-		showLineNums.setSelected(prefs.getBoolean("linenums", false));
+		showLineNums.setSelected(Prefs.showLineNumbers.get());
 		showLineNums.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
@@ -359,7 +357,7 @@ public class PrefsWindow extends JDialog {
 		useBuiltinAcl2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				prefs.putBoolean("customacl2", false);
+				Prefs.customAcl2.set(false);
 				acl2Browse.setEnabled(false);
 				acl2Path.setEnabled(false);
 				info.setText(String.format(htmlTemplate, "gray", infoText));
@@ -369,14 +367,14 @@ public class PrefsWindow extends JDialog {
 		useCustomAcl2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("customacl2", true);
+				Prefs.customAcl2.set(true);
 				acl2Browse.setEnabled(true);
 				acl2Path.setEnabled(true);
 				info.setText(String.format(htmlTemplate, "black", infoText));
 			}
 		});
 		
-		boolean customAcl2Enabled = prefs.getBoolean("customacl2", false);
+		boolean customAcl2Enabled = Prefs.customAcl2.get();
 		acl2Browse.setEnabled(customAcl2Enabled);
 		acl2Path.setEnabled(customAcl2Enabled);
 		useBuiltinAcl2.setSelected(!customAcl2Enabled);
@@ -385,7 +383,7 @@ public class PrefsWindow extends JDialog {
 		acl2Path.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent arg0) {
-				prefs.put("acl2Path", acl2Path.getText());
+				Prefs.acl2Path.set(acl2Path.getText());
 			}
 		});
 		acl2Browse.addActionListener(new ActionListener() {
@@ -397,7 +395,7 @@ public class PrefsWindow extends JDialog {
 				try {
 					path = new File(fc.getDirectory(), fc.getFile())
 							.getAbsolutePath();
-					prefs.put("acl2Path", path);
+					Prefs.acl2Path.set(path);
 					acl2Path.setText(path);
 				} catch (Exception e) { }
 			}
@@ -453,7 +451,7 @@ public class PrefsWindow extends JDialog {
 		});
 		setMinimumSize(new Dimension(500, 1));
 		pack();
-		acl2Path.setText(prefs.get("acl2Path", ""));
+		acl2Path.setText(Prefs.acl2Path.get());
 		setLocationRelativeTo(null);
 	}
 
@@ -472,26 +470,26 @@ public class PrefsWindow extends JDialog {
 
 	public static void addFontChangeListener(FontChangeListener fcl) {
 		fontChangeListeners.add(fcl);
-		fcl.fontChanged(getPrefFont());
+		fcl.fontChanged(Prefs.font.get());
 	}
 	public static void addWidthGuideChangeListener(WidthGuideChangeListener wgcl) {
 		widthGuideChangeListeners.add(wgcl);
-		wgcl.widthGuideChanged(prefs.getInt("widthguide", 60));
+		wgcl.widthGuideChanged(Prefs.widthGuide.get());
 	}
 	public static void addToolbarVisibleListener(ToolbarVisibleListener tvl) {
 		toolbarVisibleListeners.add(tvl);
-		tvl.toolbarVisible(prefs.getBoolean("toolbarvisible", true));
+		tvl.toolbarVisible(Prefs.showToolbar.get());
 	}
 	public static void addShowLineNumbersListener(ShowLineNumbersListener showLineNumbersListener) {
 		showLineNumbersListeners .add(showLineNumbersListener);
-		showLineNumbersListener.lineNumbersVisible(prefs.getBoolean("linenums", false));
+		showLineNumbersListener.lineNumbersVisible(Prefs.showLineNumbers.get());
 	}
 	
 	protected static void fireWidthGuideChangeEvent(int value) {
 		for (WidthGuideChangeListener wgcl : widthGuideChangeListeners) {
 			wgcl.widthGuideChanged(value);
 		}
-		prefs.putInt("widthguide", value);
+		Prefs.widthGuide.set(value);
 	}
 	protected static void fireFontChangeEvent() {
 		for (FontChangeListener fcl : fontChangeListeners) {
@@ -503,7 +501,6 @@ public class PrefsWindow extends JDialog {
 		for (ToolbarVisibleListener tvl : toolbarVisibleListeners) {
 			tvl.toolbarVisible(visible);
 		}
-		prefs.putBoolean("toolbarvisible", visible);
 		Prefs.showToolbar.set(visible);
 	}
 
@@ -511,21 +508,7 @@ public class PrefsWindow extends JDialog {
 		for (ShowLineNumbersListener slnl : showLineNumbersListeners) {
 			slnl.lineNumbersVisible(selected);
 		}
-		prefs.putBoolean("linenums", selected);
-	}
-
-	private static Font getPrefFont() {
-		int fontSize = Prefs.fontSize.get();
-		String defaultFamily;
-		if (Main.OSX) {
-			defaultFamily = "Monaco";
-		} else if (Main.WIN) {
-			defaultFamily = "Consolas";
-		} else {
-			defaultFamily = "monospaced";
-		}
-		String fontFamily = prefs.get("fontfamily", defaultFamily);
-		return new Font(fontFamily, Font.PLAIN, fontSize);
+		Prefs.showLineNumbers.set(selected);
 	}
 
 }

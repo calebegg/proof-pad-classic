@@ -124,7 +124,6 @@ public class PPWindow extends JFrame {
 	Gutter gutter;
 	Runnable afterPreview;
 	JPanel westPanel;
-	Preferences prefs;
 	public OutputWindow outputWindow;
 	boolean findBarIsOpen;
 	private JPanel splitTop;
@@ -162,11 +161,9 @@ public class PPWindow extends JFrame {
 		getRootPane().setBorder(BorderFactory.createEmptyBorder());
 		splitTop.add(editorScroller, BorderLayout.CENTER);
 
-		prefs = Preferences.userNodeForPackage(Main.class);
-		
 		List<String> acl2Paths = new ArrayList<String>();
-		if (prefs.getBoolean("customacl2", false)) {
-			acl2Paths.add(prefs.get("acl2Path", ""));
+		if (Prefs.customAcl2.get()) {
+			acl2Paths.add(Prefs.acl2Path.get());
 		} else {
 			if (Main.WIN) {
 				// HACK: oh no oh no oh no
@@ -775,6 +772,7 @@ public class PPWindow extends JFrame {
 	private void markOpenFileAsRecent() {
 		// Update recent files
 		int downTo = 10;
+		Preferences prefs = Preferences.userNodeForPackage(Main.class);
 		for (int i = 1; i <= MenuBar.RECENT_MENU_ITEMS; i++) {
 			String temp = prefs.get("recent" + i, "");
 			if (temp.equals(openFile.getAbsolutePath())) {
@@ -802,7 +800,7 @@ public class PPWindow extends JFrame {
 		Dimension visibleSize = editorScroller.getViewport().getExtentSize();
 		Dimension textSize = editor.getPreferredScrollableViewportSize();
 		int widthGuideWidth = editor.getFontMetrics(editor.getFont()).charWidth('a') *
-				prefs.getInt("widthguide", 0);
+				Prefs.widthGuide.get();
 		int textWidth = Math.max(textSize.width, widthGuideWidth);
 		int maxWidth = Math.max(getWidth() - visibleSize.width + textWidth
 				+ proofBar.getWidth() + moreBar.getWidth(), 550);

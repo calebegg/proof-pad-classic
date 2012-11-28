@@ -19,7 +19,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -185,7 +184,6 @@ public class Main {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override public void run() {
 				logtime("Start creating main window");
-				final Preferences prefs = Preferences.userNodeForPackage(Main.class);
 				if (PPWindow.windows.isEmpty()) {
 					PPWindow win = new PPWindow();
 					startingUp = false;
@@ -197,9 +195,9 @@ public class Main {
 				Date now = new Date();
 				Date oneWeekAgo = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
 				if (userData.recordingStart.before(oneWeekAgo)) {
-					int alwaysSend = prefs.getInt("alwaysSend", 0);
-					if (alwaysSend > 0) {
-						if (alwaysSend == 1) {
+					int alwaysSend = Prefs.alwaysSend.get();
+					if (alwaysSend != Prefs.Codes.ASK_EVERY_TIME) {
+						if (alwaysSend == Prefs.Codes.ALWAYS_SEND) {
 							sendUserData();
 						}
 						return;
@@ -217,7 +215,9 @@ public class Main {
 							options[0]
 							);
 					if (saveAction.isSelected()) {
-						prefs.putInt("alwaysSend", shouldSend == JOptionPane.YES_OPTION ? 1 : 2);
+						Prefs.alwaysSend
+								.set(shouldSend == JOptionPane.YES_OPTION ? Prefs.Codes.ALWAYS_SEND
+										: Prefs.Codes.NEVER_SEND);
 					}
 					if (shouldSend == JOptionPane.YES_OPTION) {
 						sendUserData();

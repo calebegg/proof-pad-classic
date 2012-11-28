@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.util.EventListener;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.text.Segment;
 
@@ -193,11 +192,10 @@ public class Acl2 extends Thread {
 
 	@Override
 	public void run() {
-		final Preferences prefs = Preferences.userNodeForPackage(Main.class);
-		if (prefs.getBoolean("firstRun", true)) {
+		if (Prefs.firstRun.get()) {
 			fireOutputEvent(new OutputEvent("Starting ACL2 for the first time. " +
 					"Please be patient.", MsgType.INFO));
-			prefs.putBoolean("firstRun", false);
+			Prefs.firstRun.set(false);
 		}
 		List<Character> buffer = new LinkedList<Character>();
 		if (acl2Proc == null) {
