@@ -340,7 +340,6 @@ public class Acl2 extends Thread {
 	public void initialize() throws IOException {
 		ProcessBuilder processBuilder;
 		acl2IsSlowShown = false;
-		System.out.println(acl2Paths);
 
 		for (String maybeAcl2Path : acl2Paths) {
 			if (Main.WIN) {
@@ -385,7 +384,6 @@ public class Acl2 extends Thread {
 			}
 			initializing = true;
 			numInitExps = 0;
-			System.out.println("DRACULA: " + draculaPath);
 			admit("(add-include-book-dir :teachpacks \"" + draculaPath + "\")", doNothingCallback);
 			admit("(set-compile-fns nil)", doNothingCallback);
 			break;
@@ -412,7 +410,6 @@ public class Acl2 extends Thread {
 		}, "ACL2 monitor");
 		acl2Monitor.start();
 		initializing = false;
-		System.out.println("Acl2 started successfully: " + acl2Proc);
 	}
 	
 	private void writeAndFlush(String string) {
