@@ -30,10 +30,10 @@ import org.proofpad.Repl.Message;
 
 public class OutputWindow extends JFrame {
 	private static final long serialVersionUID = -763205019202829248L;
-	private final IdeWindow ideWindow;
+	private final PPWindow ideWindow;
 	private Runnable afterPreview;
 
-	public OutputWindow(IdeWindow ideWindow) {
+	public OutputWindow(PPWindow ideWindow) {
 		getRootPane().putClientProperty("Window.style", "small");
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		this.ideWindow = ideWindow;

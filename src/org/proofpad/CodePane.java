@@ -120,7 +120,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		scheme.getStyle(Token.SEPARATOR).foreground = Color.black;
 		setBorder(BorderFactory.createEmptyBorder(0, leftMargin, 0, 0));
 		setTabSize(4);
-		setBackground(IdeWindow.transparent);
+		setBackground(PPWindow.transparent);
 		lookUpAction = new LookUpListener();
 		addKeyListener(new KeyListener() {
 			@Override public void keyPressed(KeyEvent e) {
@@ -178,7 +178,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 				if (pb == null) return;
 				if (pb.getReadOnlyIndex() >= 0
 						&& getCaretPosition() < pb.getReadOnlyIndex() + 2) {
-					setCaretColor(IdeWindow.transparent);
+					setCaretColor(PPWindow.transparent);
 				} else {
 					setCaretColor(Color.BLACK);
 				}

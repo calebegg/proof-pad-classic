@@ -31,10 +31,10 @@ public class MoreBar extends JComponent {
 	long rotateStart;
 
 	List<ExpData> data;
-	private final IdeWindow win;
+	private final PPWindow win;
 	private int scrollbarVal;
 	
-	public MoreBar(final IdeWindow win) {
+	public MoreBar(final PPWindow win) {
 		super();
 		this.win = win;
 		setPreferredSize(new Dimension(width, 0));

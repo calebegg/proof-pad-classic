@@ -12,16 +12,6 @@ public class SExpUtils {
 		FINAL,
 		UNDOABLE
 	}
-	static enum Lex {
-		NONE,
-		STRING,
-		QUOTE,
-		ID,
-		SL_COMMENT,
-		ML_COMMENT,
-		HASH,
-		CHAR
-	}
 	
 	static List<Expression> topLevelExps(RSyntaxDocument doc) {
 		List<Expression> r = new LinkedList<Expression>();

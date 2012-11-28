@@ -24,9 +24,9 @@ public class FindBar extends JPanel {
 	
 	public ActionListener findAction;
 	boolean findBarIsOpen;
-	private final IdeWindow window;
+	private final PPWindow window;
 
-	public FindBar(final IdeWindow window) {
+	public FindBar(final PPWindow window) {
 		this.window = window;
 		new JPanel();
 		final JTextField searchField = new JTextField();

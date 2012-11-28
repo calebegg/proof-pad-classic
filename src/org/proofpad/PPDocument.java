@@ -10,7 +10,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Token;
 
-public class IdeDocument extends RSyntaxDocument {
+public class PPDocument extends RSyntaxDocument {
 	private static final long serialVersionUID = 7048788640273203918L;
 	private final ProofBar pb;
 	private final Caret caret;
@@ -151,13 +151,13 @@ public class IdeDocument extends RSyntaxDocument {
 			if (pb != null) pb.flashAt(offs);
 		}
 	}
-	public IdeDocument(ProofBar pb, Caret caret) {
+	public PPDocument(ProofBar pb, Caret caret) {
 		super(SyntaxConstants.SYNTAX_STYLE_LISP);
 		this.pb = pb;
 		this.caret = caret;
 		setSyntaxStyle(new Acl2TokenMaker());
 	}
-	public IdeDocument() {
+	public PPDocument() {
 		this(null, null);
 	}
 	public int lineCount() {

@@ -114,7 +114,7 @@ public class Main {
 			app.setOpenFileHandler(new OpenFilesHandler() {
 				@Override public void openFiles(OpenFilesEvent e) {
 					for (Object file : e.getFiles()) {
-						IdeWindow win = new IdeWindow((File) file);
+						PPWindow win = new PPWindow((File) file);
 						win.setVisible(true);
 					}
 				}
@@ -127,14 +127,14 @@ public class Main {
 			app.setQuitHandler(new QuitHandler() {
 				@Override public void handleQuitRequestWith(QuitEvent qe,
 						QuitResponse qr) {
-					for (Iterator<IdeWindow> ii = IdeWindow.windows.iterator(); ii.hasNext();) {
-						IdeWindow win = ii.next();
+					for (Iterator<PPWindow> ii = PPWindow.windows.iterator(); ii.hasNext();) {
+						PPWindow win = ii.next();
 						if (!win.promptIfUnsavedAndQuit(ii)) {
 							break;
 						}
 					}
-					IdeWindow.updateWindowMenu();
-					if (IdeWindow.windows.size() <= 0) {
+					PPWindow.updateWindowMenu();
+					if (PPWindow.windows.size() <= 0) {
 						quit();
 					} else {
 						qr.cancelQuit();
@@ -148,7 +148,7 @@ public class Main {
 			});
 			app.addAppEventListener(new AppForegroundListener() {
 				@Override public void appMovedToBackground(AppForegroundEvent arg0) {
-					if (IdeWindow.windows.size() == 0 && !startingUp) {
+					if (PPWindow.windows.size() == 0 && !startingUp) {
 						Main.quit();
 					}
 				}
@@ -156,10 +156,10 @@ public class Main {
 			});
 			app.addAppEventListener(new AppReOpenedListener() {
 				@Override public void appReOpened(AppReOpenedEvent arg0) {
-					if (IdeWindow.windows.size() == 0 && !startingUp) {
+					if (PPWindow.windows.size() == 0 && !startingUp) {
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override public void run() {
-								new IdeWindow().setVisible(true);
+								new PPWindow().setVisible(true);
 							}
 						});
 					}
@@ -173,7 +173,7 @@ public class Main {
 				MenuItem item = new MenuItem("New");
 				item.addActionListener(new ActionListener() {
 					@Override public void actionPerformed(ActionEvent e) {
-						IdeWindow ide = new IdeWindow();
+						PPWindow ide = new PPWindow();
 						ide.setVisible(true);
 					}
 				});
@@ -186,8 +186,8 @@ public class Main {
 			@Override public void run() {
 				logtime("Start creating main window");
 				final Preferences prefs = Preferences.userNodeForPackage(Main.class);
-				if (IdeWindow.windows.isEmpty()) {
-					IdeWindow win = new IdeWindow();
+				if (PPWindow.windows.isEmpty()) {
+					PPWindow win = new PPWindow();
 					startingUp = false;
 					win.setVisible(true);
 				} else {

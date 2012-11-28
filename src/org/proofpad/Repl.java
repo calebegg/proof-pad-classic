@@ -192,7 +192,7 @@ public class Repl extends JPanel {
 	private final JSplitPane split;
 	private HeightChangeListener heightChangeListener;
 	private final JPanel bottom;
-	IdeWindow parent;
+	PPWindow parent;
 	protected JButton run;
 	private int oldNeededHeight = 26;
 		
@@ -204,7 +204,7 @@ public class Repl extends JPanel {
 		SUCCESS
 	}
 	
-	public Repl(final IdeWindow parent, Acl2 newAcl2, final CodePane definitions) {
+	public Repl(final PPWindow parent, Acl2 newAcl2, final CodePane definitions) {
 		super();
 		this.parent = parent;
 		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, false);
@@ -238,7 +238,7 @@ public class Repl extends JPanel {
 		bottom.setBackground(Color.WHITE);
 		JLabel prompt = new StatusLabel(MsgType.INPUT);
 		input = new CodePane(null);
-		input.setDocument(new IdeDocument(null, input.getCaret()));
+		input.setDocument(new PPDocument(null, input.getCaret()));
 		prompt.addMouseListener(new MouseAdapter() {
 			@Override public void mouseClicked(MouseEvent arg0) {
 				input.requestFocus();

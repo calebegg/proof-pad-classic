@@ -64,7 +64,7 @@ import org.proofpad.InfoBar.InfoButton;
 import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
 
-public class IdeWindow extends JFrame {
+public class PPWindow extends JFrame {
 	static final Color activeToolbar = new Color(.8627f, .8627f, .8627f);
 	static final Color inactiveToolbar = new Color(.9529f, .9529f, .9529f);
 	public static final Color transparent = new Color(1f, 1f, 1f, 0f);
@@ -84,7 +84,7 @@ public class IdeWindow extends JFrame {
 	}
 	private static final long serialVersionUID = -7435370608709935765L;
 	private static final int WINDOW_GAP = 10;
-	static List<IdeWindow> windows = new LinkedList<IdeWindow>();
+	static List<PPWindow> windows = new LinkedList<PPWindow>();
 	private static int untitledCount = 1;
 	
 	File openFile;
@@ -129,16 +129,16 @@ public class IdeWindow extends JFrame {
 	boolean findBarIsOpen;
 	private JPanel splitTop;
 
-	public IdeWindow() {
+	public PPWindow() {
 		this((File)null);
 	}
 
-	public IdeWindow(String text) {
+	public PPWindow(String text) {
 		this((File)null);
 		editor.setText(text);
 	}
 
-	public IdeWindow(File file) {
+	public PPWindow(File file) {
 		super();
 //		FullScreenUtilities.setWindowCanFullScreen(this, true);
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", true);
@@ -232,7 +232,7 @@ public class IdeWindow extends JFrame {
 		helpAction = editor.getHelpAction();
 		repl = new Repl(this, acl2, editor);
 		proofBar.setLineHeight(editor.getLineHeight());
-		final IdeDocument doc = new IdeDocument(proofBar, editor.getCaret());
+		final PPDocument doc = new PPDocument(proofBar, editor.getCaret());
 		editor.setDocument(doc);
 		parser.addParseListener(new Acl2Parser.ParseListener() {
 			@Override
@@ -299,7 +299,7 @@ public class IdeWindow extends JFrame {
 		buildAction = new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
 				if (!saveFile()) {
-					JOptionPane.showMessageDialog(IdeWindow.this,
+					JOptionPane.showMessageDialog(PPWindow.this,
 							"Save the current file in order to build", "Build did not complete",
 							JOptionPane.INFORMATION_MESSAGE);
 					return;
@@ -315,7 +315,7 @@ public class IdeWindow extends JFrame {
 		includeBookAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				BookViewer viewer = new BookViewer(IdeWindow.this);
+				BookViewer viewer = new BookViewer(PPWindow.this);
 				viewer.setVisible(true);
 			}
 		};
@@ -592,7 +592,7 @@ public class IdeWindow extends JFrame {
 	}
 
 	static void updateWindowMenu() {
-		for (IdeWindow window : windows) {
+		for (PPWindow window : windows) {
 			MenuBar bar = window.menuBar;
 			if (bar != null) {
 				bar.updateWindowMenu();
@@ -628,7 +628,7 @@ public class IdeWindow extends JFrame {
 		return promptIfUnsavedAndQuit(null);
 	}
 	
-	boolean promptIfUnsavedAndQuit(Iterator<IdeWindow> ii) {
+	boolean promptIfUnsavedAndQuit(Iterator<PPWindow> ii) {
 		int response = -1;
 		boolean isEmpty = editor.getText().length() == 0;
 		if (!isSaved && !isEmpty) {
@@ -649,7 +649,7 @@ public class IdeWindow extends JFrame {
 			if (ii != null) {
 				ii.remove();
 			} else {
-				windows.remove(IdeWindow.this);
+				windows.remove(PPWindow.this);
 			}
 			if (windows.size() == 0 && !Main.OSX) {
 				Main.quit();
@@ -762,7 +762,7 @@ public class IdeWindow extends JFrame {
 		editor.setText(content);
 		editor.setCaretPosition(0);
 		java.util.List<Expression> exps = SExpUtils
-				.topLevelExps((IdeDocument) editor.getDocument());
+				.topLevelExps((PPDocument) editor.getDocument());
 		proofBar.adjustHeights((LinkedList<Expression>) exps);
 		setSaved(true);
 		adjustMaximizedBounds();
@@ -789,7 +789,7 @@ public class IdeWindow extends JFrame {
 			prefs.put("recent" + i, maybeNext);
 		}
 		prefs.put("recent1", openFile.getAbsolutePath());
-		for (IdeWindow w : windows) {
+		for (PPWindow w : windows) {
 			w.menuBar.updateRecentMenu();
 		}
 		if (Main.OSX && !Main.FAKE_WINDOWS) {
