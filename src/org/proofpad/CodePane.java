@@ -3,7 +3,6 @@ package org.proofpad;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -94,8 +93,8 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
 	private static final long serialVersionUID = 2585177201079384705L;
 	private static final int leftMargin = 2;
-	private static final String[] welcomeMessage =
-		{"See Help > Tutorial for a basic overview."};
+//	private static final String[] welcomeMessage =
+//		{"See Help > Tutorial for a basic overview."};
 	private ProofBar pb;
 	private final List<Rectangle> fullMatch = new ArrayList<Rectangle>();
 	int widthGuide = -1;
@@ -233,26 +232,26 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		g.setColor(new Color(1f, 1f, 1f, .2f));
 		g.fillRect(0, 0, getWidth(), readOnlyHeight);
 		g.setColor(new Color(.4f, .4f, .4f));
-		if (getLastVisibleOffset() == 0 && !canUndo() && pb != null) {
-			// Paint welcome message.
-			g.setColor(Color.BLACK);
-			FontMetrics fm = g.getFontMetrics();
-			Font originalFont = g.getFont();
-			g.setFont(originalFont.deriveFont(originalFont.getSize() + 5.0f));
-			FontMetrics bigFm = g.getFontMetrics();
-			int lineHeight = (int) fm.getLineMetrics(welcomeMessage[0], g).getHeight() + 1;
-			int ySoFar = Math.max(0, (getHeight() - lineHeight * welcomeMessage.length) / 2);
-			g.drawString(Main.displayName,
-					(getWidth() - bigFm.stringWidth(Main.displayName) - pb.getWidth()) / 2,
-					ySoFar);
-			ySoFar += (int) bigFm.getLineMetrics(Main.displayName, g).getHeight() + 1;
-			g.setFont(originalFont);
-			for (String line : welcomeMessage) {
-				ySoFar += lineHeight;
-				g.drawString(line, (getWidth() - fm.stringWidth(line) - pb.getWidth()) / 2,
-						ySoFar);
-			}
-		}
+//		if (getLastVisibleOffset() == 0 && !canUndo() && pb != null) {
+//			// Paint welcome message.
+//			g.setColor(Color.BLACK);
+//			FontMetrics fm = g.getFontMetrics();
+//			Font originalFont = g.getFont();
+//			g.setFont(originalFont.deriveFont(originalFont.getSize() + 5.0f));
+//			FontMetrics bigFm = g.getFontMetrics();
+//			int lineHeight = (int) fm.getLineMetrics(welcomeMessage[0], g).getHeight() + 1;
+//			int ySoFar = Math.max(0, (getHeight() - lineHeight * welcomeMessage.length) / 2);
+//			g.drawString(Main.displayName,
+//					(getWidth() - bigFm.stringWidth(Main.displayName) - pb.getWidth()) / 2,
+//					ySoFar);
+//			ySoFar += (int) bigFm.getLineMetrics(Main.displayName, g).getHeight() + 1;
+//			g.setFont(originalFont);
+//			for (String line : welcomeMessage) {
+//				ySoFar += lineHeight;
+//				g.drawString(line, (getWidth() - fm.stringWidth(line) - pb.getWidth()) / 2,
+//						ySoFar);
+//			}
+//		}
 	}
 
 	public void admitBelowProofLine(String form) {
