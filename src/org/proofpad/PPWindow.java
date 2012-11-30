@@ -77,6 +77,9 @@ public class PPWindow extends JFrame {
 			}
 			@Override
 			public boolean accept(File f) {
+				if (f.isDirectory()) {
+					return true;
+				}
 				return f.getName().endsWith(".lisp") || f.getName().endsWith(".lsp")
 						|| f.getName().endsWith(".acl2");
 			}
@@ -681,6 +684,9 @@ public class PPWindow extends JFrame {
 			} else {
 				int response = fc.showSaveDialog(this);
 				file = response == JFileChooser.APPROVE_OPTION ? fc.getSelectedFile() : null;
+				if (file != null && file.getName().indexOf('.') == -1) {
+					file = new File(file.getParentFile(), file.getName() + ".lisp");
+				}
 			}
 			if (file != null) {
 				if (file.exists()) {
