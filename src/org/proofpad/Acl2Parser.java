@@ -489,7 +489,7 @@ public class Acl2Parser extends AbstractParser {
 		}
 		functions = new HashSet<String>();
 		macros = new HashSet<String>(Arrays.asList(new String [] {
-				"declare", "include-book", "defproperty", "defttag"
+				"declare", "include-book", "defttag"
 		}));
 		constants = new HashSet<String>();
 		constants.add("state");
