@@ -122,10 +122,6 @@ public class PPDocument extends RSyntaxDocument {
 		}
 		// Read-only & flashing of proof bar
 		if (pb == null || offs > pb.getReadOnlyIndex()) {
-			// Insert line break automatically if it's right on the read-only offset
-			if (pb != null && pb.getReadOnlyIndex() >= 0 && offs == pb.getReadOnlyIndex() + 1 && !str.startsWith("\n")) {
-				str = '\n' + str;
-			}
 			// Insertion/collapsing of parentheses
 			if (caret != null && Prefs.autoClose.get()
 					&& (a == null || !a.containsAttribute("autoins", Boolean.TRUE))) {
@@ -136,20 +132,24 @@ public class PPDocument extends RSyntaxDocument {
 					caret.setDot(caret.getDot() - 1);
 				}
 			}
-			super.insertString(offs, str, a);
-		} else {
-			if (pb != null) pb.flashAt(offs);
+		} else if (pb != null) {
+			while (pb.getReadOnlyIndex() >= offs) {
+				pb.undoOneItem();
+			}
 		}
+		super.insertString(offs, str, a);
 	}
 	@Override public void remove(int offs, int len) throws BadLocationException {
 		if (pb == null || offs > pb.getReadOnlyIndex()) {
 			if (caret != null && Prefs.autoClose.get() && len == 1 && getText(offs, 2).equals("()")) {
 				len = 2;
 			}
-			super.remove(offs, len);
-		} else {
-			if (pb != null) pb.flashAt(offs);
+		} else if (pb != null) {
+			while (pb.getReadOnlyIndex() >= offs) {
+				pb.undoOneItem();
+			}
 		}
+		super.remove(offs, len);
 	}
 	public PPDocument(ProofBar pb, Caret caret) {
 		super(SyntaxConstants.SYNTAX_STYLE_LISP);

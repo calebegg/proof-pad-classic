@@ -50,8 +50,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
@@ -330,7 +328,7 @@ public class PPWindow extends JFrame {
 		undoPrevAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				proofBar.undoPrevForm();
+				proofBar.undoOneItem();
 			}
 		};
 		
@@ -423,20 +421,6 @@ public class PPWindow extends JFrame {
 						editor.repaint();
 					}
 				});
-			}
-		});
-				
-		editor.getCaret().addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (proofBar.getReadOnlyIndex() == -1)
-					return;
-				if (editor.getCaretPosition()
-						- editor.getCaretOffsetFromLineStart() < proofBar.getReadOnlyIndex() + 2) {
-					editor.setCaretColor(transparent);
-				} else {
-					editor.setCaretColor(Color.BLACK);
-				}
 			}
 		});
 		

@@ -9,8 +9,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -122,7 +122,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		setTabSize(4);
 		setBackground(PPWindow.transparent);
 		lookUpAction = new LookUpListener();
-		addKeyListener(new KeyListener() {
+		addKeyListener(new KeyAdapter() {
 			@Override public void keyPressed(KeyEvent e) {
 				if (pb == null) return;
 				if (Main.OSX && e.isAltDown() && e.isMetaDown()
@@ -133,8 +133,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 				int readOnlyLine = 0;
 				try {
 					readOnlyLine = getLineOfOffset(pb.getReadOnlyIndex() + 2) - 1;
-				} catch (BadLocationException e1) {
-				}
+				} catch (BadLocationException e1) { }
 				if (getCaretLineNumber() == readOnlyLine + 1
 						&& e.getKeyCode() == KeyEvent.VK_UP) {
 					// Up arrow at the top of the readable area moves the cursor
@@ -171,16 +170,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 					if (getCaretPosition() - 3 < pb.getReadOnlyIndex()) {
 						e.consume();
 					}
-				}
-			}
-			
-			@Override public void keyReleased(KeyEvent e) {
-				if (pb == null) return;
-				if (pb.getReadOnlyIndex() >= 0
-						&& getCaretPosition() < pb.getReadOnlyIndex() + 2) {
-					setCaretColor(PPWindow.transparent);
-				} else {
-					setCaretColor(Color.BLACK);
 				}
 			}
 

@@ -476,7 +476,7 @@ public class ProofBar extends JComponent {
 		repaint();
 	}
 	
-	public void undoPrevForm() {
+	public void undoOneItem() {
 		int ignore = numProved + numProving - 1;
 		int i = 0;
 		numProved--;
