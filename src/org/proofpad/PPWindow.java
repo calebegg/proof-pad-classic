@@ -786,10 +786,10 @@ public class PPWindow extends JFrame {
 		monitor = new FileMonitor(openFile, new Runnable() {
 			@Override public void run() {
 				setInfoBar(new InfoBar(openFile.getName() + " has been modified outside Proof Pad", new InfoBar.InfoButton[] {
-					new InfoButton("load", new ActionListener() {
+					new InfoButton("Load", new ActionListener() {
 						@Override public void actionPerformed(ActionEvent arg0) {
 							openAndDisplay(openFile);
-							infoBar.close();
+							closeInfoBar();
 						}
 					})
 				}));
