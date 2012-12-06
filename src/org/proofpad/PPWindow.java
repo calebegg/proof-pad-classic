@@ -413,9 +413,6 @@ public class PPWindow extends JFrame {
 				if (editor.getLastVisibleOffset() - 1 <= newIndex) {
 					editor.append("\n");
 				}
-				if (editor.getCaretPosition() <= newIndex + 1) {
-					editor.setCaretPosition(newIndex + 2);
-				}
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {

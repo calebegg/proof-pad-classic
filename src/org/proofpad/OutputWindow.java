@@ -102,9 +102,7 @@ public class OutputWindow extends JFrame {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		if (height > screenSize.height) {
 			height = screenSize.height;
-			System.out.println(width);
 			width += new JScrollBar().getPreferredSize().width;
-			System.out.println(width);
 		}
 		setSize(width, height);
 		Point whereToGo = ideWindow.moveForOutputWindow();
