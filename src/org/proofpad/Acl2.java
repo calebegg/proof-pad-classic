@@ -424,6 +424,7 @@ public class Acl2 extends Thread {
 				.replaceAll("#\\|.*?\\|#", "")
 				.trim();
 		if (code.isEmpty()) {
+			callback.run(true, "");
 			return;
 		}
 		int parenLevel = 0;
@@ -455,6 +456,9 @@ public class Acl2 extends Thread {
 			current = current.replaceAll("\\(q\\)", ":q\n"); // The only :command that has no function equivalent
 			writeAndFlush(current + "\n");
 			writeAndFlush("(cw \"" + marker + "\")\n");
+		}
+		if (exps.isEmpty()) {
+			callback.run(true, "");
 		}
 		synchronized (this) {
 			notify();

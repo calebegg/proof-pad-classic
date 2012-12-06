@@ -154,7 +154,7 @@ public class MoreBar extends JComponent {
 	}
 	
 	public void selectExpression(ExpData ex) {
-		if (selectedIdx == ex.exp.expNum) {
+		if (ex == null || selectedIdx == ex.exp.expNum) {
 			oldIdx = selectedIdx;
 			selectedIdx = -1;
 			win.outputWindow.hideWindow();

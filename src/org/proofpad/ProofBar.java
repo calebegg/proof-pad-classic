@@ -433,9 +433,10 @@ public class ProofBar extends JComponent {
 			repaint();
 			return;
 		}
+		final boolean last = proofQueue.isEmpty();
 		acl2.admit(tried.contents, new Acl2.Callback() {
 			@Override public boolean run(final boolean outerSuccess, String response) {
-				setExpData(tried, outerSuccess, response);
+				setExpData(tried, outerSuccess, response, last);
 				if (!outerSuccess) {
 					proofCallback(outerSuccess);
 					return false;
@@ -597,9 +598,10 @@ public class ProofBar extends JComponent {
 				}
 				ue.status = Status.UNTRIED;
 				ue.hash = ex.contents.hashCode();
+				final boolean last = i == expressions.size() - 1;
 				acl2.admit(ex.contents, new Acl2.Callback() {
 					@Override public boolean run(boolean success, String response) {
-						setExpData(ex, success, response);
+						setExpData(ex, success, response, last);
 						if (lastExp) {
 							alreadyShownAnError = false;
 						}
@@ -612,7 +614,7 @@ public class ProofBar extends JComponent {
 		}
 	}
 
-	void setExpData(Expression exp, boolean success, String response) {
+	void setExpData(Expression exp, boolean success, String response, boolean last) {
 		while (data.size() <= exp.expNum) {
 			data.add(null);
 		}
@@ -623,6 +625,8 @@ public class ProofBar extends JComponent {
 		if (!success && Prefs.showOutputOnError.get() && !alreadyShownAnError) {
 			alreadyShownAnError = true;
 			mb.selectExpression(expData);
+		} else if (last && !alreadyShownAnError) {
+			mb.selectExpression(null);
 		}
 	}
 
