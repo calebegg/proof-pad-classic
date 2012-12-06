@@ -35,54 +35,41 @@ import org.fife.ui.rtextarea.RUndoManager;
 
 public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
-	private final class LookUpListener implements ActionListener {
-		public LookUpListener() {
-			super();
+	final class LookUpListener implements ActionListener {
+		private String id;
+
+		public LookUpListener() { }
+		
+		public LookUpListener(String id) {
+			this.id = id;
+			
 		}
 
 		@Override public void actionPerformed(ActionEvent e) {
-			// First, check for a visible tooltip.
-		    ToolTipManager ttManager = ToolTipManager.sharedInstance();
-		    boolean tipShowing = false;
-		    int loc = -1;
-		    try {
-		    	Field f = ttManager.getClass().getDeclaredField("tipShowing");
-		    	f.setAccessible(true);
-		    	tipShowing = f.getBoolean(ttManager);
-		    } catch (Exception ex) {
-		    }
-		    if (tipShowing) {
-		    	Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
-		    	Point compLoc = getLocationOnScreen();
-				loc = viewToModel(new Point(mouseLoc.x - compLoc.x, mouseLoc.y - compLoc.y));
-		    } else {
-		    	loc = getCaretPosition();
-		    }
-		    if (loc == -1) {
-		    	return;
-		    }
-		    int line = 0;
-		    try {
-		    	line = getLineOfOffset(loc);
-		    } catch (BadLocationException e1) { }
-		    Token t = getTokenListForLine(line);
-		    while (t != null && t.textOffset + t.textCount < loc) {
-		    	t = t.getNextToken();
-		    }
-		    if (t != null) {
-		    	String name;
+			// First, check for a visible tool tip.
+			String name;
+			if (id == null) {
+				ToolTipManager ttManager = ToolTipManager.sharedInstance();
+				boolean tipShowing = false;
+				try {
+					Field f = ttManager.getClass().getDeclaredField("tipShowing");
+					f.setAccessible(true);
+					tipShowing = f.getBoolean(ttManager);
+				} catch (Exception ex) { }
+				if (tipShowing) {
+					name = getWordAtMouse();
+				} else {
+					name = getWordAt(getCaretPosition());
+				}
+			} else {
+				name = id;
+			}
+		    if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
 		    	try {
-		    		name = t.getLexeme();
-		    	} catch (NullPointerException ex) {
-		    		return;
-		    	}
-		    	if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
-		    		try {
-		    			Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
-		    					+ name.toUpperCase() + ".html"));
-		    		} catch (IOException e1) {
-		    		} catch (URISyntaxException e1) { }
-		    	}
+		    		Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
+		    				+ name.toUpperCase() + ".html"));
+		    	} catch (IOException e1) {
+		    	} catch (URISyntaxException e1) { }
 		    }
 		}
 	}
@@ -120,6 +107,8 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		scheme.getStyle(Token.SEPARATOR).foreground = Color.black;
 		setBorder(BorderFactory.createEmptyBorder(0, leftMargin, 0, 0));
 		setTabSize(4);
+		ContextMenu menu = new ContextMenu(this);
+		setPopupMenu(menu);
 		setBackground(PPWindow.transparent);
 		lookUpAction = new LookUpListener();
 		addKeyListener(new KeyAdapter() {
@@ -355,5 +344,38 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
 	public ActionListener getHelpAction() {
 		return lookUpAction;
+	}
+	
+	public String getWordAtMouse() {
+		Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
+		Point compLoc = getLocationOnScreen();
+		return getWordAt(new Point(mouseLoc.x - compLoc.x, mouseLoc.y - compLoc.y));
+	}
+	
+	public String getWordAt(Point p) {
+		return getWordAt(viewToModel(p));
+	}
+	
+	public String getWordAt(int loc) {
+		if (loc == -1) {
+			return null;
+		}
+		int line = 0;
+	    try {
+	    	line = getLineOfOffset(loc);
+	    } catch (BadLocationException e1) { }
+	    Token t = getTokenListForLine(line);
+	    while (t != null && t.textOffset + t.textCount < loc) {
+	    	t = t.getNextToken();
+	    }
+	    String name = null;
+	    if (t != null) {
+	    	try {
+	    		name = t.getLexeme();
+	    	} catch (NullPointerException ex) {
+	    		return null;
+	    	}
+	    }
+		return name;
 	}
 }
