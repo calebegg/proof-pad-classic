@@ -128,6 +128,7 @@ public class PPWindow extends JFrame {
 	public OutputWindow outputWindow;
 	boolean findBarIsOpen;
 	private JPanel splitTop;
+	boolean userLocation;
 
 	public PPWindow() {
 		this((File)null);
@@ -483,6 +484,17 @@ public class PPWindow extends JFrame {
 				proofBar.repaint();
 			}
 		});
+		
+		userLocation = false;
+		addComponentListener(new ComponentAdapter() {
+			@Override public void componentResized(ComponentEvent e) {
+				userLocation = true;
+			}
+			
+			@Override public void componentMoved(ComponentEvent e) {
+				userLocation = true;
+			}
+		});
 
 		Toolkit.getDefaultToolkit().setDynamicLayout(false);
 		split.setBottomComponent(repl);
@@ -556,6 +568,11 @@ public class PPWindow extends JFrame {
 		pack();
 		editor.requestFocus();
 		split.setDividerLocation(.65);
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override public void run() {
+				userLocation = false;
+			}
+		});
 	}
 
 	protected void setInfoBar(JComponent comp) {
@@ -583,10 +600,6 @@ public class PPWindow extends JFrame {
 		}
 	}
 	
-	public void setPreviewComponent(JComponent c, Runnable after) {
-
-	}
-
 	public void fixUndoRedoStatus() {
 		// TODO: Show what you're undoing in the menu item or tooltip.
 		boolean canUndo = editor.canUndo();
@@ -824,7 +837,7 @@ public class PPWindow extends JFrame {
 			ret.y = 0;
 		}
 		if (newX <= 0) newX = 0;
-		if (myPos.x > newX) {
+		if (myPos.x > newX && !userLocation) {
 			ret.x = screenSize.width - outputWidth;
 			setLocation(newX, newY);
 		} else {
