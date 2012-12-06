@@ -107,7 +107,6 @@ public class ProofBar extends JComponent {
 	
 	static class UnprovenExp {
 		enum Status { SUCCESS, FAILURE, UNTRIED }
-		public int hash;
 		public Status status;
 	}
 	private List<UnprovenExp> unprovenStates = new ArrayList<UnprovenExp>();
@@ -570,38 +569,30 @@ public class ProofBar extends JComponent {
 		int provedSoFar = numProved;
 		acl2.admit(":program", Acl2.doNothingCallback);
 		acl2.admit("(set-ld-redefinition-action '(:doit . :erase) state)", Acl2.doNothingCallback);
-		unprovenStates = new ArrayList<UnprovenExp>();
+		if (unprovenStates == null) unprovenStates = new ArrayList<UnprovenExp>();
 		int unprovenIdx = 0;
 		for (int i = 0; i < expressions.size(); i++) {
 			final Expression ex = expressions.get(i);
-			final boolean lastExp = i == expressions.size() - 2; // TODO: Will '2' always work?
+			final boolean lastExp = i == expressions.size() - 1;
 			if (provedSoFar > 0) {
 				provedSoFar--;
 				if (lastExp) {
 					alreadyShownAnError = false;
 				}
 			} else {
-				final UnprovenExp ue;
+				final UnprovenExp ue;				
 				if (unprovenIdx < unprovenStates.size()) {
 					ue = unprovenStates.get(unprovenIdx);
 					unprovenIdx++;
-					if (ue.hash == ex.contents.hashCode()) {
-						if (lastExp) {
-							alreadyShownAnError = false;
-						}
-						continue;
-					}
 				} else {
 					unprovenIdx++;
 					ue = new UnprovenExp();
 					unprovenStates.add(ue);
 				}
 				ue.status = Status.UNTRIED;
-				ue.hash = ex.contents.hashCode();
-				final boolean last = i == expressions.size() - 1;
 				acl2.admit(ex.contents, new Acl2.Callback() {
 					@Override public boolean run(boolean success, String response) {
-						setExpData(ex, success, response, last);
+						setExpData(ex, success, response, lastExp);
 						if (lastExp) {
 							alreadyShownAnError = false;
 						}
