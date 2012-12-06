@@ -160,6 +160,7 @@ public class MoreBar extends JComponent {
 			win.outputWindow.hideWindow();
 		} else {
 			if (!win.isVisible()) return;
+			if (ex.output.isEmpty()) return;
 			win.outputWindow.showWithText(ex.output, new Runnable() {
 				@Override
 				public void run() {
