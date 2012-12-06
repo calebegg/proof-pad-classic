@@ -19,7 +19,6 @@ public class BuildWindow extends JFrame {
 
 	private static final long serialVersionUID = 8394742808899908090L;
 	private static final boolean OSX = Main.OSX;
-	private static final boolean WIN = Main.WIN;
 	private final File file;
 	private final String acl2Dir;
 	private final JProgressBar progress;
@@ -54,7 +53,7 @@ public class BuildWindow extends JFrame {
 	public void build() {
 		List<String> acl2Paths = new ArrayList<String>();
 		acl2Paths.add(acl2Dir);
-		builder = new Acl2(acl2Paths, file.getParentFile(), null);
+		builder = new Acl2(acl2Paths, file.getParentFile());
 		try {
 			builder.initialize();
 			builder.start();
@@ -70,8 +69,7 @@ public class BuildWindow extends JFrame {
 				FileDialog fc = new FileDialog(this, "Save Executable...");
 				fc.setMode(FileDialog.SAVE);
 				fc.setDirectory(file.getPath());
-				fc.setFile(file.getName().split("\\.")[0]
-						+ (WIN ? ".exe" : ""));
+				fc.setFile(file.getName().split("\\.")[0]);
 				fc.setVisible(true);
 				filename = fc.getDirectory() + fc.getFile();
 			} else {

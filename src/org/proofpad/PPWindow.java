@@ -186,7 +186,7 @@ public class PPWindow extends JFrame {
 		}
 		
 		parser = new Acl2Parser(workingDir, null);
-		acl2 = new Acl2(acl2Paths, workingDir, parser);
+		acl2 = new Acl2(acl2Paths, workingDir);
 		acl2.setErrorListener(new ErrorListener() {
 			@Override public InfoBar handleError(String msg, InfoButton[] btns) {
 				InfoBar infoBar = new InfoBar(msg, btns);
@@ -833,4 +833,3 @@ public class PPWindow extends JFrame {
 		return ret;
 	}
 }
-

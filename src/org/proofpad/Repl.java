@@ -521,8 +521,7 @@ public class Repl extends JPanel {
 
 	private void setFontAndHeight(Font f, JComponent c) {
 		c.setFont(f);
-		int newHeight = Math.max(25, getFontMetrics(f).getHeight() + 10);
-		System.out.println(newHeight);
+		int newHeight = Math.max(25, getFontMetrics(f).getHeight() + 6);
 		c.setMaximumSize(new Dimension(c.getMaximumSize().width, newHeight));
 	}
 
