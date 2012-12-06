@@ -77,13 +77,13 @@ public class FindBar extends JPanel {
 		});
 		searchField.putClientProperty("JTextField.variant", "search");
 		add(searchField);
-		JButton forward = new JButton(new ImageIcon(getClass().getResource("/media/find_down.png")));
+		JButton forward = new JButton(new ImageIcon(getClass().getResource("/Icons/Find_Down.png")));
 		forward.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
 				searchFor(searchField.getText(), Direction.DOWN);
 			}
 		});
-		JButton back = new JButton(new ImageIcon(getClass().getResource("/media/find_up.png")));
+		JButton back = new JButton(new ImageIcon(getClass().getResource("/Icons/Find_Up.png")));
 		back.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
 				searchFor(searchField.getText(), Direction.UP);

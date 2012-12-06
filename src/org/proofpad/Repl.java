@@ -119,9 +119,9 @@ public class Repl extends JPanel {
 		public MsgType type;
 	}
 
-	static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/media/info.png"));
-	static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/media/prompt.png"));
-	static final ImageIcon moreIcon = new ImageIcon(Repl.class.getResource("/media/more.png"));
+	static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/Icons/Info.png"));
+	static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/Icons/Prompt.png"));
+	static final ImageIcon moreIcon = new ImageIcon(Repl.class.getResource("/Icons/More.png"));
 
 	public interface HeightChangeListener {
 		public void heightChanged(int delta);

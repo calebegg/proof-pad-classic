@@ -9,7 +9,7 @@ RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES\${APPNAME}"
  
 Name "${APPNAME}"
-Icon "media\icon.ico"
+Icon "Icons\icon.ico"
 outFile "Proof Pad installer.exe"
  
 !include LogicLib.nsh
@@ -36,7 +36,7 @@ functionEnd
 section "install"
 	setOutPath $INSTDIR
 	File "proofpad.jar"
-	File "media\icon.ico"
+	File "Icons\icon.ico"
 	File /r "acl2"
  
 	writeUninstaller "$INSTDIR\uninstall.exe"

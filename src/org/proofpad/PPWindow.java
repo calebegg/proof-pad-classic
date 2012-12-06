@@ -541,10 +541,10 @@ public class PPWindow extends JFrame {
 		});
 		
 		String[] iconPaths = {
-				"media/icon.iconset/icon_16x16.png",
-				"media/icon.iconset/icon_32x32.png",
-				"media/icon.iconset/icon_128x128.png",
-				"media/icon.iconset/icon_32x32@2x.png"
+				"icon.iconset/icon_16x16.png",
+				"icon.iconset/icon_32x32.png",
+				"icon.iconset/icon_128x128.png",
+				"icon.iconset/icon_32x32@2x.png"
 		};
 		
 		List<Image> icons = new ArrayList<Image>();

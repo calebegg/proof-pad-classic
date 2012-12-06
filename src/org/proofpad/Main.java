@@ -47,7 +47,7 @@ import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class Main {
 	public static final String displayName = "Proof Pad";
-	public static final int RELEASE = 2;
+	public static final int RELEASE = 3;
 	public static final Border WINDOW_BORDER = BorderFactory.createEmptyBorder(4, 4, 4, 4);
 	public static final boolean OSX = System.getProperty("os.name").indexOf("Mac") != -1;
 	public static final boolean WIN =

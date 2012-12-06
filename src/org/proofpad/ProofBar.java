@@ -60,11 +60,11 @@ public class ProofBar extends JComponent {
 	static final Color WARNING_COLOR = new Color(0xFFFF00);
 	static final Color ADMITTED_COLOR = new Color(0xDDF8CC);
 	public static final ImageIcon errorIcon = new ImageIcon(
-			ProofBar.class.getResource("/media/error.png"));
+			ProofBar.class.getResource("/Icons/Error.png"));
 	public static final ImageIcon successIcon = new ImageIcon(
-			ProofBar.class.getResource("/media/check.png"));
+			ProofBar.class.getResource("/Icons/Check.png"));
 	public static final Icon warningIcon = new ImageIcon(
-			ProofBar.class.getResource("/media/error.png")); // FIXME
+			ProofBar.class.getResource("/Icons/Error.png")); // FIXME
 
 	static LinearGradientPaint diagonalPaint(Color a, Color b, int step, float dist) {
 		return new LinearGradientPaint(0, 0, step, step,
@@ -95,7 +95,7 @@ public class ProofBar extends JComponent {
 	private int readOnlyIndex = -1;
 	Expression tried;
 	private final Image inProgressThrobber = 
-			new ImageIcon(getClass().getResource("/media/in-progress-blue.gif")).getImage();
+			new ImageIcon(getClass().getResource("/Icons/in-progress-blue.gif")).getImage();
 	private int flashIndex;
 	int flashPhase;
 	Runnable flashTimeout;
