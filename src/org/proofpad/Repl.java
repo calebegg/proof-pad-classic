@@ -84,6 +84,10 @@ public class Repl extends JPanel {
 					}
 				}
 			} else if (e.getKeyChar() == '\n') {
+				if (input.getText().equals("")) {
+					e.consume();
+					return;
+				}
 				int parenLevel = 0;
 				for (Token t : input) {
 					if (t == null || t.type == Token.NULL) {
