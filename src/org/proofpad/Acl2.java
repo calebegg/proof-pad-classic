@@ -289,7 +289,6 @@ public class Acl2 extends Thread {
 					@Override public void actionPerformed(ActionEvent arg0) {
 						try {
 							restart();
-							if (currentInfobar != null) currentInfobar.close();
 						} catch (IOException e) { }
 					}
 				}) });

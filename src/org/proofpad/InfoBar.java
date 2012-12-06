@@ -41,21 +41,23 @@ public class InfoBar extends JPanel {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBackground(INFO_BAR_COLOR);
 		setBorder(INFO_BAR_BORDER);
+		ActionListener closeAction = new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				close();
+			}
+		};
 		add(new JLabel(msg));
 		add(Box.createHorizontalGlue());
 		for (InfoButton ib : buttons) {
 			JButton btn = new JButton(ib.text);
 			btn.putClientProperty("JButton.buttonType", "roundRect");
 			btn.addActionListener(ib.listener);
+			btn.addActionListener(closeAction);
 			add(btn);
 		}
 		JButton closeBtn = new JButton("Close");
 		closeBtn.putClientProperty("JButton.buttonType", "roundRect");
-		closeBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				close();
-			}});
+		closeBtn.addActionListener(closeAction);
 		add(closeBtn);
 	}
 

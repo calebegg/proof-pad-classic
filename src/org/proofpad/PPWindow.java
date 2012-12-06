@@ -789,7 +789,6 @@ public class PPWindow extends JFrame {
 					new InfoButton("Load", new ActionListener() {
 						@Override public void actionPerformed(ActionEvent arg0) {
 							openAndDisplay(openFile);
-							closeInfoBar();
 						}
 					})
 				}));
