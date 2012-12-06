@@ -141,8 +141,6 @@ public class Repl extends JPanel {
 			setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
 			setBackground(Color.WHITE);
 			setOpaque(true);
-			setMinimumSize(new Dimension(size, size));
-			setMaximumSize(new Dimension(size, Short.MAX_VALUE));
 			setPreferredSize(new Dimension(size, size));
 		}
 		public StatusLabel() {
@@ -411,7 +409,6 @@ public class Repl extends JPanel {
 
 	public JPanel createSummary(String resultText, MsgType type, MouseListener ml) {
 		final JPanel line = new JPanel();
-		line.setPreferredSize(new Dimension(200, 25));
 		line.setMaximumSize(new Dimension(Short.MAX_VALUE, 25));
 		line.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 		JTextArea text = new JTextArea(resultText.trim());
@@ -427,6 +424,10 @@ public class Repl extends JPanel {
 		synchronized(fontChangeList) {
 			fontChangeList.add(status);
 			fontChangeList.add(text);
+			fontChangeList.add(line);
+			setFontAndHeight(Prefs.font.get(), status);
+			setFontAndHeight(Prefs.font.get(), text);
+			setFontAndHeight(Prefs.font.get(), line);
 		}
 
 		text.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 5));
@@ -436,13 +437,11 @@ public class Repl extends JPanel {
 		case ERROR:
 			line.setBackground(ProofBar.ERROR_COLOR);
 			status.setBackground(ProofBar.ERROR_COLOR);
-			status.setFont(status.getFont().deriveFont(18f));
 			break;
 		case INFO:
 			break;
 		case SUCCESS:
 			status.setBackground(ProofBar.ADMITTED_COLOR);
-			status.setFont(status.getFont().deriveFont(18f));
 			break;
 		case INPUT:
 			status.setForeground(Color.GRAY);
@@ -453,7 +452,6 @@ public class Repl extends JPanel {
 			status.setBackground(ProofBar.WARNING_COLOR);
 			break;
 		}
-		text.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 		line.add(text);
 		if (ml != null) {
 			line.addMouseListener(ml);
@@ -512,12 +510,20 @@ public class Repl extends JPanel {
 		if (fontChangeList == null) return;
 		synchronized (fontChangeList) {
 			for (JComponent c : fontChangeList) {
-				c.setFont(f);
+				setFontAndHeight(f, c);
 			}
 		}
+		output.repaint();
 		input.setFont(f);
 		int size = (25 - input.getLineHeight()) / 2;
 		input.setBorder(BorderFactory.createEmptyBorder(size, 10, size, size));
+	}
+
+	private void setFontAndHeight(Font f, JComponent c) {
+		c.setFont(f);
+		int newHeight = Math.max(25, getFontMetrics(f).getHeight() + 10);
+		System.out.println(newHeight);
+		c.setMaximumSize(new Dimension(c.getMaximumSize().width, newHeight));
 	}
 
 	public void setHeightChangeListener(HeightChangeListener heightChangeListener) {
@@ -535,6 +541,14 @@ public class Repl extends JPanel {
 				run.setEnabled(enable);
 			}
 		});
+	}
+
+	public void clearScrollback() {
+		getOutput().removeAll();
+		getOutput().repaint();
+		synchronized (fontChangeList) {
+			fontChangeList.clear();
+		}
 	}
 
 }

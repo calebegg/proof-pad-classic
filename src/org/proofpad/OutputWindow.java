@@ -98,7 +98,7 @@ public class OutputWindow extends JFrame {
 		textScroller.setBorder(BorderFactory.createEmptyBorder());
 		getRootPane().add(textScroller, BorderLayout.CENTER);
 		int height = textComp.getPreferredScrollableViewportSize().height + 100;
-		int width = 80 * getFontMetrics(ideWindow.getFont()).charWidth('a');
+		int width = 80 * getFontMetrics(Prefs.font.get()).charWidth('a');
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		if (height > screenSize.height) {
 			height = screenSize.height;

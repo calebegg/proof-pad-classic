@@ -335,8 +335,7 @@ public class PPWindow extends JFrame {
 		clearReplScrollback = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				repl.getOutput().removeAll();
-				repl.getOutput().repaint();
+				repl.clearScrollback();
 			}
 		};
 		
