@@ -113,8 +113,7 @@ public class Main {
 			app.setOpenFileHandler(new OpenFilesHandler() {
 				@Override public void openFiles(OpenFilesEvent e) {
 					for (Object file : e.getFiles()) {
-						PPWindow win = new PPWindow((File) file);
-						win.setVisible(true);
+						PPWindow.createOrReuse((File) file);
 					}
 				}
 			});

@@ -149,7 +149,7 @@ public class Acl2 extends Thread {
 
 	private ErrorListener errorListener;
 
-	private InfoBar currentInfobar;
+	InfoBar currentInfobar;
 
 	private boolean isRestarting = false;
 
@@ -284,11 +284,12 @@ public class Acl2 extends Thread {
 	}
 	void showAcl2TerminatedError() {
 		if (isRestarting) return;
-		fireErrorEvent("ACL2 has terminated.", new InfoButton[] { new InfoButton("Restart",
+		currentInfobar = fireErrorEvent("ACL2 has terminated.", new InfoButton[] { new InfoButton("Restart",
 				new ActionListener() {
 					@Override public void actionPerformed(ActionEvent arg0) {
 						try {
 							restart();
+							if (currentInfobar != null) currentInfobar.close();
 						} catch (IOException e) { }
 					}
 				}) });

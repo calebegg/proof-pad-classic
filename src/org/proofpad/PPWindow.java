@@ -87,7 +87,7 @@ public class PPWindow extends JFrame {
 	private static final int WINDOW_GAP = 10;
 	static List<PPWindow> windows = new LinkedList<PPWindow>();
 	private static int untitledCount = 1;
-	
+	private FileMonitor monitor;
 	File openFile;
 	boolean isSaved = true;
 	private File workingDir;
@@ -129,6 +129,7 @@ public class PPWindow extends JFrame {
 	boolean findBarIsOpen;
 	private JPanel splitTop;
 	boolean userLocation;
+	InfoBar infoBar;
 
 	public PPWindow() {
 		this((File)null);
@@ -190,9 +191,9 @@ public class PPWindow extends JFrame {
 		acl2 = new Acl2(acl2Paths, workingDir);
 		acl2.setErrorListener(new ErrorListener() {
 			@Override public InfoBar handleError(String msg, InfoButton[] btns) {
-				InfoBar infoBar = new InfoBar(msg, btns);
-				setInfoBar(infoBar);
-				return infoBar;
+				InfoBar ib = new InfoBar(msg, btns);
+				setInfoBar(ib);
+				return ib;
 			}
 		});
 		moreBar = new MoreBar(this);
@@ -575,11 +576,14 @@ public class PPWindow extends JFrame {
 		});
 	}
 
-	protected void setInfoBar(JComponent comp) {
+	protected void setInfoBar(JComponent ib) {
 		Component child = ((BorderLayout) splitTop.getLayout())
 				.getLayoutComponent(BorderLayout.PAGE_START);
 		if (child != null) splitTop.remove(child);
-		splitTop.add(comp, BorderLayout.PAGE_START);
+		if (ib instanceof InfoBar) {
+			infoBar = (InfoBar) ib;
+		}
+		splitTop.add(infoBar, BorderLayout.PAGE_START);
 		splitTop.revalidate();
 	}
 	
@@ -640,8 +644,9 @@ public class PPWindow extends JFrame {
 		}
 		if (response == 1 || isSaved || isEmpty) {
 			dispose();
-			acl2.terminate();
-			outputWindow.dispose();
+			if (acl2 != null) acl2.terminate();
+			if (outputWindow != null) outputWindow.dispose();
+			if (monitor != null) monitor.requestStop();
 			if (ii != null) {
 				ii.remove();
 			} else {
@@ -710,12 +715,14 @@ public class PPWindow extends JFrame {
 				}
 				parser.workingDir = workingDir;
 				
+				resetMonitor();
 				markOpenFileAsRecent();
 			} else {
 				return false;
 			}
 		}
 		try {
+			if (monitor != null) monitor.ignoreOne();
 			BufferedWriter bw = new BufferedWriter(new FileWriter(openFile));
 			bw.write(editor.getText());
 			bw.close();
@@ -767,10 +774,30 @@ public class PPWindow extends JFrame {
 		adjustMaximizedBounds();
 		updateWindowMenu();
 		
+		resetMonitor();
 		markOpenFileAsRecent();
 		adjustGutterSize();
 	}
 	
+	private void resetMonitor() {
+		if (monitor != null) {
+			monitor.requestStop();
+		}
+		monitor = new FileMonitor(openFile, new Runnable() {
+			@Override public void run() {
+				setInfoBar(new InfoBar(openFile.getName() + " has been modified outside Proof Pad", new InfoBar.InfoButton[] {
+					new InfoButton("load", new ActionListener() {
+						@Override public void actionPerformed(ActionEvent arg0) {
+							openAndDisplay(openFile);
+							infoBar.close();
+						}
+					})
+				}));
+			}
+		});
+		monitor.start();
+	}
+
 	private void markOpenFileAsRecent() {
 		// Update recent files
 		int downTo = 10;
@@ -844,5 +871,16 @@ public class PPWindow extends JFrame {
 			ret.x = myPos.x + myWidth;
 		}
 		return ret;
+	}
+
+	public static void createOrReuse(File file) {
+		if (PPWindow.windows.size() == 1 &&
+				PPWindow.windows.get(0).openFile == null &&
+				PPWindow.windows.get(0).isSaved == true) {
+			PPWindow.windows.get(0).openAndDisplay(file);
+		} else {
+			PPWindow win = new PPWindow(file);
+			win.setVisible(true);
+		}		
 	}
 }

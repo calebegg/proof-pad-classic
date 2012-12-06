@@ -31,13 +31,7 @@ class OpenAction implements ActionListener {
 			file = response == JFileChooser.APPROVE_OPTION ? PPWindow.fc.getSelectedFile() : null;
 		}
 		if (file != null) {
-			PPWindow window = new PPWindow(file);
-			if (PPWindow.windows.size() == 1 &&
-					PPWindow.windows.get(0).isSaved &&
-					PPWindow.windows.get(0).openFile == null) {
-				PPWindow.windows.get(0).promptIfUnsavedAndClose();
-			}
-			window.setVisible(true);
+			PPWindow.createOrReuse(file);
 		}
 	}
 }
