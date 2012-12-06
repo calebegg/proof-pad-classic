@@ -310,10 +310,10 @@ public class Acl2 extends Thread {
 	}
 	
 	private void fireOutputEvents(boolean success) {
-		if (outputQueue.size() > 0) {
+		if (!outputQueue.isEmpty()) {
 			outputQueue.remove(0);
 		}
-		if (callbacks.size() > 0) {
+		if (!callbacks.isEmpty()) {
 			Callback cb = callbacks.remove(0);
 			if (cb == null || cb.run(success, fullOutput)) {
 				for (OutputEvent oe : outputQueue) {
@@ -530,6 +530,8 @@ public class Acl2 extends Thread {
 				Runtime.getRuntime().exec(new String[] {"kill", "-s", "INT", Integer.toString(procId)});
 			} catch (IOException e) { }
 		}
+		fullOutput += sb.toString();
+		sb = new StringBuilder();
 		fireOutputEvents(false);
 		System.out.println("ACL2 was interrupted");
 		failAllCallbacks();
