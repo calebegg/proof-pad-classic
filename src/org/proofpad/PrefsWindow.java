@@ -95,7 +95,7 @@ public class PrefsWindow extends JDialog {
 		}
 		return instance;
 	}
-	
+
 	private PrefsWindow() {
 		super((JFrame)null, "Settings");
 		final PrefsWindow that = this;
@@ -152,9 +152,11 @@ public class PrefsWindow extends JDialog {
 		c.anchor = GridBagConstraints.LINE_END;
 		add(new JLabel("Font:"), c);
 		c.gridx = 1;
+		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.anchor = GridBagConstraints.LINE_START;
 		add(fontPicker, c);
 		
+		c.gridwidth = 1;
 		c.gridx = 0;
 		c.gridy++;
 		c.anchor = GridBagConstraints.LINE_END;
@@ -206,7 +208,7 @@ public class PrefsWindow extends JDialog {
 		c.gridx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = new Insets(formSpacing, formSpacing, 0, formSpacing);
-		final JCheckBox showGuide = new JCheckBox("Show a width guide");
+		final JCheckBox showGuide = new JCheckBox("Show a width guide at");
 		final JSpinner guideSpinner = new JSpinner(
 				new SpinnerNumberModel(widthGuide == -1 ? 60 : widthGuide, 40, 120, 10));
 		guideSpinner.setEnabled(widthGuide != -1);
@@ -225,7 +227,8 @@ public class PrefsWindow extends JDialog {
 			}
 		});
 		add(showGuide, c);
-		c.gridy++;
+
+		c.gridx++;
 		guideSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -234,6 +237,8 @@ public class PrefsWindow extends JDialog {
 		});
 		guideSpinner.setEditor(new JSpinner.NumberEditor(guideSpinner));
 		add(guideSpinner, c);
+		c.gridx++;
+		add(new JLabel("characters."), c);
 		
 		c.gridx = 1;
 		c.gridy++;
@@ -252,38 +257,13 @@ public class PrefsWindow extends JDialog {
 		});
 		add(showToolbar, c);
 		
-		c.gridx = 0;
-		c.gridy++;
-		add(new JLabel("Usage data:"), c);
-		c.gridx = 1;
-		final String[] opts = { "Ask every time", "Always send", "Never send" };
-		final JComboBox usageData = new JComboBox(opts);
-		usageData.setSelectedIndex(Prefs.alwaysSend.get());
-		usageData.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				switch (usageData.getSelectedIndex()) {
-				case 0:
-					Prefs.alwaysSend.set(Prefs.Codes.ASK_EVERY_TIME);
-					break;
-				case 1:
-					Prefs.alwaysSend.set(Prefs.Codes.ALWAYS_SEND);
-					break;
-				case 2:
-					Prefs.alwaysSend.set(Prefs.Codes.NEVER_SEND);
-					break;
-				}
-				Prefs.alwaysSend.set(usageData.getSelectedIndex());
-			}
-		});
-		add(usageData, c);
-				
 		c.gridy++;
 		c.gridx = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		add(new Separator(), c);
 		c.gridwidth = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.NONE;
 		
 		c.gridx = 1;
 		c.gridy++;
@@ -422,6 +402,41 @@ public class PrefsWindow extends JDialog {
 		c.gridy++;
 		add(info, c);
 		
+		c.gridy++;
+		c.gridx = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		add(new Separator(), c);
+		c.gridwidth = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.NONE;
+		
+		c.gridx = 0;
+		c.gridy++;
+		add(new JLabel("Usage data:"), c);
+		c.gridx = 1;
+		final String[] opts = { "Ask every time", "Always send", "Never send" };
+		final JComboBox usageData = new JComboBox(opts);
+		usageData.setSelectedIndex(Prefs.alwaysSend.get());
+		usageData.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				switch (usageData.getSelectedIndex()) {
+				case 0:
+					Prefs.alwaysSend.set(Prefs.Codes.ASK_EVERY_TIME);
+					break;
+				case 1:
+					Prefs.alwaysSend.set(Prefs.Codes.ALWAYS_SEND);
+					break;
+				case 2:
+					Prefs.alwaysSend.set(Prefs.Codes.NEVER_SEND);
+					break;
+				}
+				Prefs.alwaysSend.set(usageData.getSelectedIndex());
+			}
+		});
+		add(usageData, c);
+				
+		
 		///// Close button /////
 		c.gridx = 1;
 		c.gridy++;
@@ -491,11 +506,13 @@ public class PrefsWindow extends JDialog {
 		}
 		Prefs.widthGuide.set(value);
 	}
+	
 	protected static void fireFontChangeEvent() {
 		for (FontChangeListener fcl : fontChangeListeners) {
 			fcl.fontChanged(Prefs.font.get());
 		}
 	}
+	
 	protected static void toggleToolbarVisible() {
 		boolean visible = !Prefs.showToolbar.get();
 		for (ToolbarVisibleListener tvl : toolbarVisibleListeners) {
