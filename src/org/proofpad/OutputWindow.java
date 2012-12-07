@@ -105,8 +105,10 @@ public class OutputWindow extends JFrame {
 			width += new JScrollBar().getPreferredSize().width;
 		}
 		setSize(width, height);
-		Point whereToGo = ideWindow.moveForOutputWindow();
-		setLocation(whereToGo);
+		if (!isVisible()) {
+			Point whereToGo = ideWindow.moveForOutputWindow();
+			setLocation(whereToGo);
+		}
 		setFocusableWindowState(false);
 		setVisible(true);
 		SwingUtilities.invokeLater(new Runnable() {
