@@ -12,6 +12,7 @@ public class Prefs {
 	public static final BooleanPref customAcl2 = new BooleanPref("customacl2", false);
 	public static final BooleanPref firstRun = new BooleanPref("firstRun", true);
 	public static final BooleanPref showLineNumbers = new BooleanPref("linenums", false);
+	public static final BooleanPref saveSession = new BooleanPref("savesession", true);
 	public static final IntPref alwaysSend = new IntPref("alwaysSend", Codes.ASK_EVERY_TIME);
 	public static final IntPref fontSize = new IntPref("fontsize", 12);
 	public static final IntPref widthGuide = new IntPref("widthguide", 60);

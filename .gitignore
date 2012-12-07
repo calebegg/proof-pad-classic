@@ -20,3 +20,4 @@ ctrl-c/ctrlc-windows/Release/*
 ctrl-c/ctrlc-windows/*.sdf
 ctrl-c/ctrlc-windows/*.opensdf
 ctrl-c/ctrlc-windows/*.user
+saved_session.dat

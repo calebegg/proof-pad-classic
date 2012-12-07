@@ -650,7 +650,7 @@ public class PPWindow extends JFrame {
 				windows.remove(PPWindow.this);
 			}
 			if (windows.size() == 0 && !Main.OSX) {
-				Main.quit();
+				Main.saveUserDataAndExit();
 			}
 			return true;
 		}
@@ -728,6 +728,10 @@ public class PPWindow extends JFrame {
 			setTitle(openFile.getName() + (!Main.OSX ? " - Proof Pad" : ""));
 		} catch (IOException e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Saving to " + openFile + " failed. Make sure you" +
+					" have permission to write to this location, or try a different location." +
+					e.getMessage(), "Error saving", JOptionPane.ERROR_MESSAGE);
+			setSaved(false);
 		}
 		return true;
 	}

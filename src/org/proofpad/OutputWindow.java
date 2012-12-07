@@ -88,7 +88,6 @@ public class OutputWindow extends JFrame {
 				.getLayoutComponent(BorderLayout.PAGE_START);
 		if (oldPgStartComp != null) getRootPane().remove(oldPgStartComp);
 		getRootPane().add(summaries, BorderLayout.PAGE_START);
-		
 		if (afterPreview != null) afterPreview.run();
 		afterPreview = after;
 		Component oldCenterComp = ((BorderLayout) getRootPane().getLayout())

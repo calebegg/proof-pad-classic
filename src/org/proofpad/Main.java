@@ -54,14 +54,16 @@ public class Main {
 	System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
 	public static final boolean JAVA_7 = System.getProperty("java.version").startsWith("1.7");
 	
-	private static String userDataPath = new File(getJarPath()).getParent() +
+	static final String SESSION_PATH = new File(getJarPath()).getParent() +
+			System.getProperty("file.separator") + "saved_session.dat";
+	static final String USER_DATA_PATH = new File(getJarPath()).getParent() +
 			System.getProperty("file.separator") +
 			"user_data.dat";
     public static final String UPLOAD_URL = "http://www.calebegg.com/ppuserdata";
 	public static UserData userData = null;
 	static {
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(userDataPath));
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(USER_DATA_PATH));
 			userData = (UserData) ois.readObject();
 			ois.close();
 		} catch (Exception e) {
@@ -70,7 +72,6 @@ public class Main {
 		if (userData == null) {
 			userData = new UserData();
 		}
-		System.out.println(userData);
 	}
 	
 	public static boolean startingUp = true;
@@ -125,15 +126,32 @@ public class Main {
 			app.setQuitHandler(new QuitHandler() {
 				@Override public void handleQuitRequestWith(QuitEvent qe,
 						QuitResponse qr) {
-					for (Iterator<PPWindow> ii = PPWindow.windows.iterator(); ii.hasNext();) {
-						PPWindow win = ii.next();
-						if (!win.promptIfUnsavedAndQuit(ii)) {
-							break;
+					boolean needToCloseWindows = true;
+					if (Prefs.saveSession.get()) {
+						needToCloseWindows = false;
+						Session session = new Session(PPWindow.windows);
+						ObjectOutputStream oos;
+						try {
+							oos = new ObjectOutputStream(new FileOutputStream(
+									SESSION_PATH));
+							oos.writeObject(session);
+							oos.close();
+						} catch (Exception e) {
+							e.printStackTrace();
+							needToCloseWindows = true;
+						}
+					}
+					if (needToCloseWindows) {
+						for (Iterator<PPWindow> ii = PPWindow.windows.iterator(); ii.hasNext();) {
+							PPWindow win = ii.next();
+							if (!win.promptIfUnsavedAndQuit(ii)) {
+								break;
+							}
 						}
 					}
 					PPWindow.updateWindowMenu();
-					if (PPWindow.windows.size() <= 0) {
-						quit();
+					if (!needToCloseWindows || PPWindow.windows.size() <= 0) {
+						saveUserDataAndExit();
 					} else {
 						qr.cancelQuit();
 					}
@@ -147,7 +165,7 @@ public class Main {
 			app.addAppEventListener(new AppForegroundListener() {
 				@Override public void appMovedToBackground(AppForegroundEvent arg0) {
 					if (PPWindow.windows.size() == 0 && !startingUp) {
-						Main.quit();
+						Main.saveUserDataAndExit();
 					}
 				}
 				@Override public void appRaisedToForeground(AppForegroundEvent arg0) {}
@@ -182,7 +200,24 @@ public class Main {
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override public void run() {
-				logtime("Start creating main window");
+				Prefs.saveSession.set(true);
+				logtime("Start restoring session");
+				if (Prefs.saveSession.get()) {
+					try {
+						ObjectInputStream sessionRestoreStream = new ObjectInputStream(
+								new FileInputStream(SESSION_PATH));
+						Session session = (Session) sessionRestoreStream.readObject();
+						sessionRestoreStream.close();
+						session.restore();
+					} catch (Exception e) {
+						e.printStackTrace();
+						Prefs.saveSession.set(false);
+						JOptionPane.showMessageDialog(null, "Failed to restore from saved session. " +
+								"Session saving has been turned off to prevent any future data loss.",
+								"Session restore failed", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+				logtime("Session restore complete.");
 				if (PPWindow.windows.isEmpty()) {
 					PPWindow win = new PPWindow();
 					startingUp = false;
@@ -226,11 +261,11 @@ public class Main {
 		});
 	}
 	
-	protected static void quit() {
+	protected static void saveUserDataAndExit() {
 		ObjectOutputStream oos;
 //		System.out.println("Quitting");
 		try {
-			oos = new ObjectOutputStream(new FileOutputStream(userDataPath));
+			oos = new ObjectOutputStream(new FileOutputStream(USER_DATA_PATH));
 			oos.writeObject(userData);
 			oos.close();
 		} catch (Exception e) {
@@ -241,8 +276,6 @@ public class Main {
 	
 	static String getJarPath() {
 		try {
-			System.out.println(URLDecoder.decode(Main.class.getProtectionDomain().getCodeSource().getLocation()
-					.getPath(), "UTF-8"));
 			return URLDecoder.decode(Main.class.getProtectionDomain().getCodeSource().getLocation()
 							.getPath(), "UTF-8");
 		} catch (UnsupportedEncodingException e) { }
