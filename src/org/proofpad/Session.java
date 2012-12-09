@@ -13,8 +13,9 @@ public class Session implements Serializable {
 		private static final long serialVersionUID = -3654242987588009951L;
 		File file;
 		Rectangle location;
-		int admittedLoc;
 		String contents;
+		int admittedLoc;
+		int scrollPos;
 	}
 	
 	private final SavedWindow[] savedWindows;
