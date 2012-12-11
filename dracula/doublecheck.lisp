@@ -196,7 +196,11 @@
 (defmacro repeat-times (times limit body)
   (if (zp limit)
     `(mv state (hard-error nil
-                           "Wasn't able to generate enough data. Check your :where clauses (make sure they are satisfiable) and try increasing the :limit for the property"
+                           "Wasn't able to generate enough
+                            data. Check your :where clauses
+                            (make sure they are satisfiable)
+                            and try increasing the :limit
+                            for the property"
                            nil))
     `(if (zp ,times)
          (mv state nil)
@@ -205,7 +209,8 @@
             (mv-let (state rs)
                  (repeat-times (- ,times 
                                   (if (eql result
-                                           'where-not-matched) 0 1))
+                                           'where-not-matched)
+                                           0 1))
                                ,(- limit 1) ,body)
                  (mv state
                      (cons (cons result assignments)
