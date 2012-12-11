@@ -82,7 +82,7 @@ public class Main {
 
 	public static MenuBar menuBar;
 	
-	public static void main(String[] args) throws FileNotFoundException, IOException,
+	public static void main(final String[] args) throws FileNotFoundException, IOException,
 			ClassNotFoundException {
 		logtime("Starting main");
 		// http://java.net/jira/browse/MACOSX_PORT-764
@@ -126,33 +126,7 @@ public class Main {
 			app.setQuitHandler(new QuitHandler() {
 				@Override public void handleQuitRequestWith(QuitEvent qe,
 						QuitResponse qr) {
-					boolean needToCloseWindows = true;
-					if (Prefs.saveSession.get()) {
-						needToCloseWindows = false;
-						Session session = new Session(PPWindow.windows);
-						ObjectOutputStream oos;
-						try {
-							oos = new ObjectOutputStream(new FileOutputStream(
-									SESSION_PATH));
-							oos.writeObject(session);
-							oos.close();
-						} catch (Exception e) {
-							e.printStackTrace();
-							needToCloseWindows = true;
-						}
-					}
-					if (needToCloseWindows) {
-						for (Iterator<PPWindow> ii = PPWindow.windows.iterator(); ii.hasNext();) {
-							PPWindow win = ii.next();
-							if (!win.promptIfUnsavedAndQuit(ii)) {
-								break;
-							}
-						}
-					}
-					PPWindow.updateWindowMenu();
-					if (!needToCloseWindows || PPWindow.windows.size() <= 0) {
-						saveUserDataAndExit();
-					} else {
+					if (!quit()) {
 						qr.cancelQuit();
 					}
 				}
@@ -165,7 +139,7 @@ public class Main {
 			app.addAppEventListener(new AppForegroundListener() {
 				@Override public void appMovedToBackground(AppForegroundEvent arg0) {
 					if (PPWindow.windows.size() == 0 && !startingUp) {
-						Main.saveUserDataAndExit();
+						quit();
 					}
 				}
 				@Override public void appRaisedToForeground(AppForegroundEvent arg0) {}
@@ -184,7 +158,9 @@ public class Main {
 			if (!FAKE_WINDOWS) {
 				menuBar = new MenuBar(null);
 				// http://java.net/jira/browse/MACOSX_PORT-775
-				// app.setDefaultMenuBar(menuBar);
+				if (!JAVA_7) {
+					app.setDefaultMenuBar(menuBar);
+				}
 				PopupMenu dockMenu = new PopupMenu();
 				MenuItem item = new MenuItem("New");
 				item.addActionListener(new ActionListener() {
@@ -203,21 +179,12 @@ public class Main {
 				Prefs.saveSession.set(true);
 				logtime("Start restoring session");
 				if (Prefs.saveSession.get()) {
-					try {
-						ObjectInputStream sessionRestoreStream = new ObjectInputStream(
-								new FileInputStream(SESSION_PATH));
-						Session session = (Session) sessionRestoreStream.readObject();
-						sessionRestoreStream.close();
-						session.restore();
-					} catch (Exception e) {
-						e.printStackTrace();
-						Prefs.saveSession.set(false);
-						JOptionPane.showMessageDialog(null, "Failed to restore from saved session. " +
-								"Session saving has been turned off to prevent any future data loss.",
-								"Session restore failed", JOptionPane.ERROR_MESSAGE);
-					}
+					tryToRestoreSession();
 				}
 				logtime("Session restore complete.");
+				for (String arg : args) {
+					new PPWindow(new File(arg)).setVisible(true);
+				}
 				if (PPWindow.windows.isEmpty()) {
 					PPWindow win = new PPWindow();
 					startingUp = false;
@@ -229,36 +196,42 @@ public class Main {
 				Date now = new Date();
 				Date oneWeekAgo = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
 				if (userData.recordingStart.before(oneWeekAgo)) {
-					int alwaysSend = Prefs.alwaysSend.get();
-					if (alwaysSend != Prefs.Codes.ASK_EVERY_TIME) {
-						if (alwaysSend == Prefs.Codes.ALWAYS_SEND) {
-							sendUserData();
-						}
-						return;
-					}
-					JCheckBox saveAction = new JCheckBox("Do the same thing every week");
-					Object[] params = {"<html>You've been using Proof Pad for one week. In order to " +
-							"<br />continually improve Proof Pad, we ask that you volunteer your " +
-							"<br />anonymous usage and error data.</html>", saveAction};
-					Object[] options = { "Send data", "Don't send" };
-					int shouldSend = JOptionPane.showOptionDialog(null, params, "",
-							JOptionPane.YES_NO_OPTION,
-							JOptionPane.QUESTION_MESSAGE,
-							null,
-							options,
-							options[0]
-							);
-					if (saveAction.isSelected()) {
-						Prefs.alwaysSend
-								.set(shouldSend == JOptionPane.YES_OPTION ? Prefs.Codes.ALWAYS_SEND
-										: Prefs.Codes.NEVER_SEND);
-					}
-					if (shouldSend == JOptionPane.YES_OPTION) {
-						sendUserData();
-					}
+					promptAndSendUserData();
 				}
 			}
 		});
+	}
+	
+	static boolean quit() {
+		boolean needToCloseWindows = true;
+		if (Prefs.saveSession.get()) {
+			needToCloseWindows = false;
+			Session session = new Session(PPWindow.windows);
+			ObjectOutputStream oos;
+			try {
+				oos = new ObjectOutputStream(new FileOutputStream(
+						SESSION_PATH));
+				oos.writeObject(session);
+				oos.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				needToCloseWindows = true;
+			}
+		}
+		if (needToCloseWindows) {
+			for (Iterator<PPWindow> ii = PPWindow.windows.iterator(); ii.hasNext();) {
+				PPWindow win = ii.next();
+				if (!win.promptIfUnsavedAndQuit(ii)) {
+					break;
+				}
+			}
+		}
+		PPWindow.updateWindowMenu();
+		if (!needToCloseWindows || PPWindow.windows.size() <= 0) {
+			saveUserDataAndExit();
+			return true;
+		}
+		return false;
 	}
 	
 	protected static void saveUserDataAndExit() {
@@ -326,5 +299,51 @@ public class Main {
 				}
 			}
 		}).start();
+	}
+
+	static void promptAndSendUserData() {
+		int alwaysSend = Prefs.alwaysSend.get();
+		if (alwaysSend != Prefs.Codes.ASK_EVERY_TIME) {
+			if (alwaysSend == Prefs.Codes.ALWAYS_SEND) {
+				sendUserData();
+			}
+			return;
+		}
+		JCheckBox saveAction = new JCheckBox("Do the same thing every week");
+		Object[] params = {"<html>You've been using Proof Pad for one week. In order to " +
+				"<br />continually improve Proof Pad, we ask that you volunteer your " +
+				"<br />anonymous usage and error data.</html>", saveAction};
+		Object[] options = { "Send data", "Don't send" };
+		int shouldSend = JOptionPane.showOptionDialog(null, params, "",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				options[0]
+				);
+		if (saveAction.isSelected()) {
+			Prefs.alwaysSend
+					.set(shouldSend == JOptionPane.YES_OPTION ? Prefs.Codes.ALWAYS_SEND
+							: Prefs.Codes.NEVER_SEND);
+		}
+		if (shouldSend == JOptionPane.YES_OPTION) {
+			sendUserData();
+		}
+	}
+
+	static void tryToRestoreSession() {
+		try {
+			ObjectInputStream sessionRestoreStream = new ObjectInputStream(
+					new FileInputStream(SESSION_PATH));
+			Session session = (Session) sessionRestoreStream.readObject();
+			sessionRestoreStream.close();
+			session.restore();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Prefs.saveSession.set(false);
+			JOptionPane.showMessageDialog(null, "Failed to restore from saved session. " +
+					"Session saving has been turned off to prevent any future data loss.",
+					"Session restore failed", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }
