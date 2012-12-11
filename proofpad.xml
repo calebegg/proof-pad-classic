@@ -1,0 +1,22 @@
+<launch4jConfig>
+  <dontWrapJar>true</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>proofpad.jar</jar>
+  <outfile>/Users/calebegg/Code/proof-pad/proofpad.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl>http://proofpad.org</supportUrl>
+  <customProcName>false</customProcName>
+  <stayAlive>false</stayAlive>
+  <manifest></manifest>
+  <icon>/Users/calebegg/Code/proof-pad/Icons/icon.ico</icon>
+  <jre>
+    <path></path>
+    <minVersion>1.6.0</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+  </jre>
+</launch4jConfig>
