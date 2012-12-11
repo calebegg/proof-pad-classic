@@ -580,7 +580,7 @@ public class PPWindow extends JFrame {
 		if (ib instanceof InfoBar) {
 			infoBar = (InfoBar) ib;
 		}
-		splitTop.add(infoBar, BorderLayout.PAGE_START);
+		splitTop.add(ib, BorderLayout.PAGE_START);
 		splitTop.revalidate();
 	}
 	
