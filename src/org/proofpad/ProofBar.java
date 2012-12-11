@@ -27,6 +27,7 @@ import javax.swing.Timer;
 import javax.swing.undo.UndoManager;
 
 import org.proofpad.ProofBar.UnprovenExp.Status;
+import org.proofpad.Repl.MsgType;
 import org.proofpad.SExpUtils.ExpType;
 
 public class ProofBar extends JComponent {
@@ -40,15 +41,17 @@ public class ProofBar extends JComponent {
 	public class ExpData {
 		Expression exp;
 		String output;
-		public ExpData(Expression exp, String output) {
+		MsgType type;
+		public ExpData(Expression exp, String output, MsgType type) {
 			this.exp = exp;
 			this.output = output;
+			this.type = type;
 		}
 		public int getHeight() {
 			return pixelHeight(exp);
 		}
 		@Override public String toString() {
-			return "<" + getHeight() + ", " + output.replace('\n', ' ').substring(0, Math.min(10, output.length())) + ">";
+			return "<" + getHeight() + ", " + output.replace('\n', ' ').substring(0, Math.min(10, output.length())) + ", " + type + ">";
 		}
 	}
 	ArrayList<ExpData> data = new ArrayList<ExpData>();
@@ -610,7 +613,10 @@ public class ProofBar extends JComponent {
 			data.add(null);
 		}
 		data.subList(exp.expNum, data.size() - 1).clear();
-		ExpData expData = new ExpData(exp, response);
+		ExpData expData = new ExpData(exp, response, success ? MsgType.SUCCESS : MsgType.ERROR);
+		while (data.size() <= exp.expNum) {
+			data.add(null);
+		}
 		data.set(exp.expNum, expData);
 		mb.repaint();
 		if (!success && Prefs.showOutputOnError.get() && !alreadyShownAnError) {
