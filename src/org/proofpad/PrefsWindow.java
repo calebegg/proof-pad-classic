@@ -208,7 +208,7 @@ public class PrefsWindow extends JDialog {
 		c.gridx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = new Insets(formSpacing, formSpacing, 0, formSpacing);
-		final JCheckBox showGuide = new JCheckBox("Show a width guide at");
+		JCheckBox showGuide = new JCheckBox("Show a width guide at");
 		final JSpinner guideSpinner = new JSpinner(
 				new SpinnerNumberModel(widthGuide == -1 ? 60 : widthGuide, 40, 120, 10));
 		guideSpinner.setEnabled(widthGuide != -1);
@@ -216,7 +216,7 @@ public class PrefsWindow extends JDialog {
 		showGuide.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (showGuide.isSelected()) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
 					fireWidthGuideChangeEvent(60);
 					guideSpinner.setEnabled(true);	
 					guideSpinner.setValue(60);
@@ -267,43 +267,43 @@ public class PrefsWindow extends JDialog {
 		
 		c.gridx = 1;
 		c.gridy++;
-		final JCheckBox showErrors = new JCheckBox("Highlight potential errors with a red underline");
+		JCheckBox showErrors = new JCheckBox("Highlight potential errors with a red underline");
 		showErrors.setSelected(Prefs.showErrors.get());
 		showErrors.addItemListener(new ItemListener() {
 			@Override
-			public void itemStateChanged(ItemEvent arg0) {
-				Prefs.showErrors.set(showErrors.isSelected());
+			public void itemStateChanged(ItemEvent e) {
+				Prefs.showErrors.set(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
 		add(showErrors, c);
 
 		c.gridx = 1;
 		c.gridy++;
-		final JCheckBox incSearch = new JCheckBox("Find as you type");
+		JCheckBox incSearch = new JCheckBox("Find as you type");
 		incSearch.setSelected(Prefs.incSearch.get());
 		incSearch.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				Prefs.incSearch.set(incSearch.isSelected());
+				Prefs.incSearch.set(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
 		add(incSearch, c);
 		
 		c.gridx = 1;
 		c.gridy++;
-		final JCheckBox showLineNums = new JCheckBox("Show line numbers");
+		JCheckBox showLineNums = new JCheckBox("Show line numbers");
 		showLineNums.setSelected(Prefs.showLineNumbers.get());
 		showLineNums.addItemListener(new ItemListener() {
 			@Override
-			public void itemStateChanged(ItemEvent arg0) {
-				fireShowLineNumbersEvent(showLineNums.isSelected());
+			public void itemStateChanged(ItemEvent e) {
+				fireShowLineNumbersEvent(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
 		add(showLineNums, c);
 		
 		c.gridx = 1;
 		c.gridy++;
-		final JCheckBox autoMatch = makeCheckboxForPref(Prefs.autoClose);
+		final JCheckBox autoMatch = makeCheckboxForPref(Prefs.autoClose, "Smart match parentheses");
 		add(autoMatch, c);
 		
 		c.gridx = 0;
@@ -470,16 +470,16 @@ public class PrefsWindow extends JDialog {
 		setLocationRelativeTo(null);
 	}
 
-	private static JCheckBox makeCheckboxForPref(final BooleanPref pref) {
-		final JCheckBox autoMatch = new JCheckBox("Smart match parentheses");
-		autoMatch.setSelected(Prefs.autoClose.get());
-		autoMatch.addItemListener(new ItemListener() {
+	private static JCheckBox makeCheckboxForPref(final BooleanPref pref, String text) {
+		JCheckBox checkBox = new JCheckBox(text);
+		checkBox.setSelected(pref.get());
+		checkBox.addItemListener(new ItemListener() {
 			@Override
-			public void itemStateChanged(ItemEvent arg0) {
-				pref.set(autoMatch.isSelected());
+			public void itemStateChanged(ItemEvent e) {
+				pref.set(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
-		return autoMatch;
+		return checkBox;
 	}
 
 
