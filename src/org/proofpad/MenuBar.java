@@ -156,9 +156,7 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(new ActionListener() {
 				@Override public void actionPerformed(ActionEvent e) {
 					new UserData.LogUse("quitMenuItem").actionPerformed(e);
-					for (PPWindow w : PPWindow.windows) {
-						w.promptIfUnsavedAndClose();
-					}
+					Main.quit();
 				}
 			});
 			if (!WIN) {
