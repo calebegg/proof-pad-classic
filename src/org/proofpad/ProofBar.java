@@ -480,6 +480,7 @@ public class ProofBar extends JComponent {
 	}
 	
 	public void undoOneItem() {
+		if (numProving != 0) return;
 		int ignore = numProved + numProving - 1;
 		int i = 0;
 		numProved--;

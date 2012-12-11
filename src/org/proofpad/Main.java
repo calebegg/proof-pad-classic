@@ -176,7 +176,6 @@ public class Main {
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override public void run() {
-				Prefs.saveSession.set(true);
 				logtime("Start restoring session");
 				if (Prefs.saveSession.get()) {
 					tryToRestoreSession();
@@ -332,6 +331,7 @@ public class Main {
 	}
 
 	static void tryToRestoreSession() {
+		if (!new File(SESSION_PATH).exists()) return;
 		try {
 			ObjectInputStream sessionRestoreStream = new ObjectInputStream(
 					new FileInputStream(SESSION_PATH));
