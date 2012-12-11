@@ -248,14 +248,22 @@
 (defun eager-and (x y)
   (and x y))
 
+(defun doublecheck-print-args (args)
+   (if (endp args)
+       nil
+       (prog2$ (cw "  ~p0 = ~p1~%" (first (first args)) (rest (first args)))
+               (doublecheck-print-args (rest args)))))
+
 (defun condense-results (rs)
   (if (endp rs)
     t
     (eager-and (let ((success (first (first rs))))
            (prog2$
              (if (not success)
-               (cw "Failed with assignments:    ~&0~%" (rest (first rs)))
-               (cw "Succeeded with assignments: ~&0~%" (rest (first rs))))
+               (prog2$ (cw "Failure case: ~%")
+                       (doublecheck-print-args (rest (first rs))))
+               (prog2$ (cw "Success case: ~%")
+                       (doublecheck-print-args (rest (first rs)))))
              success))
          (condense-results (rest rs)))))
 
@@ -279,7 +287,9 @@
     `(mv-let (state results)
        (repeat-times ,repeat ,limit
                      (expand-vars ,vars ,body))
-       (if (condense-results results)
+       (if (prog2$
+            (cw "DoubleCheck Test Results:~%")
+            (condense-results results))
          (mv nil nil state)
          (mv (hard-error nil "Test ~xn failed."
                          (list (cons #\n (quote ,name))))

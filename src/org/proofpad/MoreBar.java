@@ -161,7 +161,7 @@ public class MoreBar extends JComponent {
 		} else {
 			if (!win.isVisible()) return;
 			if (ex.output.isEmpty()) return;
-			win.outputWindow.showWithText(ex.output, new Runnable() {
+			win.outputWindow.showWithText(ex.output, ex.type, new Runnable() {
 				@Override
 				public void run() {
 					selectedIdx = -1;

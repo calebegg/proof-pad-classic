@@ -181,7 +181,7 @@ public class Repl extends JPanel {
 	private static final long serialVersionUID = -4551996064006604257L;
 	private static final int MAX_BOTTOM_HEIGHT = 100;
 	final Acl2 acl2;
-	private final JPanel output;
+	private final JPanel output = new JPanel();
 	JScrollBar vertical;
 	final ArrayList<String> history;
 	private final CodePane definitions;
@@ -225,7 +225,6 @@ public class Repl extends JPanel {
 		setBackground(Color.WHITE);
 		setOpaque(true);
 		history = new ArrayList<String>();
-		output = new JPanel();
 		output.setLayout(new BoxLayout(output, BoxLayout.Y_AXIS));
 		output.setBackground(Color.WHITE);
 		font = new Font("Monospaced", Font.PLAIN, 14);
@@ -391,6 +390,13 @@ public class Repl extends JPanel {
 			msgs.add(new Message("Proof successful.", MsgType.SUCCESS));
 			Main.userData.addReplMsg("proofSuccess");
 		}
+		if (isTestResults(joined)) {
+			if (type == MsgType.ERROR) {
+				msgs.add(new Message("Test failed.", MsgType.ERROR));
+			} else {
+				msgs.add(new Message("Test passed.", MsgType.SUCCESS));
+			}
+		}
 		
 		List<Message> error = new ArrayList<Message>();
 		List<Message> normal = new ArrayList<Message>();
@@ -405,6 +411,10 @@ public class Repl extends JPanel {
 		ret.addAll(error);
 		ret.addAll(normal);
 		return ret;
+	}
+
+	static boolean isTestResults(String joined) {
+		return joined.startsWith("DoubleCheck Test Results:");
 	}
 
 	public JPanel createSummary(String resultText, MsgType type, MouseListener ml) {
@@ -482,19 +492,22 @@ public class Repl extends JPanel {
 		if (shortResult.startsWith("ACL2 started successfully")) {
 			type = MsgType.INFO;
 		}
+		
+		final MsgType finalType = type;
 
 		MouseListener ml = null;
 		if (!shortResult.equals(result.trim())) {
 			ml = new MouseAdapter() {
 				@Override public void mouseClicked(MouseEvent arg0) {
 					// TODO: Highlight the currently selected item and reset it in Runnable after.
-					parent.outputWindow.showWithText(result, null);
+					parent.outputWindow.showWithText(result, finalType, null);
 				}
 			};
 		}
 		final JPanel line = createSummary(shortResult, type, ml);
+		
 		synchronized (this) {
-			getOutput().add(line);
+			output.add(line);
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override public void run() {
@@ -523,6 +536,7 @@ public class Repl extends JPanel {
 		c.setFont(f);
 		int newHeight = Math.max(25, getFontMetrics(f).getHeight() + 6);
 		c.setMaximumSize(new Dimension(c.getMaximumSize().width, newHeight));
+		c.setPreferredSize(new Dimension(c.getPreferredSize().width, newHeight));
 	}
 
 	public void setHeightChangeListener(HeightChangeListener heightChangeListener) {
