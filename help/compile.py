@@ -1,13 +1,13 @@
 import os
 import shutil
 
+from markdown import markdown
 from django.template.loader import render_to_string
+from django.template import Context, Template
 import django.conf
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
-# Mac generates plain HTML. OS X tries to generate a help bundle, but it's
-# broken.
-OSES = ['mac', 'osx', 'win', 'linux']
+OSES = ['mac', 'win', 'linux']
 
 def main():
     django.conf.settings.configure(
@@ -15,25 +15,28 @@ def main():
     for os_name in OSES:
         dirname = os_name
         path = os.path.join(ROOT, dirname)
-        if os_name == 'osx':
-            dirname = 'Proof Pad.help'
-            path = os.path.join(ROOT, dirname, 'Contents', 'Resources',
-                    'English.lproj')
         try:
             shutil.rmtree(os.path.join(ROOT, dirname))
         except OSError:
             pass
-        if os_name == 'osx':
-            shutil.copytree(os.path.join(ROOT, 'templates', 'osx'),
-                    os.path.join(ROOT, 'Proof Pad.help'))
         os.makedirs(path)
         for fn in os.listdir(os.path.join(ROOT, 'templates')):
             if fn in OSES or fn.startswith('.'):
                 continue
+            elif fn.endswith('.md'):
+                newfn = fn[:-3] + '.html'
+                with open(os.path.join(ROOT, 'templates', fn), 'r') as f:
+                    source = markdown(f.read())
+                with open(os.path.join(path, newfn), 'w') as f:
+                    t = Template(source)
+                    f.write(t.render(Context({'os': os_name,
+                        'is_mac': os_name == 'mac',
+                        'is_win': os_name == 'win',
+                        'is_linux': os_name == 'linux'})))
             elif fn.endswith('.html'):
                 with open(os.path.join(path, fn), 'w') as f:
                     f.write(render_to_string(fn, {'os': os_name,
-                        'is_osx': os_name == 'osx',
+                        'is_mac': os_name == 'mac',
                         'is_win': os_name == 'win',
                         'is_linux': os_name == 'linux'}))
             else:
