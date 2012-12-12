@@ -29,6 +29,7 @@ public class DoubleCheckResult extends JPanel {
 			if (header.isEmpty()) break;
 			StringBuilder sb = new StringBuilder();
 			i++;
+			if (i >= lines.length) break;
 			String line = lines[i];
 			do {
 				sb.append(line); sb.append('\n');
