@@ -6,16 +6,16 @@
     </head>
     <body>
         <h1>Introduction to Proof Pad</h1>
-        <img src="intro-{{ os }}.png" />
+        <img src="../media/intro-{{ os }}.png" />
         <h2>The REPL</h2>
         <p>The REPL, or "Read-Eval-Print loop", is located in the bottom half
         of the main Proof Pad window. Essentially, the REPL will execute any
         code you type in the text field on bottom (the "prompt") and show the
         result in the log above.
         <p>Try typing some math into the REPL now:
-        <code>(+ 1 2)</code>
+        <pre><code>(+ 1 2)</code></pre>
         If ACL2 is functioning correctly, you should get
-        <code>3</code>
+        <pre><code>3</code></pre>
         back. (If you don't, see <a href="troubleshooting.html">the
             troubleshooting page.</a>)
         <p>There are a couple of things to note at this point. First, the '3'
@@ -30,11 +30,11 @@
         <p>The definitions area is where you write your functions, theorems, and
         other state-altering expressions. Here's a definition for 'sum' that you
         can either retype or copy and paste:
-        <code>(defun sum (xs)
+        <pre><code>(defun sum (xs)
    (if (endp xs)
        0
        (+ (first xs)
-          (sum (rest xs)))))</code>
+          (sum (rest xs)))))</code></pre>
         <p>When you type or paste this into the definitions area, you might
         notice that the background color of the proof bar goes from white to
         grey to light green, and a checkmark appears. This simply means that the

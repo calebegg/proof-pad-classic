@@ -111,4 +111,56 @@ values to see what you get.
 Step 3. Proving `rev-rev`
 -------------------------
 
+DoubleCheck properties are nice, but they aren't perfect. They only test the
+types of values that you generate, and you might have a bug that impacts only a
+small subset of cases, which means the generated test cases are unlikely to
+expose the bug.
 
+To strengthen our properties, we can run them through ACL2's theorem prover to
+try to prove that it holds for all input values, not just the randomly selected
+ones that DoubleCheck uses.
+
+In this case, our test as written will fail. The reason for the failure is that
+it doesn't quite hold for any value of `xs`. In particular, to ACL2's logic,
+`(rev 1)` = `nil`. If you try to run `(rev 1)` in the REPL, you'll get a guard
+error. Guards are restrictions on what values a function will take; in this
+case, `(endp xs)` expects a list, and we gave it a number. However, ACL2's
+internal logic will run the theorem just fine, with `(endp xs)` returning `t`
+when `xs` is 1, making `(rev 1)` return `nil`.
+
+In order to correct this, we need to add a hypothesis to our property:
+
+    (defproperty rev-rev
+      (xs :value (random-integer-list)
+          :where (true-listp xs))
+      (equal (rev (rev xs)) xs))
+
+This way, ACL2 will know to only concern itself with values that satisfy
+`true-listp` -- values that are lists.
+
+With this correction in place, you can run the property through ACL2's logic by
+clicking on the green bar to the left of it. If everything has been entered
+correctly, ACL2 will succeed, and the bar will turn dark green (with a
+checkmark), indicating that the property has been proven correct.
+
+The whole file so far is:
+
+    (include-book "testing" :dir :teachpacks)
+    (include-book "doublecheck" :dir :teachpacks)
+
+    (defun put-at-end (x xs)
+      (append xs (list x)))
+
+    (defun rev (xs)
+      (if (endp xs) ; Test if xs is empty
+          nil
+          (put-at-end (first xs)
+                      (rev (rest xs)))))
+
+    (check-expect (rev (list 1 2 3 4 5))
+                  (list 5 4 3 2 1))
+
+    (defproperty rev-rev
+      (xs :value (random-integer-list)
+          :where (true-listp xs))
+      (equal (rev (rev xs)) xs))

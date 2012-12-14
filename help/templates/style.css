@@ -2,16 +2,15 @@ body {
     width: 50%;
     min-width: 700px;
     max-width: 1000px;
-    margin: auto;
+    margin: 15px auto;
     font-family: sans-serif;
 }
-code {
+pre code {
     display: block;
     padding: 5px;
     border-left: solid #ccc 1px;
     background: #eee;
     margin: 10px 20px;
-    white-space: pre-wrap;
 }
 .footnotes {
     border-top: solid black 1px;

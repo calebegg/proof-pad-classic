@@ -29,6 +29,7 @@ def main():
                     source = markdown(f.read())
                 with open(os.path.join(path, newfn), 'w') as f:
                     t = Template(source)
+                    f.write('<link href="style.css" rel="stylesheet" />')
                     f.write(t.render(Context({'os': os_name,
                         'is_mac': os_name == 'mac',
                         'is_win': os_name == 'win',
@@ -41,9 +42,6 @@ def main():
                         'is_linux': os_name == 'linux'}))
             else:
                 shutil.copy(os.path.join(ROOT, 'templates', fn), path)
-        for fn in os.listdir(os.path.join(ROOT, 'media')):
-            if (fn.endswith('.png')):
-                shutil.copy(os.path.join(ROOT, 'media', fn), path)
 
 if __name__ == '__main__':
     main()
