@@ -1,129 +1,45 @@
-<!doctype html>
-<style>
-  body {
-    background: #eee;
-  }
-  * {
-    font-family: sans-serif;
-  }
-  tt, tt * {
-    font-family: monospace;
-  }
-  h1, h2, h3, h4 {
-    text-align: center;
-  }
-  a.download {
-    margin: 10px auto;
-    width: 240px;
-    text-decoration: none;
-    color: #eee;
-    font-size: 32px;
-    font-weight: bold;
-    display: block;
-    padding: 15px 0;
-    text-align: center;
-    border-radius: 5px;
-    background-color: #36BA3F;
-    border: outset 6px rgba(0, 0, 0, .1);
-    background-image: -webkit-linear-gradient(
-      bottom,
-      #495148 0%,
-      #727d71);
-  }
-  a.download div {
-    font-size: 14px;
-  }
-  img.screenshot {
-    display: block;
-    margin: 0 auto;
-  }
-  .win-show, .osx-show, .linux-show, .none-show {
-    display: none !important;
-  }
-  .win .win-show {
-    display: block !important;
-  }
-  .win .x86-show, .win .x64-show {
-    display: none !important;
-  }
-  .x86 .x86-show {
-    display: block !important;
-  }
-  .x64 .x64-show {
-    display: block !important;
-  }
-  .osx .osx-show {
-    display: block !important;
-  }
-  .linux .linux-show {
-    display: block !important;
-  }
-  .none .none-show {
-    display: block !important;
-  }
-  .center {
-    text-align: center;
-  }
-</style>
-<body class="none">
+---
+layout: default
+permalink: /
+---
+  <div class="hero-unit">
+    <img class="pull-left" style="margin-right: 20px;" src="icon.png">
+    <h1>Proof Pad</h1>
+    <p class="lead">A modern development environment for <abbr title="A Computational Logic for Applicative Common Lisp"><a href="http://www.cs.utexas.edu/~moore/acl2/">ACL2</a></abbr> with all the trimmings.</p>
+    <div style="display: inline-block;">
+      <a href="http://accounts.cs.ou.edu/~calebegg/InstallProofPad64.exe" class="btn btn-primary btn-large win-show x64-show none-show"><i class="icon-download-alt"></i> Download for Windows (64-bit)</a>
+      <a href="http://accounts.cs.ou.edu/~calebegg/ProofPad.zip" class="btn btn-primary btn-large osx-show none-show"><i class="icon-download-alt"></i> Download for OS X</a><br class="none-show" />
+      <a href="http://accounts.cs.ou.edu/~calebegg/InstallProofPad32.exe" class="btn btn-primary btn-large win-show x86-show none-show"><i class="icon-download-alt"></i> Download for Windows (32-bit)</a>
+      <a href="http://accounts.cs.ou.edu/~calebegg/ProofPad.tar.gz" class="btn btn-primary btn-large linux-show none-show"><i class="icon-download-alt"></i> Download for Linux</a><br class="none-show" />
+     <a href="#" onclick="javascript:document.body.className='none';this.style.display='none'; return false;" style="padding: 11px 19px; display: inline-block; vertical-align: middle;" class="muted">Other platforms</a>
+    </div>
+  </div>
+  <div id="features" style="width: 714px; margin: 0 auto; position: relative; max-width: 100%;">
+    <img src="osxss.png" />
+    <div class="help-bubble" rel="popover"
+      style="left: 7.7%; top: 21%;"
+      title="Proof bar"
+      data-placement="right"
+      data-content="The proof bar shows the status of your proof attempts. Click it to admit your functions and theorems to ACL2.">
+    </div>
+    <div class="help-bubble" rel="popover"
+      style="left: 39.2%; bottom: 11.8%;"
+      title="Read-eval-print loop"
+      data-placement="top"
+      data-content="Type function calls here to easily test and demo your code at any time.">
+    </div>
+    <div class="help-bubble" rel="popover"
+      style="right: 39.2%; top: 30.3%;"
+      title="Definitions area"
+      data-placement="right"
+      data-content="Define your functions and theorems here. They're compiled automatically so you can find errors and test them out as you refine them.">
+    </div>
+  </div>
+  <small style="text-align: center;">
+    <p>The Proof Pad icon is based on <a href="http://www.deutschefotothek.de/obj88902857.html">an image</a> by <a href="http://www.deutschefotothek.de/">Deutsche Fotothek</a>. Used under the Creative Commons <a href="http://creativecommons.org/licenses/by-sa/3.0/de/deed.en">Attribution-ShareAlike 3.0 Germany</a> license.</p>
+  </small>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="js/bootstrap.min.js"></script>
 <script>
-  var body = document.getElementsByTagName("body")[0]
-  if (navigator.platform.indexOf("Win") != -1) {
-    body.className = "win";
-    if (navigator.userAgent.indexOf("WOW64") != -1 || 
-        navigator.userAgent.indexOf("Win64") != -1 ){
-      body.className += " x64";
-    } else {
-      body.className += " x86";
-    }
-  } else if (navigator.platform.indexOf("Mac") != -1) {
-    body.className = "osx";
-  } else if (navigator.platform.indexOf("Linux") != -1) {
-    body.className = "linux";
-  } else {
-    body.className = "none";
-  }
+  $('.help-bubble').popover({trigger: 'hover'});
 </script>
-<title>Proof Pad</title>
-
-<h1>Proof Pad</h1>
-
-<div class="center">
-<img src="icon.png" />
-</div>
-
-<div style="width: 50%; margin: auto;">
-    Proof Pad is a modern integrated development environment for <a href="http://www.cs.utexas.edu/~moore/acl2/">ACL2</a>. It's under active development. Please report any bugs you find on <a href="https://github.com/calebegg/proof-pad/issues/new">Github</a> or <a href="mailto:calebegg@gmail.com">email the developer</a>.
-</div>
-
-<a class="download osx-show none-show" href="http://accounts.cs.ou.edu/~calebegg/ProofPad.zip">&#x21d3; Download<div>for OS X</div></a>
-<a class="download win-show x86-show none-show" href="http://accounts.cs.ou.edu/~calebegg/InstallProofPad32.exe">&#x21d3; Download<div>for Windows (32-bit)</div></a>
-<a class="download win-show x64-show none-show" href="http://accounts.cs.ou.edu/~calebegg/InstallProofPad64.exe">&#x21d3; Download<div>for Windows (64-bit)</div></a>
-<a class="download linux-show none-show" href="http://accounts.cs.ou.edu/~calebegg/ProofPad.tar.gz">&#x21d3; Download<div>for Linux</div></a>
-
-<div class="center"> <a href="#" style="color: blue;" onclick="javascript:document.body.className='none';this.style.display='none'; return false;">Show other platforms</a> </div>
-
-<br />
-
-<h2>Screenshots</h2>
-<img src="osxss.png" class="screenshot osx-show none-show" />
-<img src="windowsss.png" class="screenshot win-show" />
-<img src="ubuntuss.png" class="screenshot linux-show" />
-
-<a href="http://github.com/calebegg/proof-pad"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
-
-<div class="center">
-    <i>Icon based on <a href="http://www.deutschefotothek.de/obj88902857.html">an image</a> by <a href="http://www.deutschefotothek.de/">Deutsche Fotothek</a>. Used under the Creative Commons <a href="http://creativecommons.org/licenses/by-sa/3.0/de/deed.en">Attribution-ShareAlike 3.0 Germany</a> license.</i>
-</div>
-
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-315420-11']);
-  _gaq.push(['_trackPageview']);
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-</body>

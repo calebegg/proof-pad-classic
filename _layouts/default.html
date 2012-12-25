@@ -1,0 +1,130 @@
+<!doctype html>
+<title>Proof Pad</title>
+<link href="/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link rel="stylesheet" href="/css/font-awesome.css">
+<link href='http://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+<style>
+  @font-face {
+    font-family: 'LeagueGothicRegular';
+    src: url('/font/League_Gothic-webfont.eot');
+    src: url('/font/League_Gothic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/font/League_Gothic-webfont.woff') format('woff'),
+         url('/font/League_Gothic-webfont.ttf') format('truetype'),
+         url('/font/League_Gothic-webfont.svg#LeagueGothicRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  dl dt {
+    font-weight: normal;
+    margin-top: 20px;
+  }
+  dt, dt code {
+    font-size: 16px;
+  }
+  dl dd {
+    margin-left: 20px;
+  }
+
+  .hero-unit > h1, .brand {
+    font-weight: normal !important;
+    font-family: LeagueGothicRegular, sans-serif;
+  }
+  .hero-unit > h1 {
+    font-size: 110px !important;
+  }
+  .win-show, .osx-show, .linux-show, .none-show {
+    display: none !important;
+  }
+  .win .win-show {
+    display: block !important;
+  }
+  .win .x86-show, .win .x64-show {
+    display: none !important;
+  }
+  .x86 .x86-show {
+    display: inline-block !important;
+  }
+  .x64 .x64-show {
+    display: inline-block !important;
+  }
+  .osx .osx-show {
+    display: inline-block !important;
+  }
+  .linux .linux-show {
+    display: inline-block !important;
+  }
+  .none .none-show {
+    display: inline-block !important;
+  }
+
+  .help-bubble {
+    position: absolute;
+    padding: 1.4%;
+    cursor: pointer;
+  }
+  .help-bubble:after {
+    content: '';
+    display:block;
+    background: red;
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+  }
+
+  a.btn {
+    margin-bottom: 10px;
+  }
+  code .id1 {
+    color: #004cb3;
+  }
+  code .id2 {
+    color: blue;
+  }
+  code .data {
+    color: #a06;
+  }
+  code .comment {
+    color: #696;
+  }
+</style>
+
+<body class="none">
+<script>
+  var body = document.getElementsByTagName("body")[0]
+  if (navigator.platform.indexOf("Win") != -1) {
+    body.className = "win";
+    if (navigator.userAgent.indexOf("WOW64") != -1 || 
+        navigator.userAgent.indexOf("Win64") != -1 ){
+      body.className += " x64";
+    } else {
+      body.className += " x86";
+    }
+  } else if (navigator.platform.indexOf("Mac") != -1) {
+    body.className = "osx";
+  } else if (navigator.platform.indexOf("Linux") != -1) {
+    body.className = "linux";
+  } else {
+    body.className = "none";
+  }
+</script>
+
+<div class="container">
+
+  <div class="navbar">
+    <div class="navbar-inner">
+      <a class="brand" href="/">Proof Pad</a>
+      <ul class="nav">
+        <li {% if page.url == '/' %} class="active" {% endif %}><a href="/"><i class="icon-home"></i> Home</a></li>
+        <li {% if page.category == '/docs/' %} class="active" {% endif %}><a href="/docs"><i class="icon-book"></i> Documentation</a></li>
+        <!--<li><a href="/screenshots"><i class="icon-screenshot"></i> Screenshots</a></li>-->
+        <li><a href="http://github.com/calebegg/proof-pad"><i class="icon-github"></i> Source</a></li>
+        <li><a href="http://github.com/calebegg/proof-pad/issues/new"><i class="icon-warning-sign"></i> Report a bug</a></li>
+    </div>
+  </div>
+
+  {{ content }}
+
+</div>
+</body>
