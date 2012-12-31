@@ -144,7 +144,7 @@ public class PPDocument extends RSyntaxDocument {
 			if (caret != null && Prefs.autoClose.get() && len == 1 && getText(offs, 2).equals("()")) {
 				len = 2;
 			}
-		} else if (pb != null) {
+		} else if (pb != null && pb.getReadOnlyIndex() != -1) {
 			while (pb.getReadOnlyIndex() >= offs) {
 				pb.undoOneItem();
 			}
