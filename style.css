@@ -1,0 +1,88 @@
+@font-face {
+  font-family: 'LeagueGothicRegular';
+  src: url('/font/League_Gothic-webfont.eot');
+  src: url('/font/League_Gothic-webfont.eot?#iefix') format('embedded-opentype'),
+       url('/font/League_Gothic-webfont.woff') format('woff'),
+       url('/font/League_Gothic-webfont.ttf') format('truetype'),
+       url('/font/League_Gothic-webfont.svg#LeagueGothicRegular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+dl dt {
+  font-weight: normal;
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+dt, dt code {
+  font-size: 16px;
+}
+dl dd {
+  margin-left: 20px;
+}
+
+.hero-unit > h1, .brand {
+  font-weight: normal !important;
+  font-family: LeagueGothicRegular, sans-serif;
+}
+.hero-unit > h1 {
+  font-size: 110px !important;
+}
+.win-show, .osx-show, .linux-show, .none-show {
+  display: none !important;
+}
+.win .win-show {
+  display: block !important;
+}
+.win .x86-show, .win .x64-show {
+  display: none !important;
+}
+.x86 .x86-show {
+  display: inline-block !important;
+}
+.x64 .x64-show {
+  display: inline-block !important;
+}
+.osx .osx-show {
+  display: inline-block !important;
+}
+.linux .linux-show {
+  display: inline-block !important;
+}
+.none .none-show {
+  display: inline-block !important;
+}
+
+.help-bubble {
+  position: absolute;
+  padding: 1.4%;
+  cursor: pointer;
+}
+.help-bubble:after {
+  content: '';
+  display:block;
+  background: red;
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+}
+
+a.btn {
+  margin-bottom: 10px;
+}
+code .id1 {
+  color: #004cb3;
+}
+code .id2 {
+  color: blue;
+}
+code .data {
+  color: #a06;
+}
+code .comment {
+  color: #696;
+}
+.footnotes {
+    border-top: solid black 1px;
+    font-size: smaller;
+}

@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: doc
+title: Tutorial (reverse)
 category: /docs/
 ---
 Tutorial: reverse of reverse
@@ -17,7 +18,9 @@ would return in a couple of different cases. The first case is when the
 argument, `xs`, is empty (or `nil`). The reverse of an empty list is just an
 empty list:
 
-    (rev nil) = nil
+{% highlight cl %}
+(rev nil) = nil
+{% endhighlight %}
 
 Now, what if `xs` is not empty? If it's not empty, we can break it up into its
 first element and the rest of the list, using `(first xs)` and `(rest xs)`,
@@ -30,20 +33,26 @@ parts, `1` and `(list 2 3 4 5)`, we can reverse the list part to get `(list 5 4
 3 2)`. And what we want for the whole list is `(list 5 4 3 2 1)`. So we need to
 put `1` at the end of the reversed list.
 
-    (rev xs) = (put-at-end (first xs) (rev (rest xs)))
+{% highlight cl %}
+(rev xs) = (put-at-end (first xs) (rev (rest xs)))
+{% endhighlight %}
 
 For `(put-at-end x xs)`, we can use `(append)`:
 
-    (defun put-at-end (x xs)
-      (append xs (list x)))
+{% highlight cl %}
+(defun put-at-end (x xs)
+  (append xs (list x)))
+{% endhighlight %}
 
 Putting it all together, we get:
 
-    (defun rev (xs)
-      (if (endp xs) ; Test if xs is empty
-          nil
-          (put-at-end (first xs)
-                      (rev (rest xs)))))
+{% highlight cl %}
+(defun rev (xs)
+  (if (endp xs) ; Test if xs is empty
+      nil
+      (put-at-end (first xs)
+                  (rev (rest xs)))))
+{% endhighlight %}
 
 Step 2: Test reverse
 --------------------
@@ -63,11 +72,15 @@ expectations, even if we change or rewrite it. The simplest automatic test
 provided by Proof Pad is `check-expect`. To use it, first include the "testing"
 book:
 
-    (include-book "testing" :dir :teachpacks)
+{% highlight cl %}
+(include-book "testing" :dir :teachpacks)
+{% endhighlight %}
 
 Now write a test like this:
 
-    (check-expect (rev (list 1 2 3 4 5)) (list 5 4 3 2 1))
+{% highlight cl %}
+(check-expect (rev (list 1 2 3 4 5)) (list 5 4 3 2 1))
+{% endhighlight %}
 
 `check-expect` will automatically run the test and show a green bar to the left
 when it passes. A test passes when the two arguments to `check-expect` evaluate
@@ -79,7 +92,9 @@ types of lists to see that our function does what we want. To do this, we need
 to write a property-style test. First, include the "doublecheck" book
 (DoubleCheck is the name of the testing library):
 
-    (include-book "doublecheck" :dir :teachpacks)
+{% highlight cl %}
+(include-book "doublecheck" :dir :teachpacks)
+{% endhighlight %}
 
 A doublecheck test has three parts: a name, a set of data generators, and a
 body. The body is evaluated several times with different, randomly generated
@@ -90,9 +105,11 @@ One property we can test with DoubleCheck is that reversing a list twice gives
 you the same list you started with. I'll start by showing the test, then talk
 about the parts:
 
-    (defproperty rev-rev-test
-      (xs :value (random-integer-list))
-      (equal (rev (rev xs)) xs))
+{% highlight cl %}
+(defproperty rev-rev-test
+  (xs :value (random-integer-list))
+  (equal (rev (rev xs)) xs))
+{% endhighlight %}
 
 The name of the test is `rev-rev-test`. The name isn't important, except that
 each one has to be unique. This test has one generator. It generates values
@@ -134,10 +151,12 @@ when `xs` is 1, making `(rev 1)` return `nil`.
 
 In order to correct this, we need to add a hypothesis to our property:
 
-    (defproperty rev-rev
-      (xs :value (random-integer-list)
-          :where (true-listp xs))
-      (equal (rev (rev xs)) xs))
+{% highlight cl %}
+(defproperty rev-rev
+  (xs :value (random-integer-list)
+      :where (true-listp xs))
+  (equal (rev (rev xs)) xs))
+{% endhighlight %}
 
 This way, ACL2 will know to only concern itself with values that satisfy
 `true-listp` -- values that are lists.
@@ -149,22 +168,24 @@ checkmark), indicating that the property has been proven correct.
 
 The whole file so far is:
 
-    (include-book "testing" :dir :teachpacks)
-    (include-book "doublecheck" :dir :teachpacks)
+{% highlight cl %}
+(include-book "testing" :dir :teachpacks)
+(include-book "doublecheck" :dir :teachpacks)
 
-    (defun put-at-end (x xs)
-      (append xs (list x)))
+(defun put-at-end (x xs)
+  (append xs (list x)))
 
-    (defun rev (xs)
-      (if (endp xs) ; Test if xs is empty
-          nil
-          (put-at-end (first xs)
-                      (rev (rest xs)))))
+(defun rev (xs)
+  (if (endp xs) ; Test if xs is empty
+      nil
+      (put-at-end (first xs)
+                  (rev (rest xs)))))
 
-    (check-expect (rev (list 1 2 3 4 5))
-                  (list 5 4 3 2 1))
+(check-expect (rev (list 1 2 3 4 5))
+              (list 5 4 3 2 1))
 
-    (defproperty rev-rev
-      (xs :value (random-integer-list)
-          :where (true-listp xs))
-      (equal (rev (rev xs)) xs))
+(defproperty rev-rev
+  (xs :value (random-integer-list)
+      :where (true-listp xs))
+  (equal (rev (rev xs)) xs))
+{% endhighlight %}

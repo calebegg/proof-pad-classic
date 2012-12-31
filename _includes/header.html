@@ -1,0 +1,28 @@
+<!doctype html>
+<title>Proof Pad: {{ page.title }}</title>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/font-awesome.css">
+<link rel="stylesheet" href="/css/pygments.css">
+<link href='http://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="/style.css">
+
+<body class="none">
+<script>
+  var body = document.getElementsByTagName("body")[0]
+  var platform = navigator.platform;
+  if (platform.indexOf("Win") != -1) {
+    body.className = "win";
+    if (navigator.userAgent.indexOf("WOW64") != -1 || 
+        navigator.userAgent.indexOf("Win64") != -1 ){
+      body.className += " x64";
+    } else {
+      body.className += " x86";
+    }
+  } else if (platform.indexOf("Mac") != -1) {
+    body.className = "osx";
+  } else if (platform.indexOf("Linux") != -1) {
+    body.className = "linux";
+  } else {
+    body.className = "none";
+  }
+</script>
