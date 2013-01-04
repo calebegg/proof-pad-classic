@@ -2,5 +2,36 @@
 <script src="/js/bootstrap.min.js"></script>
 <script>
   $('.help-bubble').popover({trigger: 'hover'});
+  var body = document.getElementsByTagName("body")[0]
+  var platform = navigator.platform;
+  if (platform.indexOf("Win") != -1) {
+    body.className = "win";
+    if (navigator.userAgent.indexOf("WOW64") != -1 || 
+        navigator.userAgent.indexOf("Win64") != -1 ){
+      body.className += " x64";
+    } else {
+      body.className += " x86";
+    }
+  } else if (platform.indexOf("Mac") != -1) {
+    body.className = "osx";
+  } else if (platform.indexOf("Linux") != -1) {
+    body.className = "linux";
+  } else {
+    body.className = "none";
+  }
+  $('#os_selector').val(body.className);
+  $('#os_selector').change(function() {
+    document.body.className = $('#os_selector').val();
+  });
+</script>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-315420-11']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
 </script>
 </body>

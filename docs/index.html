@@ -5,8 +5,65 @@ category: /docs/
 top: 1
 permalink: /
 ---
+<style>
+.wrap {
+  max-width: 714px !important;
+  position: relative;
+  font-family: sans-serif;
+}
+
+.wrap > div {
+  position: absolute;
+  border: solid 2px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.wrap .defs {
+  left: 11%;
+  top: 13%;
+  bottom: 38.5%;
+  padding-top: 18%;
+  right: 10.9%;
+  border-color: #f88;
+  background: rgba(255, 192, 192, .5);
+}
+
+.wrap .pb { 
+  left: 8%;
+  top: 13%;
+  bottom: 38.5%;
+  right: 89.1%;
+  padding-top: 16%;
+  border-color: #8f8;
+  background: rgba(192, 255, 192, .5);
+}
+
+.wrap .repl {
+  left: 8%;
+  top: 62.6%;
+  bottom: 11.8%;
+  right: 8%;
+  padding-top: 10%;
+  border-color: #8bf;
+  background: rgba(192, 216, 255, .5);
+}
+
+img {
+  max-width: 100%;
+}
+</style>
+
 <h1>Introduction to Proof Pad</h1>
-<img src="intro-osx.png" />
+
+<div class="wrap">
+  <img src="../osxss.png" />
+  <div class="defs">Definitions</div>
+  <div class="pb"><div style="-webkit-transform:rotate(90deg);white-space:nowrap;">Proof Bar</div></div>
+  <div class="repl">REPL</div>
+</div>
+
 <h2>The REPL</h2>
 <p>The REPL, or "Read-Eval-Print loop", is located in the bottom half
 of the main Proof Pad window. Essentially, the REPL will execute any

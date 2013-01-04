@@ -32,7 +32,7 @@ dl dd {
   display: none !important;
 }
 .win .win-show {
-  display: block !important;
+  display: inline-block !important;
 }
 .win .x86-show, .win .x64-show {
   display: none !important;
