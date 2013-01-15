@@ -420,7 +420,7 @@ public class MenuBar extends JMenuBar {
 		} else {
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, modKey));
 		}
-		menu.add(item);
+		if (!WIN) menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem(applyTitleCase("Admit next item"));
 		if (OSX) {
