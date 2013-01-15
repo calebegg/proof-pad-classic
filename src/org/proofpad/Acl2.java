@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.util.EventListener;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.text.Segment;
 
@@ -150,7 +149,7 @@ public class Acl2 extends Thread {
 
 	private ErrorListener errorListener;
 
-	private InfoBar currentInfobar;
+	InfoBar currentInfobar;
 
 	private boolean isRestarting = false;
 
@@ -165,10 +164,6 @@ public class Acl2 extends Thread {
 	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
 	private final static List<Character> markerChars = stringToCharacterList(marker);
 
-	public Acl2(List<String> acl2Paths, File workingDir, Acl2Parser parser) {
-		this(acl2Paths, workingDir, null, parser);
-	}
-
 	protected void fireOutputChangeEvent() {
 		for (OutputChangeListener ocl : outputChangeListeners) {
 			ocl.outputChanged(logOutput.toString());
@@ -182,22 +177,21 @@ public class Acl2 extends Thread {
 		outputChangeListeners.remove(ocl);
 	}
 	
-	public Acl2(List<String> acl2Paths, File workingDir, Callback callback, Acl2Parser parser) {
+	public Acl2(List<String> acl2Paths, File workingDir) {
 		super("ACL2 background thread");
 		this.acl2Paths = acl2Paths;
 		sb = new StringBuilder();
 		this.workingDir = workingDir;
 		// Startup callback
-		callbacks.add(callback);
+		callbacks.add(null);
 	}
 
 	@Override
 	public void run() {
-		final Preferences prefs = Preferences.userNodeForPackage(Main.class);
-		if (prefs.getBoolean("firstRun", true)) {
+		if (Prefs.firstRun.get()) {
 			fireOutputEvent(new OutputEvent("Starting ACL2 for the first time. " +
 					"Please be patient.", MsgType.INFO));
-			prefs.putBoolean("firstRun", false);
+			Prefs.firstRun.set(false);
 		}
 		List<Character> buffer = new LinkedList<Character>();
 		if (acl2Proc == null) {
@@ -290,15 +284,14 @@ public class Acl2 extends Thread {
 	}
 	void showAcl2TerminatedError() {
 		if (isRestarting) return;
-		fireErrorEvent("ACL2 has terminated.", new InfoButton[] { new InfoButton("Restart",
+		currentInfobar = fireErrorEvent("ACL2 has terminated.", new InfoButton[] { new InfoButton("Restart",
 				new ActionListener() {
-			@Override public void actionPerformed(ActionEvent arg0) {
-				try {
-					restart();
-				} catch (IOException e) { }
-			}
-		})
-		});
+					@Override public void actionPerformed(ActionEvent arg0) {
+						try {
+							restart();
+						} catch (IOException e) { }
+					}
+				}) });
 		Main.userData.addError("ACL2 terminated.");
 	}
 	private InfoBar fireErrorEvent(String string, InfoButton[] infoButton) {
@@ -317,10 +310,10 @@ public class Acl2 extends Thread {
 	}
 	
 	private void fireOutputEvents(boolean success) {
-		if (outputQueue.size() > 0) {
+		if (!outputQueue.isEmpty()) {
 			outputQueue.remove(0);
 		}
-		if (callbacks.size() > 0) {
+		if (!callbacks.isEmpty()) {
 			Callback cb = callbacks.remove(0);
 			if (cb == null || cb.run(success, fullOutput)) {
 				for (OutputEvent oe : outputQueue) {
@@ -340,7 +333,6 @@ public class Acl2 extends Thread {
 	public void initialize() throws IOException {
 		ProcessBuilder processBuilder;
 		acl2IsSlowShown = false;
-		System.out.println(acl2Paths);
 
 		for (String maybeAcl2Path : acl2Paths) {
 			if (Main.WIN) {
@@ -363,7 +355,7 @@ public class Acl2 extends Thread {
 				e.printStackTrace();
 				continue;
 			}
-			acl2Path = maybeAcl2Path;
+			acl2Path = maybeAcl2Path.replaceAll("\\\\ ", " ");
 			workingDir = maybeWorkingDir;
 			BufferedReader in = new BufferedReader(new InputStreamReader(acl2Proc.getInputStream()));
 			if (!Main.WIN) {
@@ -373,16 +365,10 @@ public class Acl2 extends Thread {
 			sp.start();
 			out = new BufferedWriter(new OutputStreamWriter(acl2Proc.getOutputStream()));
 			writeAndFlush("(cw \"" + marker + "\")\n");
-			String draculaPath;
-			if (Main.WIN) {
-				draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "/") + "/dracula";
-			} else {
-				try {
-					draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "") + "/dracula";
-				} catch (Exception e) {
-					draculaPath = "";
-				}
-			}
+			String draculaPath = "";
+			try {
+				draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "") + "/dracula";
+			} catch (Exception e) { }
 			initializing = true;
 			numInitExps = 0;
 			admit("(add-include-book-dir :teachpacks \"" + draculaPath + "\")", doNothingCallback);
@@ -401,6 +387,7 @@ public class Acl2 extends Thread {
 					try {
 						acl2Proc.exitValue();
 						// If we get here, the process has terminated.
+						System.out.println("ACL2 terminated.");
 						failAllCallbacks();
 						fireRestartEvent();
 						showAcl2TerminatedError();
@@ -411,7 +398,6 @@ public class Acl2 extends Thread {
 		}, "ACL2 monitor");
 		acl2Monitor.start();
 		initializing = false;
-		System.out.println("Acl2 started successfully: " + acl2Proc);
 	}
 	
 	private void writeAndFlush(String string) {
@@ -437,6 +423,7 @@ public class Acl2 extends Thread {
 				.replaceAll("#\\|.*?\\|#", "")
 				.trim();
 		if (code.isEmpty()) {
+			callback.run(true, "");
 			return;
 		}
 		int parenLevel = 0;
@@ -469,6 +456,9 @@ public class Acl2 extends Thread {
 			writeAndFlush(current + "\n");
 			writeAndFlush("(cw \"" + marker + "\")\n");
 		}
+		if (exps.isEmpty()) {
+			callback.run(true, "");
+		}
 		synchronized (this) {
 			notify();
 		}
@@ -490,6 +480,7 @@ public class Acl2 extends Thread {
 			notify();
 		}
 		fireRestartEvent();
+		System.out.println("ACL2 is restarting");
 		failAllCallbacks();
 		isRestarting = false;
 	}
@@ -539,7 +530,10 @@ public class Acl2 extends Thread {
 				Runtime.getRuntime().exec(new String[] {"kill", "-s", "INT", Integer.toString(procId)});
 			} catch (IOException e) { }
 		}
+		fullOutput += sb.toString();
+		sb = new StringBuilder();
 		fireOutputEvents(false);
+		System.out.println("ACL2 was interrupted");
 		failAllCallbacks();
 	}
 

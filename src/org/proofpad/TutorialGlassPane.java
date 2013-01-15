@@ -10,9 +10,9 @@ import javax.swing.JComponent;
 
 final class TutorialGlassPane extends JComponent {
 	private static final long serialVersionUID = 6361383354592654266L;
-	private final IdeWindow window;
+	private final PPWindow window;
 
-	TutorialGlassPane(IdeWindow ideWindow) {
+	TutorialGlassPane(PPWindow ideWindow) {
 		window = ideWindow;
 		setVisible(false);
 		addMouseListener(new MouseAdapter() {

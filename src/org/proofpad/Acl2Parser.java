@@ -489,7 +489,7 @@ public class Acl2Parser extends AbstractParser {
 		}
 		functions = new HashSet<String>();
 		macros = new HashSet<String>(Arrays.asList(new String [] {
-				"declare", "include-book", "defproperty", "defttag"
+				"declare", "include-book", "defttag"
 		}));
 		constants = new HashSet<String>();
 		constants.add("state");
@@ -580,12 +580,14 @@ public class Acl2Parser extends AbstractParser {
 				boolean isIgnoredBecauseParent = parent != null && parent.name != null &&
 						(parent.name.equals("defun") && parent.params.size() == 2 ||
 						parent.name.equals("defmacro") && parent.params.size() == 2 ||
+						parent.name.equals("defabbrev") && parent.params.size() == 2 ||
 						parent.name.equals("mv-let") && parent.params.size() == 1 ||
 						parent.name.equals("cond") /* any parameter */ ||
 						parent.name.equals("case") /* any parameter */);
 				boolean isIgnoredBecauseCurrent = top != null && top.name != null &&
 						(top.name.equals("defun") && top.params.size() == 1 ||
 						 top.name.equals("defmacro") && top.params.size() == 1 ||
+						 top.name.equals("defabbrev") && top.params.size() == 1 ||
 						 top.name.equals("assign") && top.params.size() == 1 ||
 						 top.name.equals("@") && top.params.size() == 1);
 				boolean isIgnored = isIgnoredBecauseMacro || isIgnoredBecauseParent || isIgnoredBecauseCurrent ||
@@ -730,7 +732,7 @@ public class Acl2Parser extends AbstractParser {
 		book.lastModified();
 		Acl2Parser bookParser = new Acl2Parser(book.getParentFile(), acl2Dir);
 		bookParser.cache = cache;
-		RSyntaxDocument bookDoc = new IdeDocument(null);
+		RSyntaxDocument bookDoc = new PPDocument();
 		bookDoc.insertString(0, bookContents, null);
 		bookParser.parse(bookDoc, null);
 		bookCache = new CacheSets();

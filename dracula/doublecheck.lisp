@@ -5,29 +5,61 @@
 (defconst *default-repeat* 50)
 (defconst *default-limit* 60)
 
+;; Data generators
+
+(defun geometric-from-uniform (un mx p)
+   (if (< un (* mx p))
+       0
+       (+ 1 (geometric-from-uniform
+             (- un (* mx p))
+             (- mx (* mx p))
+             p))))
+
+(defun random-geometric-fn (p state)
+   (mv-let (un state)
+           (random$ 1000000 state)
+      (mv (geometric-from-uniform un 1000000 p) state)))
+
+(defmacro random-geometric (p)
+  `(random-geometric-fn ,p state))
+
 (defun random-between-fn (low high state)
   (mv-let (random state)
-    (random$ (- high low) state)
+    (random$ (- (+ 1 high) low) state)
     (mv (+ random low) state)))
 
 (defmacro random-between (low high)
    `(random-between-fn ,low ,high state))
 
 (defabbrev random-natural ()
-   (random-between 0 10000))
+   (random-geometric 1/32))
 
-(defabbrev random-positive ()
-   (random-between 1 10000))
+(defun random-positive-fn (state)
+   (mv-let (rnd state)
+           (random-natural)
+      (mv (+ 1 rnd) state)))
 
-(defabbrev random-integer ()
-   (random-between -10000 10000))
+(defmacro random-positive ()
+   `(random-positive-fn state))
+
+(defun random-integer-fn (state)
+   (mv-let (rnd state)
+           (random$ 2 state)
+      (if (= rnd 1)
+          (random-natural)
+          (mv-let (rnd state)
+                  (random-natural)
+             (mv (- rnd) state)))))
+
+(defmacro random-integer ()
+   `(random-integer-fn state))
 
 (defmacro random-rational ()
    `(mv-let (a state)
             (random-integer)
        (mv-let (b state)
                (random-integer)
-          (mv (/ a b) state))))
+          (mv (/ a (if (= b 0) 1 b)) state))))
 
 (defmacro random-complex ()
    `(mv-let (a state)
@@ -37,7 +69,7 @@
           (mv (complex a b) state))))
 
 (defabbrev random-data-size ()
-   (random-between 0 15))
+   (random-geometric 1/4))
 
 (defmacro random-number ()
    `(mv-let (which state)
@@ -48,6 +80,23 @@
               (random-rational))
              (t
               (random-complex)))))
+
+(defun random-natural-list-of-length-fn (n state)
+   (if (zp n)
+       (mv nil state)
+       (mv-let (xs state)
+               (random-natural-list-of-length-fn (1- n) state)
+          (mv-let (val state)
+                  (random-natural)
+             (mv (cons val xs) state)))))
+
+(defmacro random-natural-list ()
+   `(mv-let (ln state)
+            (random-data-size)
+       (random-natural-list-of-length-fn ln state)))
+
+(defmacro random-natural-list-of-length (ln)
+   `(random-natural-list-of-length-fn ,ln state))
 
 (defun random-integer-list-of-length-fn (n state)
    (if (zp n)
@@ -62,6 +111,9 @@
    `(mv-let (ln state)
             (random-data-size)
        (random-integer-list-of-length-fn ln state)))
+
+(defmacro random-integer-list-of-length (ln)
+   `(random-integer-list-of-length-fn ,ln state))
 
 (defun random-digit-list-of-length-fn (n state)
    (if (zp n)
@@ -91,6 +143,9 @@
            (random-data-size)
        (random-between-list-fn ,lo ,hi ln state)))
 
+(defmacro random-between-list-of-length (lo hi ln)
+   `(random-between-list-fn ,lo ,hi ,ln state))
+
 (defun random-increasing-list-fn (ln state)
    (if (zp ln)
        (mv nil state)
@@ -108,10 +163,44 @@
             (random-data-size)
        (random-increasing-list-fn ln state)))
 
+(defmacro random-list-of (&rest args)
+   (let ((size (if (and (>= (len args) 3)
+                        (eq (second args) ':size))
+                   (third args)
+                   -1)))
+     (cond ((eq (first (first args)) 'random-natural)
+            (if (= size -1)
+                `(random-natural-list)
+                `(random-natural-list-of-length ,size)))
+           ((eq (first (first args)) 'random-integer)
+            (if (= size -1)
+                `(random-integer-list)
+                `(random-integer-list-of-length ,size)))
+           ((eq (first (first args)) 'random-between)
+            (if (= size -1)
+                `(random-between-list ,(second (first args))
+                                      ,(third (first args)))
+                `(random-between-list-of-length
+                  ,(second (first args))
+                  ,(third (first args))
+                  ,size)))
+           (t (hard-error nil "Only certain random
+                           generators are currently
+                           supported in (random-list-of).
+                           Go to \"Help > Index\" and click
+                           \"doublecheck\" for the full
+                           list" nil)))))
+
+;; Defproperty and friends
+
 (defmacro repeat-times (times limit body)
   (if (zp limit)
     `(mv state (hard-error nil
-                           "Wasn't able to generate enough data. Check your :where clauses (make sure they are satisfiable) and try increasing the :limit for the property"
+                           "Wasn't able to generate enough
+                            data. Check your :where clauses
+                            (make sure they are satisfiable)
+                            and try increasing the :limit
+                            for the property"
                            nil))
     `(if (zp ,times)
          (mv state nil)
@@ -120,7 +209,8 @@
             (mv-let (state rs)
                  (repeat-times (- ,times 
                                   (if (eql result
-                                           'where-not-matched) 0 1))
+                                           'where-not-matched)
+                                           0 1))
                                ,(- limit 1) ,body)
                  (mv state
                      (cons (cons result assignments)
@@ -158,14 +248,22 @@
 (defun eager-and (x y)
   (and x y))
 
+(defun doublecheck-print-args (args)
+   (if (endp args)
+       nil
+       (prog2$ (cw "  ~p0 = ~p1~%" (first (first args)) (rest (first args)))
+               (doublecheck-print-args (rest args)))))
+
 (defun condense-results (rs)
   (if (endp rs)
     t
     (eager-and (let ((success (first (first rs))))
            (prog2$
              (if (not success)
-               (cw "Failed with assignments:    ~&0~%" (rest (first rs)))
-               (cw "Succeeded with assignments: ~&0~%" (rest (first rs))))
+               (prog2$ (cw "Failure case: ~%")
+                       (doublecheck-print-args (rest (first rs))))
+               (prog2$ (cw "Success case: ~%")
+                       (doublecheck-print-args (rest (first rs)))))
              success))
          (condense-results (rest rs)))))
 
@@ -189,7 +287,9 @@
     `(mv-let (state results)
        (repeat-times ,repeat ,limit
                      (expand-vars ,vars ,body))
-       (if (condense-results results)
+       (if (prog2$
+            (cw "DoubleCheck Test Results:~%")
+            (condense-results results))
          (mv nil nil state)
          (mv (hard-error nil "Test ~xn failed."
                          (list (cons #\n (quote ,name))))

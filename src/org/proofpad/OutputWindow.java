@@ -24,16 +24,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 
 import org.proofpad.Repl.Message;
+import org.proofpad.Repl.MsgType;
 
 public class OutputWindow extends JFrame {
 	private static final long serialVersionUID = -763205019202829248L;
-	private final IdeWindow ideWindow;
+	private final PPWindow ideWindow;
 	private Runnable afterPreview;
 
-	public OutputWindow(IdeWindow ideWindow) {
+	public OutputWindow(PPWindow ideWindow) {
 		getRootPane().putClientProperty("Window.style", "small");
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		this.ideWindow = ideWindow;
@@ -71,15 +73,21 @@ public class OutputWindow extends JFrame {
 		getRootPane().add(bottom, BorderLayout.PAGE_END);
 	}
 
-	public void showWithText(String output, Runnable after) {
-		JTextArea textComp = new JTextArea(output);
-		textComp.setFont(Prefs.font.get());
-		textComp.setEditable(false);
-		textComp.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+	public void showWithText(String output, MsgType type, Runnable after) {
+		JComponent comp;
+		if (Repl.isTestResults(output)) {
+			comp = new DoubleCheckResult(output);
+		} else {
+			JTextArea textComp = new JTextArea(output);
+			textComp.setEditable(false);
+			comp = textComp;
+		}
+		comp.setFont(Prefs.font.get());
+		comp.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		
 		JPanel summaries = new JPanel();
 		summaries.setLayout(new BoxLayout(summaries, BoxLayout.Y_AXIS));
-		List<Message> msgs = Repl.summarize(output, null);
+		List<Message> msgs = Repl.summarize(output, type);
 		for (Message msg : msgs) {
 			JComponent line = ideWindow.repl.createSummary(msg.msg, msg.type, null);
 			summaries.add(line);
@@ -88,27 +96,32 @@ public class OutputWindow extends JFrame {
 				.getLayoutComponent(BorderLayout.PAGE_START);
 		if (oldPgStartComp != null) getRootPane().remove(oldPgStartComp);
 		getRootPane().add(summaries, BorderLayout.PAGE_START);
-		
 		if (afterPreview != null) afterPreview.run();
 		afterPreview = after;
 		Component oldCenterComp = ((BorderLayout) getRootPane().getLayout())
 				.getLayoutComponent(BorderLayout.CENTER);
 		if (oldCenterComp != null) getRootPane().remove(oldCenterComp);
-		JScrollPane textScroller = new JScrollPane(textComp);
+		JScrollPane textScroller = new JScrollPane(comp);
 		textScroller.setBorder(BorderFactory.createEmptyBorder());
+		textScroller.getVerticalScrollBar().setUnitIncrement(20);
 		getRootPane().add(textScroller, BorderLayout.CENTER);
-		int height = textComp.getPreferredScrollableViewportSize().height + 100;
-		int width = 80 * getFontMetrics(ideWindow.getFont()).charWidth('a');
+		int height;
+		if (comp instanceof Scrollable) {
+		    height = ((Scrollable) comp).getPreferredScrollableViewportSize().height + 100;
+		} else {
+			height = comp.getPreferredSize().height;
+		}
+		int width = 80 * getFontMetrics(Prefs.font.get()).charWidth('a');
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		if (height > screenSize.height) {
 			height = screenSize.height;
-			System.out.println(width);
 			width += new JScrollBar().getPreferredSize().width;
-			System.out.println(width);
 		}
 		setSize(width, height);
-		Point whereToGo = ideWindow.moveForOutputWindow();
-		setLocation(whereToGo);
+		if (!isVisible()) {
+			Point whereToGo = ideWindow.moveForOutputWindow();
+			setLocation(whereToGo);
+		}
 		setFocusableWindowState(false);
 		setVisible(true);
 		SwingUtilities.invokeLater(new Runnable() {

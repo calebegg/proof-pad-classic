@@ -27,6 +27,7 @@ import javax.swing.Timer;
 import javax.swing.undo.UndoManager;
 
 import org.proofpad.ProofBar.UnprovenExp.Status;
+import org.proofpad.Repl.MsgType;
 import org.proofpad.SExpUtils.ExpType;
 
 public class ProofBar extends JComponent {
@@ -40,15 +41,17 @@ public class ProofBar extends JComponent {
 	public class ExpData {
 		Expression exp;
 		String output;
-		public ExpData(Expression exp, String output) {
+		MsgType type;
+		public ExpData(Expression exp, String output, MsgType type) {
 			this.exp = exp;
 			this.output = output;
+			this.type = type;
 		}
 		public int getHeight() {
 			return pixelHeight(exp);
 		}
 		@Override public String toString() {
-			return "<" + getHeight() + ", " + output.replace('\n', ' ').substring(0, Math.min(10, output.length())) + ">";
+			return "<" + getHeight() + ", " + output.replace('\n', ' ').substring(0, Math.min(10, output.length())) + ", " + type + ">";
 		}
 	}
 	ArrayList<ExpData> data = new ArrayList<ExpData>();
@@ -60,11 +63,11 @@ public class ProofBar extends JComponent {
 	static final Color WARNING_COLOR = new Color(0xFFFF00);
 	static final Color ADMITTED_COLOR = new Color(0xDDF8CC);
 	public static final ImageIcon errorIcon = new ImageIcon(
-			ProofBar.class.getResource("/media/error.png"));
+			ProofBar.class.getResource("/Icons/Error.png"));
 	public static final ImageIcon successIcon = new ImageIcon(
-			ProofBar.class.getResource("/media/check.png"));
+			ProofBar.class.getResource("/Icons/Check.png"));
 	public static final Icon warningIcon = new ImageIcon(
-			ProofBar.class.getResource("/media/error.png")); // FIXME
+			ProofBar.class.getResource("/Icons/Error.png")); // FIXME
 
 	static LinearGradientPaint diagonalPaint(Color a, Color b, int step, float dist) {
 		return new LinearGradientPaint(0, 0, step, step,
@@ -95,7 +98,7 @@ public class ProofBar extends JComponent {
 	private int readOnlyIndex = -1;
 	Expression tried;
 	private final Image inProgressThrobber = 
-			new ImageIcon(getClass().getResource("/media/in-progress-blue.gif")).getImage();
+			new ImageIcon(getClass().getResource("/Icons/in-progress-blue.gif")).getImage();
 	private int flashIndex;
 	int flashPhase;
 	Runnable flashTimeout;
@@ -107,7 +110,6 @@ public class ProofBar extends JComponent {
 	
 	static class UnprovenExp {
 		enum Status { SUCCESS, FAILURE, UNTRIED }
-		public int hash;
 		public Status status;
 	}
 	private List<UnprovenExp> unprovenStates = new ArrayList<UnprovenExp>();
@@ -433,9 +435,10 @@ public class ProofBar extends JComponent {
 			repaint();
 			return;
 		}
+		final boolean last = proofQueue.isEmpty();
 		acl2.admit(tried.contents, new Acl2.Callback() {
 			@Override public boolean run(final boolean outerSuccess, String response) {
-				setExpData(tried, outerSuccess, response);
+				setExpData(tried, outerSuccess, response, last);
 				if (!outerSuccess) {
 					proofCallback(outerSuccess);
 					return false;
@@ -476,7 +479,8 @@ public class ProofBar extends JComponent {
 		repaint();
 	}
 	
-	public void undoPrevForm() {
+	public void undoOneItem() {
+		if (numProving != 0) return;
 		int ignore = numProved + numProving - 1;
 		int i = 0;
 		numProved--;
@@ -569,37 +573,30 @@ public class ProofBar extends JComponent {
 		int provedSoFar = numProved;
 		acl2.admit(":program", Acl2.doNothingCallback);
 		acl2.admit("(set-ld-redefinition-action '(:doit . :erase) state)", Acl2.doNothingCallback);
-		unprovenStates = new ArrayList<UnprovenExp>();
+		if (unprovenStates == null) unprovenStates = new ArrayList<UnprovenExp>();
 		int unprovenIdx = 0;
 		for (int i = 0; i < expressions.size(); i++) {
 			final Expression ex = expressions.get(i);
-			final boolean lastExp = i == expressions.size() - 2; // TODO: Will '2' always work?
+			final boolean lastExp = i == expressions.size() - 1;
 			if (provedSoFar > 0) {
 				provedSoFar--;
 				if (lastExp) {
 					alreadyShownAnError = false;
 				}
 			} else {
-				final UnprovenExp ue;
+				final UnprovenExp ue;				
 				if (unprovenIdx < unprovenStates.size()) {
 					ue = unprovenStates.get(unprovenIdx);
 					unprovenIdx++;
-					if (ue.hash == ex.contents.hashCode()) {
-						if (lastExp) {
-							alreadyShownAnError = false;
-						}
-						continue;
-					}
 				} else {
 					unprovenIdx++;
 					ue = new UnprovenExp();
 					unprovenStates.add(ue);
 				}
 				ue.status = Status.UNTRIED;
-				ue.hash = ex.contents.hashCode();
 				acl2.admit(ex.contents, new Acl2.Callback() {
 					@Override public boolean run(boolean success, String response) {
-						setExpData(ex, success, response);
+						setExpData(ex, success, response, lastExp);
 						if (lastExp) {
 							alreadyShownAnError = false;
 						}
@@ -612,17 +609,22 @@ public class ProofBar extends JComponent {
 		}
 	}
 
-	void setExpData(Expression exp, boolean success, String response) {
+	void setExpData(Expression exp, boolean success, String response, boolean last) {
 		while (data.size() <= exp.expNum) {
 			data.add(null);
 		}
 		data.subList(exp.expNum, data.size() - 1).clear();
-		ExpData expData = new ExpData(exp, response);
+		ExpData expData = new ExpData(exp, response, success ? MsgType.SUCCESS : MsgType.ERROR);
+		while (data.size() <= exp.expNum) {
+			data.add(null);
+		}
 		data.set(exp.expNum, expData);
 		mb.repaint();
 		if (!success && Prefs.showOutputOnError.get() && !alreadyShownAnError) {
 			alreadyShownAnError = true;
 			mb.selectExpression(expData);
+		} else if (last && !alreadyShownAnError) {
+			mb.selectExpression(null);
 		}
 	}
 

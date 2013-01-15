@@ -1,0 +1,2879 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ApplicationVersion</key>
+	<array>
+		<string>com.omnigroup.OmniGraffle</string>
+		<string>139.16.0.171715</string>
+	</array>
+	<key>CreationDate</key>
+	<string>2012-12-06 05:13:14 +0000</string>
+	<key>Creator</key>
+	<string>Caleb Eggensperger</string>
+	<key>GraphDocumentVersion</key>
+	<integer>8</integer>
+	<key>GuidesLocked</key>
+	<string>NO</string>
+	<key>GuidesVisible</key>
+	<string>YES</string>
+	<key>ImageCounter</key>
+	<integer>2</integer>
+	<key>LinksVisible</key>
+	<string>NO</string>
+	<key>MagnetsVisible</key>
+	<string>NO</string>
+	<key>MasterSheets</key>
+	<array/>
+	<key>ModificationDate</key>
+	<string>2012-12-06 17:44:27 +0000</string>
+	<key>Modifier</key>
+	<string>Caleb Eggensperger</string>
+	<key>NotesVisible</key>
+	<string>NO</string>
+	<key>OriginVisible</key>
+	<string>NO</string>
+	<key>PageBreaks</key>
+	<string>YES</string>
+	<key>PrintInfo</key>
+	<dict>
+		<key>NSBottomMargin</key>
+		<array>
+			<string>float</string>
+			<string>41</string>
+		</array>
+		<key>NSHorizonalPagination</key>
+		<array>
+			<string>coded</string>
+			<string>BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU051bWJlcgCEhAdOU1ZhbHVlAISECE5TT2JqZWN0AIWEASqEhAFxlwCG</string>
+		</array>
+		<key>NSLeftMargin</key>
+		<array>
+			<string>float</string>
+			<string>18</string>
+		</array>
+		<key>NSPaperSize</key>
+		<array>
+			<string>size</string>
+			<string>{612, 792}</string>
+		</array>
+		<key>NSPrintReverseOrientation</key>
+		<array>
+			<string>int</string>
+			<string>0</string>
+		</array>
+		<key>NSRightMargin</key>
+		<array>
+			<string>float</string>
+			<string>18</string>
+		</array>
+		<key>NSTopMargin</key>
+		<array>
+			<string>float</string>
+			<string>18</string>
+		</array>
+	</dict>
+	<key>ReadOnly</key>
+	<string>NO</string>
+	<key>Sheets</key>
+	<array>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>GridCenter</key>
+				<string>YES</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{69.5, 65}, {170, 216}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>FitText</key>
+					<string>YES</string>
+					<key>Flow</key>
+					<string>Resize</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Color</key>
+						<dict>
+							<key>b</key>
+							<string>1</string>
+							<key>g</key>
+							<string>1</string>
+							<key>r</key>
+							<string>1</string>
+						</dict>
+						<key>Font</key>
+						<string>Helvetica-Bold</string>
+						<key>Size</key>
+						<real>180</real>
+					</dict>
+					<key>ID</key>
+					<integer>5</integer>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+					<key>Text</key>
+					<dict>
+						<key>Pad</key>
+						<integer>0</integer>
+						<key>Text</key>
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf340
+\cocoascreenfonts1{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
+
+\f0\b\fs360 \cf1 ( )}</string>
+						<key>VerticalPad</key>
+						<integer>0</integer>
+					</dict>
+					<key>Wrap</key>
+					<string>NO</string>
+				</dict>
+				<dict>
+					<key>Bounds</key>
+					<string>{{18, 18}, {306, 306}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>4</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, -0.38235294117647056}</string>
+							<string>{-0.5, -0.38235294117647056}</string>
+							<string>{-0.44117647058823528, -0.5}</string>
+							<string>{-0.44117647058823528, -0.5}</string>
+							<string>{-0.44117647058823528, -0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{0.5, 0.44117647058823528}</string>
+							<string>{0.5, 0.44117647058823528}</string>
+							<string>{0.5, 0.44117647058823528}</string>
+							<string>{0.38235294117647056, 0.44117647058823528}</string>
+							<string>{0.38235294117647056, 0.44117647058823528}</string>
+							<string>{0.38235294117647056, 0.44117647058823528}</string>
+							<string>{0.44117647058823528, 0.38235294117647056}</string>
+							<string>{0.44117647058823528, 0.38235294117647056}</string>
+							<string>{0.44117647058823528, 0.38235294117647056}</string>
+							<string>{0.44117647058823528, -0.44117647058823528}</string>
+							<string>{0.44117647058823528, -0.44117647058823528}</string>
+							<string>{0.44117647058823528, -0.44117647058823528}</string>
+							<string>{-0.38235294117647056, -0.44117647058823528}</string>
+							<string>{-0.38235294117647056, -0.44117647058823528}</string>
+							<string>{-0.38235294117647056, -0.44117647058823528}</string>
+							<string>{-0.44117647058823528, -0.3235294117647059}</string>
+							<string>{-0.44117647058823528, -0.3235294117647059}</string>
+							<string>{-0.44117647058823528, -0.3235294117647059}</string>
+							<string>{0.38235294117647056, -0.3235294117647059}</string>
+							<string>{0.38235294117647056, -0.3235294117647059}</string>
+							<string>{0.38235294117647056, -0.3235294117647059}</string>
+							<string>{0.38235294117647056, 0.5}</string>
+							<string>{0.38235294117647056, 0.5}</string>
+							<string>{0.38235294117647056, 0.5}</string>
+							<string>{-0.44117647058823528, 0.5}</string>
+							<string>{-0.44117647058823528, 0.5}</string>
+							<string>{-0.44117647058823528, 0.5}</string>
+							<string>{-0.5, 0.44117647058823528}</string>
+							<string>{-0.5, 0.44117647058823528}</string>
+							<string>{-0.5, 0.44117647058823528}</string>
+							<string>{-0.5, -0.38235294117647056}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.4</string>
+								<key>g</key>
+								<string>0.4</string>
+								<key>r</key>
+								<string>0.4</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049304962158203</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridInFront</key>
+				<string>YES</string>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Book</string>
+			<key>UniqueID</key>
+			<integer>1</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{17.666666666666657, 18}, {306.33333333333337, 289.1807082849532}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, -0.2152876005400623}</string>
+							<string>{-0.5, -0.21528760054006141}</string>
+							<string>{-0.20511425462459665, -0.49999999999999994}</string>
+							<string>{-0.20511425462459665, -0.49999999999999994}</string>
+							<string>{-0.20511425462459665, -0.49999999999999994}</string>
+							<string>{-0.20620239390642475, -0.33977723269258553}</string>
+							<string>{-0.20620239390642475, -0.33977723269258553}</string>
+							<string>{-0.20620239390642475, -0.33977723269258553}</string>
+							<string>{0.49999999999999978, -0.3132655781540068}</string>
+							<string>{0.49999999999999978, 0.12244816076261733}</string>
+							<string>{0.49999999999999978, 0.55816187329645017}</string>
+							<string>{-0.31936887921653989, 0.49706973899937701}</string>
+							<string>{-0.31936887921653989, 0.49706973899937701}</string>
+							<string>{-0.31936887921653989, 0.49706973899937701}</string>
+							<string>{0.31175190424374288, 0.37719083396361508}</string>
+							<string>{0.31175190424374288, 0.12821156965856706}</string>
+							<string>{0.31175190424374288, -0.12076769464647974}</string>
+							<string>{-0.20402611534276854, -0.10232478617943835}</string>
+							<string>{-0.20402611534276854, -0.10232478617943835}</string>
+							<string>{-0.20402611534276854, -0.10232478617943835}</string>
+							<string>{-0.20511425462459665, 0.06020334468635602}</string>
+							<string>{-0.20511425462459665, 0.06020334468635602}</string>
+							<string>{-0.20511425462459665, 0.06020334468635602}</string>
+							<string>{-0.5, -0.21528760054006191}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.4</string>
+								<key>g</key>
+								<string>0.4</string>
+								<key>r</key>
+								<string>0.4</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Undo</string>
+			<key>UniqueID</key>
+			<integer>2</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{17.666666666666657, 18}, {306.33333333333337, 289.1807082849532}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>HFlip</key>
+					<string>YES</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, -0.2152876005400623}</string>
+							<string>{-0.5, -0.21528760054006141}</string>
+							<string>{-0.20511425462459665, -0.49999999999999994}</string>
+							<string>{-0.20511425462459665, -0.49999999999999994}</string>
+							<string>{-0.20511425462459665, -0.49999999999999994}</string>
+							<string>{-0.20620239390642475, -0.33977723269258553}</string>
+							<string>{-0.20620239390642475, -0.33977723269258553}</string>
+							<string>{-0.20620239390642475, -0.33977723269258553}</string>
+							<string>{0.49999999999999978, -0.3132655781540068}</string>
+							<string>{0.49999999999999978, 0.12244816076261733}</string>
+							<string>{0.49999999999999978, 0.55816187329645017}</string>
+							<string>{-0.31936887921653989, 0.49706973899937701}</string>
+							<string>{-0.31936887921653989, 0.49706973899937701}</string>
+							<string>{-0.31936887921653989, 0.49706973899937701}</string>
+							<string>{0.31175190424374288, 0.37719083396361508}</string>
+							<string>{0.31175190424374288, 0.12821156965856706}</string>
+							<string>{0.31175190424374288, -0.12076769464647974}</string>
+							<string>{-0.20402611534276854, -0.10232478617943835}</string>
+							<string>{-0.20402611534276854, -0.10232478617943835}</string>
+							<string>{-0.20402611534276854, -0.10232478617943835}</string>
+							<string>{-0.20511425462459665, 0.06020334468635602}</string>
+							<string>{-0.20511425462459665, 0.06020334468635602}</string>
+							<string>{-0.20511425462459665, 0.06020334468635602}</string>
+							<string>{-0.5, -0.21528760054006191}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.4</string>
+								<key>g</key>
+								<string>0.4</string>
+								<key>r</key>
+								<string>0.4</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Redo</string>
+			<key>UniqueID</key>
+			<integer>3</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{126, 234}, {36, 36}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>7</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, -0.5}</string>
+							<string>{-0.5, -0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{0.5, 0.5}</string>
+							<string>{0.5, 0.5}</string>
+							<string>{0.5, 0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{-0.5, -0.5}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.4</string>
+								<key>g</key>
+								<string>0.4</string>
+								<key>r</key>
+								<string>0.4</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+				<dict>
+					<key>Bounds</key>
+					<string>{{90, 126}, {162, 18}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>6</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, -0.5}</string>
+							<string>{-0.5, -0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{0.49999999999999978, 0.5}</string>
+							<string>{0.49999999999999978, 0.5}</string>
+							<string>{0.49999999999999978, 0.5}</string>
+							<string>{0.49999999999999978, -0.5}</string>
+							<string>{0.49999999999999978, -0.5}</string>
+							<string>{0.49999999999999978, -0.5}</string>
+							<string>{-0.5, -0.5}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.701961</string>
+								<key>g</key>
+								<string>0.701961</string>
+								<key>r</key>
+								<string>0.701961</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+				<dict>
+					<key>Bounds</key>
+					<string>{{90, 72}, {162, 18}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>5</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, -0.5}</string>
+							<string>{-0.5, -0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{0.49999999999999978, 0.5}</string>
+							<string>{0.49999999999999978, 0.5}</string>
+							<string>{0.49999999999999978, 0.5}</string>
+							<string>{0.49999999999999978, -0.5}</string>
+							<string>{0.49999999999999978, -0.5}</string>
+							<string>{0.49999999999999978, -0.5}</string>
+							<string>{-0.5, -0.5}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.701961</string>
+								<key>g</key>
+								<string>0.701961</string>
+								<key>r</key>
+								<string>0.701961</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+				<dict>
+					<key>Bounds</key>
+					<string>{{36, 36}, {270, 270}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>4</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, -0.5}</string>
+							<string>{-0.5, -0.5}</string>
+							<string>{-0.5, 0.30000000000000004}</string>
+							<string>{-0.5, 0.30000000000000004}</string>
+							<string>{-0.5, 0.30000000000000004}</string>
+							<string>{-0.29999999999999988, 0.5}</string>
+							<string>{-0.29999999999999988, 0.5}</string>
+							<string>{-0.29999999999999988, 0.5}</string>
+							<string>{0.5, 0.5}</string>
+							<string>{0.5, 0.5}</string>
+							<string>{0.5, 0.5}</string>
+							<string>{0.5, 0.3666666666666667}</string>
+							<string>{0.5, 0.3666666666666667}</string>
+							<string>{0.5, 0.3666666666666667}</string>
+							<string>{0.23333333333333339, 0.30000000000000004}</string>
+							<string>{0.23333333333333339, 0.3666666666666667}</string>
+							<string>{0.23333333333333339, 0.43333333333333335}</string>
+							<string>{0.16666666666666752, 0.43333333333333335}</string>
+							<string>{0.16666666666666752, 0.43333333333333335}</string>
+							<string>{0.16666666666666752, 0.43333333333333335}</string>
+							<string>{-0.16666666666666663, 0.43333333333333335}</string>
+							<string>{-0.16666666666666663, 0.43333333333333335}</string>
+							<string>{-0.16666666666666663, 0.43333333333333335}</string>
+							<string>{-0.23333333333333289, 0.43333333333333335}</string>
+							<string>{-0.23333333333333289, 0.3666666666666667}</string>
+							<string>{-0.23333333333333311, 0.30000000000000004}</string>
+							<string>{-0.23333333333333289, 0.30000000000000004}</string>
+							<string>{-0.23333333333333289, 0.23333333333333339}</string>
+							<string>{-0.23333333333333289, 0.16666666666666752}</string>
+							<string>{-0.16666666666666663, 0.16666666666666752}</string>
+							<string>{-0.16666666666666663, 0.16666666666666752}</string>
+							<string>{-0.16666666666666663, 0.16666666666666752}</string>
+							<string>{0.16666666666666752, 0.16666666666666752}</string>
+							<string>{0.16666666666666752, 0.16666666666666752}</string>
+							<string>{0.16666666666666752, 0.16666666666666752}</string>
+							<string>{0.23333333333333339, 0.16666666666666752}</string>
+							<string>{0.23333333333333339, 0.23333333333333339}</string>
+							<string>{0.23333333333333339, 0.30000000000000004}</string>
+							<string>{0.23333333333333339, 0.3666666666666667}</string>
+							<string>{0.23333333333333339, 0.3666666666666667}</string>
+							<string>{0.23333333333333339, 0.3666666666666667}</string>
+							<string>{0.5, 0.3666666666666667}</string>
+							<string>{0.5, 0.3666666666666667}</string>
+							<string>{0.5, 0.3666666666666667}</string>
+							<string>{0.5, -0.033333333333333326}</string>
+							<string>{0.5, -0.033333333333333326}</string>
+							<string>{0.5, -0.033333333333333326}</string>
+							<string>{0.3666666666666667, -0.033333333333333326}</string>
+							<string>{0.3666666666666667, -0.033333333333333326}</string>
+							<string>{0.3666666666666667, -0.033333333333333326}</string>
+							<string>{-0.36666666666666664, -0.033333333333333326}</string>
+							<string>{-0.36666666666666664, -0.033333333333333326}</string>
+							<string>{-0.36666666666666664, -0.033333333333333326}</string>
+							<string>{-0.36666666666666664, -0.43333333333333313}</string>
+							<string>{-0.36666666666666664, -0.43333333333333313}</string>
+							<string>{-0.36666666666666664, -0.43333333333333313}</string>
+							<string>{0.3666666666666667, -0.43333333333333313}</string>
+							<string>{0.3666666666666667, -0.43333333333333313}</string>
+							<string>{0.3666666666666667, -0.43333333333333313}</string>
+							<string>{0.3666666666666667, -0.033333333333333326}</string>
+							<string>{0.3666666666666667, -0.033333333333333326}</string>
+							<string>{0.3666666666666667, -0.033333333333333326}</string>
+							<string>{0.5, -0.033333333333333326}</string>
+							<string>{0.5, -0.033333333333333326}</string>
+							<string>{0.5, -0.033333333333333326}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{-0.5, -0.5}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.4</string>
+								<key>g</key>
+								<string>0.4</string>
+								<key>r</key>
+								<string>0.4</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Save</string>
+			<key>UniqueID</key>
+			<integer>4</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{36, 126}, {288, 162}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>10</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.3125, -0.5}</string>
+							<string>{-0.3125, -0.5}</string>
+							<string>{-0.3125, -0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{0.5, -0.5}</string>
+							<string>{0.3125, 0.5}</string>
+							<string>{0.3125, 0.5}</string>
+							<string>{0.3125, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.4</string>
+								<key>g</key>
+								<string>0.4</string>
+								<key>r</key>
+								<string>0.4</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+				<dict>
+					<key>Bounds</key>
+					<string>{{36, 72}, {234, 216}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>9</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, 0.49999999999999989}</string>
+							<string>{-0.5, 0.49999999999999989}</string>
+							<string>{-0.5, -0.41666666666666674}</string>
+							<string>{-0.5, -0.41666666666666674}</string>
+							<string>{-0.5, -0.41666666666666674}</string>
+							<string>{-0.42307692307692307, -0.41666666666666674}</string>
+							<string>{-0.42307692307692307, -0.41666666666666674}</string>
+							<string>{-0.42307692307692307, -0.41666666666666674}</string>
+							<string>{-0.34615384615384615, -0.5}</string>
+							<string>{-0.34615384615384615, -0.5}</string>
+							<string>{-0.34615384615384615, -0.5}</string>
+							<string>{-0.11538461538461531, -0.5}</string>
+							<string>{-0.11538461538461531, -0.5}</string>
+							<string>{-0.11538461538461531, -0.5}</string>
+							<string>{-0.038461538461538436, -0.41666666666666674}</string>
+							<string>{-0.038461538461538436, -0.41666666666666674}</string>
+							<string>{-0.038461538461538436, -0.41666666666666674}</string>
+							<string>{0.50000000000000011, -0.41666666666666674}</string>
+							<string>{0.50000000000000011, -0.41666666666666674}</string>
+							<string>{0.50000000000000011, -0.41666666666666674}</string>
+							<string>{0.50000000000000011, -0.33333333333333337}</string>
+							<string>{0.50000000000000011, -0.33333333333333337}</string>
+							<string>{0.50000000000000011, -0.33333333333333337}</string>
+							<string>{-0.34615384615384615, -0.33333333333333337}</string>
+							<string>{-0.34615384615384615, -0.33333333333333337}</string>
+							<string>{-0.34615384615384615, -0.33333333333333337}</string>
+							<string>{-0.5, 0.49999999999999989}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.4</string>
+								<key>g</key>
+								<string>0.4</string>
+								<key>r</key>
+								<string>0.4</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Open</string>
+			<key>UniqueID</key>
+			<integer>5</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{18, 36}, {314.9999999999971, 277.63999999999919}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.32857142857143246, 0.49999999999999989}</string>
+							<string>{-0.32857142857143246, 0.49999999999999878}</string>
+							<string>{-0.014285714285712792, 0.14342313787638516}</string>
+							<string>{-0.014285714285712792, 0.14342313787638516}</string>
+							<string>{-0.014285714285713236, 0.14342313787638516}</string>
+							<string>{-0.014285714285713236, 0.078590981126637094}</string>
+							<string>{-0.014285714285713014, 0.078590981126637094}</string>
+							<string>{-0.014285714285712792, 0.078590981126637094}</string>
+							<string>{0.21428571428570986, -0.18073764587234803}</string>
+							<string>{0.21428571428570986, -0.18073764587234803}</string>
+							<string>{0.21428571428570986, -0.18073764587234803}</string>
+							<string>{0.27142857142856924, -0.11590548912259901}</string>
+							<string>{0.27142857142856924, -0.11590548912259901}</string>
+							<string>{0.27142857142856924, -0.11590548912259901}</string>
+							<string>{0.27142857142856924, -0.051073332372853164}</string>
+							<string>{0.27142857142856924, -0.051073332372853164}</string>
+							<string>{0.27142857142856924, -0.051073332372853164}</string>
+							<string>{0.32857142857142696, 0.013758824376894019}</string>
+							<string>{0.32857142857142696, 0.013758824376894019}</string>
+							<string>{0.32857142857142696, 0.013758824376894019}</string>
+							<string>{0.49999999999999989, -0.18073764587234936}</string>
+							<string>{0.49999999999999989, -0.18073764587234936}</string>
+							<string>{0.49999999999999989, -0.18073764587234936}</string>
+							<string>{0.44285714285714339, -0.24556980262211547}</string>
+							<string>{0.44285714285714339, -0.24556980262211547}</string>
+							<string>{0.44285714285714339, -0.24556980262211547}</string>
+							<string>{0.38571428571428534, -0.24556980262211547}</string>
+							<string>{0.38571428571428534, -0.24556980262211547}</string>
+							<string>{0.38571428571428534, -0.24556980262211547}</string>
+							<string>{0.25449735932138995, -0.44006625654680853}</string>
+							<string>{0.16031746031745575, -0.48688949719060703}</string>
+							<string>{0.066137566137560722, -0.53371272150986804}</string>
+							<string>{-0.18571428571431486, -0.44006627287134492}</string>
+							<string>{-0.18571428571431486, -0.44006627287134492}</string>
+							<string>{-0.18571428571431486, -0.44006627287134492}</string>
+							<string>{-0.014285715983751168, -0.44006627479786897}</string>
+							<string>{0.042857142857138375, -0.37523411612159485}</string>
+							<string>{0.099999999999991984, -0.31040195937184595}</string>
+							<string>{0.099999999999993427, -0.31040195937184795}</string>
+							<string>{0.099999999999993427, -0.31040195937184795}</string>
+							<string>{0.099999999999993427, -0.31040195937184795}</string>
+							<string>{-0.12857142857143328, -0.051073332372855607}</string>
+							<string>{-0.12857142857143328, -0.051073332372855607}</string>
+							<string>{-0.128571428571434, -0.051073332372855607}</string>
+							<string>{-0.18571428571430493, -0.051073332372855607}</string>
+							<string>{-0.18571428571430565, -0.051073332372855607}</string>
+							<string>{-0.18571428571430565, -0.051073332372855607}</string>
+							<string>{-0.500000000000004, 0.30550352975076078}</string>
+							<string>{-0.5, 0.30550352975076145}</string>
+							<string>{-0.50000000000000255, 0.30550352975076023}</string>
+							<string>{-0.32857142857143279, 0.49999999999999944}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.4</string>
+								<key>g</key>
+								<string>0.4</string>
+								<key>r</key>
+								<string>0.4</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Build</string>
+			<key>UniqueID</key>
+			<integer>6</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{36.000000000000057, 72}, {269.99999999999994, 197.99999999999994}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, 0.13636363636363535}</string>
+							<string>{-0.5, 0.13636363636363535}</string>
+							<string>{-0.23333333333333295, 0.49999999999999989}</string>
+							<string>{-0.23333333333333295, 0.49999999999999989}</string>
+							<string>{-0.23333333333333295, 0.49999999999999989}</string>
+							<string>{-0.10000000000000098, 0.49999999999999989}</string>
+							<string>{-0.10000000000000098, 0.49999999999999989}</string>
+							<string>{-0.10000000000000098, 0.49999999999999989}</string>
+							<string>{0.50000000000000011, -0.31818181818181845}</string>
+							<string>{0.50000000000000011, -0.31818181818181845}</string>
+							<string>{0.50000000000000011, -0.3181818181818189}</string>
+							<string>{0.36666666666666747, -0.50000000000000044}</string>
+							<string>{0.36666666666666747, -0.5}</string>
+							<string>{0.36666666666666747, -0.5}</string>
+							<string>{-0.16666666666666619, 0.22727272727272674}</string>
+							<string>{-0.16666666666666619, 0.22727272727272674}</string>
+							<string>{-0.16666666666666619, 0.22727272727272674}</string>
+							<string>{-0.36666666666666842, -0.045454545454546524}</string>
+							<string>{-0.36666666666666842, -0.045454545454546524}</string>
+							<string>{-0.36666666666666842, -0.045454545454546968}</string>
+							<string>{-0.5, 0.13636363636363535}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.2</string>
+								<key>g</key>
+								<string>0.2</string>
+								<key>r</key>
+								<string>0.2</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Check</string>
+			<key>UniqueID</key>
+			<integer>7</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{54.000000000000014, 54.000000000000014}, {233.99999999999997, 233.99999999999997}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.49999999999999989, -0.34615384615384603}</string>
+							<string>{-0.49999999999999989, -0.34615384615384603}</string>
+							<string>{-0.34615384615384603, -0.49999999999999989}</string>
+							<string>{-0.34615384615384603, -0.49999999999999989}</string>
+							<string>{-0.34615384615384603, -0.49999999999999989}</string>
+							<string>{-0.038461538461538658, -0.1923076923076924}</string>
+							<string>{-0.038461538461538658, -0.1923076923076924}</string>
+							<string>{-0.038461538461538658, -0.1923076923076924}</string>
+							<string>{0.038461538461538769, -0.1923076923076924}</string>
+							<string>{0.038461538461538769, -0.1923076923076924}</string>
+							<string>{0.038461538461538769, -0.1923076923076924}</string>
+							<string>{0.3461538461538467, -0.49999999999999989}</string>
+							<string>{0.3461538461538467, -0.49999999999999989}</string>
+							<string>{0.3461538461538467, -0.49999999999999989}</string>
+							<string>{0.5, -0.34615384615384603}</string>
+							<string>{0.5, -0.34615384615384603}</string>
+							<string>{0.5, -0.34615384615384603}</string>
+							<string>{0.19230769230769229, -0.038461538461538658}</string>
+							<string>{0.19230769230769229, -0.038461538461538658}</string>
+							<string>{0.19230769230769229, -0.038461538461538658}</string>
+							<string>{0.19230769230769229, 0.038461538461538769}</string>
+							<string>{0.19230769230769229, 0.038461538461538769}</string>
+							<string>{0.19230769230769229, 0.038461538461538769}</string>
+							<string>{0.5, 0.3461538461538467}</string>
+							<string>{0.5, 0.3461538461538467}</string>
+							<string>{0.5, 0.3461538461538467}</string>
+							<string>{0.3461538461538467, 0.5}</string>
+							<string>{0.3461538461538467, 0.5}</string>
+							<string>{0.3461538461538467, 0.5}</string>
+							<string>{0.038461538461538769, 0.19230769230769229}</string>
+							<string>{0.038461538461538769, 0.19230769230769229}</string>
+							<string>{0.038461538461538769, 0.19230769230769229}</string>
+							<string>{-0.038461538461538658, 0.19230769230769229}</string>
+							<string>{-0.038461538461538658, 0.19230769230769229}</string>
+							<string>{-0.038461538461538658, 0.19230769230769229}</string>
+							<string>{-0.34615384615384603, 0.5}</string>
+							<string>{-0.34615384615384603, 0.5}</string>
+							<string>{-0.34615384615384603, 0.5}</string>
+							<string>{-0.49999999999999989, 0.3461538461538467}</string>
+							<string>{-0.49999999999999989, 0.3461538461538467}</string>
+							<string>{-0.49999999999999989, 0.3461538461538467}</string>
+							<string>{-0.1923076923076924, 0.038461538461538769}</string>
+							<string>{-0.1923076923076924, 0.038461538461538769}</string>
+							<string>{-0.1923076923076924, 0.038461538461538769}</string>
+							<string>{-0.1923076923076924, -0.038461538461538658}</string>
+							<string>{-0.1923076923076924, -0.038461538461538658}</string>
+							<string>{-0.1923076923076924, -0.038461538461538658}</string>
+							<string>{-0.49999999999999989, -0.34615384615384603}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.2</string>
+								<key>g</key>
+								<string>0.2</string>
+								<key>r</key>
+								<string>0.2</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Error</string>
+			<key>UniqueID</key>
+			<integer>8</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{72, 36}, {198, 270}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, -0.5}</string>
+							<string>{-0.5, -0.5}</string>
+							<string>{0.50000000000000011, -0.099999999999999978}</string>
+							<string>{0.50000000000000011, -0.099999999999999978}</string>
+							<string>{0.50000000000000011, -0.099999999999999978}</string>
+							<string>{0.50000000000000011, 0.10000000000000053}</string>
+							<string>{0.50000000000000011, 0.10000000000000053}</string>
+							<string>{0.50000000000000011, 0.10000000000000053}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.30000000000000004}</string>
+							<string>{-0.5, 0.30000000000000004}</string>
+							<string>{-0.5, 0.30000000000000004}</string>
+							<string>{0.2272727272727274, 0}</string>
+							<string>{0.2272727272727274, 0}</string>
+							<string>{0.2272727272727274, 0}</string>
+							<string>{-0.5, -0.29999999999999988}</string>
+							<string>{-0.5, -0.29999999999999988}</string>
+							<string>{-0.5, -0.29999999999999988}</string>
+							<string>{-0.5, -0.5}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.2</string>
+								<key>g</key>
+								<string>0.2</string>
+								<key>r</key>
+								<string>0.2</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Prompt</string>
+			<key>UniqueID</key>
+			<integer>12</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{72, 36}, {198, 270}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>HFlip</key>
+					<string>YES</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, -0.5}</string>
+							<string>{-0.5, -0.5}</string>
+							<string>{0.50000000000000011, -0.099999999999999978}</string>
+							<string>{0.50000000000000011, -0.099999999999999978}</string>
+							<string>{0.50000000000000011, -0.099999999999999978}</string>
+							<string>{0.50000000000000011, 0.10000000000000053}</string>
+							<string>{0.50000000000000011, 0.10000000000000053}</string>
+							<string>{0.50000000000000011, 0.10000000000000053}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.5}</string>
+							<string>{-0.5, 0.30000000000000004}</string>
+							<string>{-0.5, 0.30000000000000004}</string>
+							<string>{-0.5, 0.30000000000000004}</string>
+							<string>{0.2272727272727274, 0}</string>
+							<string>{0.2272727272727274, 0}</string>
+							<string>{0.2272727272727274, 0}</string>
+							<string>{-0.5, -0.29999999999999988}</string>
+							<string>{-0.5, -0.29999999999999988}</string>
+							<string>{-0.5, -0.29999999999999988}</string>
+							<string>{-0.5, -0.5}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.2</string>
+								<key>g</key>
+								<string>0.2</string>
+								<key>r</key>
+								<string>0.2</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Info</string>
+			<key>UniqueID</key>
+			<integer>13</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{180, 53.999999999999787}, {107.99999999999997, 234.0000000000002}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.49999999999999978, -0.5}</string>
+							<string>{-0.50000000000000222, -0.5}</string>
+							<string>{0.50000000000000289, -0.038461538461539213}</string>
+							<string>{0.50000000000000022, -0.038461538461539213}</string>
+							<string>{0.49999999999999978, -0.038461538461539213}</string>
+							<string>{0.50000000000000022, 0.038461538461537992}</string>
+							<string>{0.50000000000000022, 0.038461538461538103}</string>
+							<string>{0.50000000000000022, 0.038461538461538103}</string>
+							<string>{-0.49999999999999889, 0.5}</string>
+							<string>{-0.49999999999999889, 0.5}</string>
+							<string>{-0.49999999999999889, 0.5}</string>
+							<string>{-0.49999999999999978, 0.26923076923076794}</string>
+							<string>{-0.49999999999999978, 0.26923076923076794}</string>
+							<string>{-0.49999999999999978, 0.26923076923076794}</string>
+							<string>{0.08333333333333548, 5.5511151231257827e-16}</string>
+							<string>{0.083333333333333703, 5.5511151231257827e-16}</string>
+							<string>{0.083333333333333925, 5.5511151231257827e-16}</string>
+							<string>{-0.50000000000000222, -0.2692307692307665}</string>
+							<string>{-0.49999999999999978, -0.26923076923076578}</string>
+							<string>{-0.50000000000000222, -0.26923076923076578}</string>
+							<string>{-0.50000000000000222, -0.50000000000000033}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.2</string>
+								<key>g</key>
+								<string>0.2</string>
+								<key>r</key>
+								<string>0.2</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>More</string>
+			<key>UniqueID</key>
+			<integer>14</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {342, 342}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{342, 342}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{54.000000000000142, 36}, {233.99999999999983, 270}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, 0.033333333333333659}</string>
+							<string>{-0.5, 0.033333333333333659}</string>
+							<string>{-0.26923076923076816, 0.033333333333333659}</string>
+							<string>{-0.26923076923076816, 0.033333333333333659}</string>
+							<string>{-0.26923076923076816, 0.033333333333333659}</string>
+							<string>{-0.26923076923076911, -0.5}</string>
+							<string>{-0.26923076923076911, -0.5}</string>
+							<string>{-0.26923076923076911, -0.5}</string>
+							<string>{0.2692307692307685, -0.5}</string>
+							<string>{0.26923076923076839, -0.5}</string>
+							<string>{0.26923076923076839, -0.5}</string>
+							<string>{0.26923076923076916, 0.033333333333333659}</string>
+							<string>{0.26923076923076916, 0.033333333333333659}</string>
+							<string>{0.26923076923076916, 0.033333333333333659}</string>
+							<string>{0.5, 0.033333333333333659}</string>
+							<string>{0.5, 0.033333333333333659}</string>
+							<string>{0.5, 0.033333333333333659}</string>
+							<string>{5.5511151231257827e-16, 0.5}</string>
+							<string>{1.1102230246251565e-15, 0.5}</string>
+							<string>{5.5511151231257827e-16, 0.5}</string>
+							<string>{-0.5, 0.033333333333333659}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0</string>
+								<key>g</key>
+								<string>0.501961</string>
+								<key>r</key>
+								<string>1</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Update</string>
+			<key>UniqueID</key>
+			<integer>11</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {180, 180}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{180, 180}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{18, 54}, {144, 72}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, 0.49999999999999978}</string>
+							<string>{-0.5, 0.49999999999999978}</string>
+							<string>{-1.1102230246251565e-16, -0.5}</string>
+							<string>{-1.1102230246251565e-16, -0.5}</string>
+							<string>{-1.1102230246251565e-16, -0.5}</string>
+							<string>{0.49999999999999989, 0.49999999999999978}</string>
+							<string>{0.49999999999999989, 0.49999999999999978}</string>
+							<string>{0.49999999999999989, 0.49999999999999978}</string>
+							<string>{-0.5, 0.49999999999999978}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.4</string>
+								<key>g</key>
+								<string>0.4</string>
+								<key>r</key>
+								<string>0.4</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Find_Up</string>
+			<key>UniqueID</key>
+			<integer>9</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>ActiveLayerIndex</key>
+			<integer>0</integer>
+			<key>AutoAdjust</key>
+			<false/>
+			<key>BackgroundGraphic</key>
+			<dict>
+				<key>Bounds</key>
+				<string>{{0, 0}, {180, 180}}</string>
+				<key>Class</key>
+				<string>SolidGraphic</string>
+				<key>ID</key>
+				<integer>2</integer>
+				<key>Style</key>
+				<dict>
+					<key>shadow</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+					<key>stroke</key>
+					<dict>
+						<key>Draws</key>
+						<string>NO</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
+			<key>CanvasOrigin</key>
+			<string>{0, 0}</string>
+			<key>CanvasSize</key>
+			<string>{180, 180}</string>
+			<key>ColumnAlign</key>
+			<integer>1</integer>
+			<key>ColumnSpacing</key>
+			<real>36</real>
+			<key>DisplayScale</key>
+			<string>1 0/72 in = 1.0000 in</string>
+			<key>GraphicsList</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{18, 54}, {144, 72}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>3</integer>
+					<key>Shape</key>
+					<string>Bezier</string>
+					<key>ShapeData</key>
+					<dict>
+						<key>UnitPoints</key>
+						<array>
+							<string>{-0.5, 0.49999999999999978}</string>
+							<string>{-0.5, 0.49999999999999978}</string>
+							<string>{-1.1102230246251565e-16, -0.5}</string>
+							<string>{-1.1102230246251565e-16, -0.5}</string>
+							<string>{-1.1102230246251565e-16, -0.5}</string>
+							<string>{0.49999999999999989, 0.49999999999999978}</string>
+							<string>{0.49999999999999989, 0.49999999999999978}</string>
+							<string>{0.49999999999999989, 0.49999999999999978}</string>
+							<string>{-0.5, 0.49999999999999978}</string>
+						</array>
+					</dict>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.4</string>
+								<key>g</key>
+								<string>0.4</string>
+								<key>r</key>
+								<string>0.4</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+							<key>Fuzziness</key>
+							<real>16.049299240112305</real>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+					<key>VFlip</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>GridInfo</key>
+			<dict>
+				<key>GridSpacing</key>
+				<real>18</real>
+				<key>MajorGridSpacing</key>
+				<integer>5</integer>
+				<key>ShowsGrid</key>
+				<string>YES</string>
+				<key>SnapsToGrid</key>
+				<string>YES</string>
+			</dict>
+			<key>HPages</key>
+			<integer>1</integer>
+			<key>KeepToScale</key>
+			<false/>
+			<key>Layers</key>
+			<array>
+				<dict>
+					<key>Lock</key>
+					<string>NO</string>
+					<key>Name</key>
+					<string>Layer 1</string>
+					<key>Print</key>
+					<string>YES</string>
+					<key>View</key>
+					<string>YES</string>
+				</dict>
+			</array>
+			<key>LayoutInfo</key>
+			<dict>
+				<key>Animate</key>
+				<string>NO</string>
+				<key>circoMinDist</key>
+				<real>18</real>
+				<key>circoSeparation</key>
+				<real>0.0</real>
+				<key>layoutEngine</key>
+				<string>dot</string>
+				<key>neatoSeparation</key>
+				<real>0.0</real>
+				<key>twopiSeparation</key>
+				<real>0.0</real>
+			</dict>
+			<key>Orientation</key>
+			<integer>2</integer>
+			<key>PrintOnePage</key>
+			<false/>
+			<key>RowAlign</key>
+			<integer>1</integer>
+			<key>RowSpacing</key>
+			<real>36</real>
+			<key>SheetTitle</key>
+			<string>Find_Down</string>
+			<key>UniqueID</key>
+			<integer>10</integer>
+			<key>VPages</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>SmartAlignmentGuidesActive</key>
+	<string>NO</string>
+	<key>SmartDistanceGuidesActive</key>
+	<string>NO</string>
+	<key>UseEntirePage</key>
+	<false/>
+	<key>WindowInfo</key>
+	<dict>
+		<key>CurrentSheet</key>
+		<integer>6</integer>
+		<key>ExpandedCanvases</key>
+		<array/>
+		<key>Frame</key>
+		<string>{{630, 51}, {704, 683}}</string>
+		<key>ListView</key>
+		<true/>
+		<key>OutlineWidth</key>
+		<integer>142</integer>
+		<key>RightSidebar</key>
+		<false/>
+		<key>ShowRuler</key>
+		<true/>
+		<key>Sidebar</key>
+		<true/>
+		<key>SidebarWidth</key>
+		<integer>116</integer>
+		<key>SmallIcons</key>
+		<true/>
+		<key>VisibleRegion</key>
+		<string>{{-20, -10}, {382, 362.66666666666669}}</string>
+		<key>Zoom</key>
+		<real>1.5</real>
+		<key>ZoomValues</key>
+		<array>
+			<array>
+				<string>Book</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Undo</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Redo</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Save</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Open</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Build</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Check</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Error</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Find_Up</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Find_Down</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Update</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Prompt</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>Info</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+			<array>
+				<string>More</string>
+				<real>1.5</real>
+				<real>1</real>
+			</array>
+		</array>
+	</dict>
+</dict>
+</plist>

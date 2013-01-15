@@ -84,6 +84,10 @@ public class Repl extends JPanel {
 					}
 				}
 			} else if (e.getKeyChar() == '\n') {
+				if (input.getText().equals("")) {
+					e.consume();
+					return;
+				}
 				int parenLevel = 0;
 				for (Token t : input) {
 					if (t == null || t.type == Token.NULL) {
@@ -119,9 +123,9 @@ public class Repl extends JPanel {
 		public MsgType type;
 	}
 
-	static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/media/info.png"));
-	static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/media/prompt.png"));
-	static final ImageIcon moreIcon = new ImageIcon(Repl.class.getResource("/media/more.png"));
+	static final Icon infoIcon = new ImageIcon(Repl.class.getResource("/Icons/Info.png"));
+	static final Icon promptIcon = new ImageIcon(Repl.class.getResource("/Icons/Prompt.png"));
+	static final ImageIcon moreIcon = new ImageIcon(Repl.class.getResource("/Icons/More.png"));
 
 	public interface HeightChangeListener {
 		public void heightChanged(int delta);
@@ -137,8 +141,6 @@ public class Repl extends JPanel {
 			setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
 			setBackground(Color.WHITE);
 			setOpaque(true);
-			setMinimumSize(new Dimension(size, size));
-			setMaximumSize(new Dimension(size, Short.MAX_VALUE));
 			setPreferredSize(new Dimension(size, size));
 		}
 		public StatusLabel() {
@@ -179,7 +181,7 @@ public class Repl extends JPanel {
 	private static final long serialVersionUID = -4551996064006604257L;
 	private static final int MAX_BOTTOM_HEIGHT = 100;
 	final Acl2 acl2;
-	private final JPanel output;
+	private final JPanel output = new JPanel();
 	JScrollBar vertical;
 	final ArrayList<String> history;
 	private final CodePane definitions;
@@ -192,7 +194,7 @@ public class Repl extends JPanel {
 	private final JSplitPane split;
 	private HeightChangeListener heightChangeListener;
 	private final JPanel bottom;
-	IdeWindow parent;
+	PPWindow parent;
 	protected JButton run;
 	private int oldNeededHeight = 26;
 		
@@ -204,7 +206,7 @@ public class Repl extends JPanel {
 		SUCCESS
 	}
 	
-	public Repl(final IdeWindow parent, Acl2 newAcl2, final CodePane definitions) {
+	public Repl(final PPWindow parent, Acl2 newAcl2, final CodePane definitions) {
 		super();
 		this.parent = parent;
 		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, false);
@@ -223,7 +225,6 @@ public class Repl extends JPanel {
 		setBackground(Color.WHITE);
 		setOpaque(true);
 		history = new ArrayList<String>();
-		output = new JPanel();
 		output.setLayout(new BoxLayout(output, BoxLayout.Y_AXIS));
 		output.setBackground(Color.WHITE);
 		font = new Font("Monospaced", Font.PLAIN, 14);
@@ -238,7 +239,7 @@ public class Repl extends JPanel {
 		bottom.setBackground(Color.WHITE);
 		JLabel prompt = new StatusLabel(MsgType.INPUT);
 		input = new CodePane(null);
-		input.setDocument(new IdeDocument(null));
+		input.setDocument(new PPDocument(null, input.getCaret()));
 		prompt.addMouseListener(new MouseAdapter() {
 			@Override public void mouseClicked(MouseEvent arg0) {
 				input.requestFocus();
@@ -389,6 +390,13 @@ public class Repl extends JPanel {
 			msgs.add(new Message("Proof successful.", MsgType.SUCCESS));
 			Main.userData.addReplMsg("proofSuccess");
 		}
+		if (isTestResults(joined)) {
+			if (type == MsgType.ERROR) {
+				msgs.add(new Message("Test failed.", MsgType.ERROR));
+			} else {
+				msgs.add(new Message("Test passed.", MsgType.SUCCESS));
+			}
+		}
 		
 		List<Message> error = new ArrayList<Message>();
 		List<Message> normal = new ArrayList<Message>();
@@ -405,9 +413,12 @@ public class Repl extends JPanel {
 		return ret;
 	}
 
+	static boolean isTestResults(String joined) {
+		return joined.startsWith("DoubleCheck Test Results:");
+	}
+
 	public JPanel createSummary(String resultText, MsgType type, MouseListener ml) {
 		final JPanel line = new JPanel();
-		line.setPreferredSize(new Dimension(200, 25));
 		line.setMaximumSize(new Dimension(Short.MAX_VALUE, 25));
 		line.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 		JTextArea text = new JTextArea(resultText.trim());
@@ -423,6 +434,10 @@ public class Repl extends JPanel {
 		synchronized(fontChangeList) {
 			fontChangeList.add(status);
 			fontChangeList.add(text);
+			fontChangeList.add(line);
+			setFontAndHeight(Prefs.font.get(), status);
+			setFontAndHeight(Prefs.font.get(), text);
+			setFontAndHeight(Prefs.font.get(), line);
 		}
 
 		text.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 5));
@@ -432,13 +447,11 @@ public class Repl extends JPanel {
 		case ERROR:
 			line.setBackground(ProofBar.ERROR_COLOR);
 			status.setBackground(ProofBar.ERROR_COLOR);
-			status.setFont(status.getFont().deriveFont(18f));
 			break;
 		case INFO:
 			break;
 		case SUCCESS:
 			status.setBackground(ProofBar.ADMITTED_COLOR);
-			status.setFont(status.getFont().deriveFont(18f));
 			break;
 		case INPUT:
 			status.setForeground(Color.GRAY);
@@ -449,7 +462,6 @@ public class Repl extends JPanel {
 			status.setBackground(ProofBar.WARNING_COLOR);
 			break;
 		}
-		text.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 		line.add(text);
 		if (ml != null) {
 			line.addMouseListener(ml);
@@ -480,19 +492,22 @@ public class Repl extends JPanel {
 		if (shortResult.startsWith("ACL2 started successfully")) {
 			type = MsgType.INFO;
 		}
+		
+		final MsgType finalType = type;
 
 		MouseListener ml = null;
 		if (!shortResult.equals(result.trim())) {
 			ml = new MouseAdapter() {
 				@Override public void mouseClicked(MouseEvent arg0) {
 					// TODO: Highlight the currently selected item and reset it in Runnable after.
-					parent.outputWindow.showWithText(result, null);
+					parent.outputWindow.showWithText(result, finalType, null);
 				}
 			};
 		}
 		final JPanel line = createSummary(shortResult, type, ml);
+		
 		synchronized (this) {
-			getOutput().add(line);
+			output.add(line);
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override public void run() {
@@ -508,12 +523,20 @@ public class Repl extends JPanel {
 		if (fontChangeList == null) return;
 		synchronized (fontChangeList) {
 			for (JComponent c : fontChangeList) {
-				c.setFont(f);
+				setFontAndHeight(f, c);
 			}
 		}
+		output.repaint();
 		input.setFont(f);
 		int size = (25 - input.getLineHeight()) / 2;
 		input.setBorder(BorderFactory.createEmptyBorder(size, 10, size, size));
+	}
+
+	private void setFontAndHeight(Font f, JComponent c) {
+		c.setFont(f);
+		int newHeight = Math.max(25, getFontMetrics(f).getHeight() + 6);
+		c.setMaximumSize(new Dimension(c.getMaximumSize().width, newHeight));
+		c.setPreferredSize(new Dimension(c.getPreferredSize().width, newHeight));
 	}
 
 	public void setHeightChangeListener(HeightChangeListener heightChangeListener) {
@@ -531,6 +554,14 @@ public class Repl extends JPanel {
 				run.setEnabled(enable);
 			}
 		});
+	}
+
+	public void clearScrollback() {
+		getOutput().removeAll();
+		getOutput().repaint();
+		synchronized (fontChangeList) {
+			fontChangeList.clear();
+		}
 	}
 
 }

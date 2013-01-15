@@ -3,7 +3,6 @@ package org.proofpad;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -24,6 +23,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ToolTipManager;
 import javax.swing.event.CaretEvent;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.undo.UndoManager;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -35,54 +35,41 @@ import org.fife.ui.rtextarea.RUndoManager;
 
 public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
-	private final class LookUpListener implements ActionListener {
-		public LookUpListener() {
-			super();
+	final class LookUpListener implements ActionListener {
+		private String id;
+
+		public LookUpListener() { }
+		
+		public LookUpListener(String id) {
+			this.id = id;
+			
 		}
 
 		@Override public void actionPerformed(ActionEvent e) {
-			// First, check for a visible tooltip.
-		    ToolTipManager ttManager = ToolTipManager.sharedInstance();
-		    boolean tipShowing = false;
-		    int loc = -1;
-		    try {
-		    	Field f = ttManager.getClass().getDeclaredField("tipShowing");
-		    	f.setAccessible(true);
-		    	tipShowing = f.getBoolean(ttManager);
-		    } catch (Exception ex) {
-		    }
-		    if (tipShowing) {
-		    	Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
-		    	Point compLoc = getLocationOnScreen();
-				loc = viewToModel(new Point(mouseLoc.x - compLoc.x, mouseLoc.y - compLoc.y));
-		    } else {
-		    	loc = getCaretPosition();
-		    }
-		    if (loc == -1) {
-		    	return;
-		    }
-		    int line = 0;
-		    try {
-		    	line = getLineOfOffset(loc);
-		    } catch (BadLocationException e1) { }
-		    Token t = getTokenListForLine(line);
-		    while (t != null && t.textOffset + t.textCount < loc) {
-		    	t = t.getNextToken();
-		    }
-		    if (t != null) {
-		    	String name;
+			// First, check for a visible tool tip.
+			String name;
+			if (id == null) {
+				ToolTipManager ttManager = ToolTipManager.sharedInstance();
+				boolean tipShowing = false;
+				try {
+					Field f = ttManager.getClass().getDeclaredField("tipShowing");
+					f.setAccessible(true);
+					tipShowing = f.getBoolean(ttManager);
+				} catch (Exception ex) { }
+				if (tipShowing) {
+					name = getWordAtMouse();
+				} else {
+					name = getWordAt(getCaretPosition());
+				}
+			} else {
+				name = id;
+			}
+		    if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
 		    	try {
-		    		name = t.getLexeme();
-		    	} catch (NullPointerException ex) {
-		    		return;
-		    	}
-		    	if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
-		    		try {
-		    			Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
-		    					+ name.toUpperCase() + ".html"));
-		    		} catch (IOException e1) {
-		    		} catch (URISyntaxException e1) { }
-		    	}
+		    		Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
+		    				+ name.toUpperCase() + ".html"));
+		    	} catch (IOException e1) {
+		    	} catch (URISyntaxException e1) { }
 		    }
 		}
 	}
@@ -93,8 +80,8 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
 	private static final long serialVersionUID = 2585177201079384705L;
 	private static final int leftMargin = 2;
-	private static final String[] welcomeMessage =
-		{"See Help > Tutorial for a basic overview."};
+//	private static final String[] welcomeMessage =
+//		{"See Help > Tutorial for a basic overview."};
 	private ProofBar pb;
 	private final List<Rectangle> fullMatch = new ArrayList<Rectangle>();
 	int widthGuide = -1;
@@ -120,7 +107,9 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		scheme.getStyle(Token.SEPARATOR).foreground = Color.black;
 		setBorder(BorderFactory.createEmptyBorder(0, leftMargin, 0, 0));
 		setTabSize(4);
-		setBackground(IdeWindow.transparent);
+		ContextMenu menu = new ContextMenu(this);
+		setPopupMenu(menu);
+		setBackground(PPWindow.transparent);
 		lookUpAction = new LookUpListener();
 		addKeyListener(new KeyAdapter() {
 			@Override public void keyPressed(KeyEvent e) {
@@ -133,8 +122,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 				int readOnlyLine = 0;
 				try {
 					readOnlyLine = getLineOfOffset(pb.getReadOnlyIndex() + 2) - 1;
-				} catch (BadLocationException e1) {
-				}
+				} catch (BadLocationException e1) { }
 				if (getCaretLineNumber() == readOnlyLine + 1
 						&& e.getKeyCode() == KeyEvent.VK_UP) {
 					// Up arrow at the top of the readable area moves the cursor
@@ -167,23 +155,29 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 						|| pb.getReadOnlyIndex() == -1) {
 					return;
 				}
-				if (getCaretColor() == IdeWindow.transparent) {
-					e.consume();
-				}
 				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 					if (getCaretPosition() - 3 < pb.getReadOnlyIndex()) {
 						e.consume();
 					}
 				}
 			}
-			
-			@Override public void keyReleased(KeyEvent e) {
-				if (pb == null) return;
-				if (pb.getReadOnlyIndex() >= 0
-						&& getCaretPosition() < pb.getReadOnlyIndex() + 2) {
-					setCaretColor(IdeWindow.transparent);
-				} else {
-					setCaretColor(Color.BLACK);
+
+			@Override public void keyTyped(KeyEvent e) {
+				// Parentheses wrapping
+				int selectionStart = getSelectionStart();
+				int selectionEnd = getSelectionEnd();
+				if (e.getKeyChar() == '(' && selectionStart != selectionEnd) {
+					e.consume();
+					try {
+						SimpleAttributeSet attrSet = new SimpleAttributeSet();
+						attrSet.addAttribute("autoins", Boolean.TRUE);
+						getDocument().insertString(selectionStart, "(", attrSet);
+						getDocument().insertString(selectionEnd + 1, ")", attrSet);
+					} catch (BadLocationException e1) {
+						e1.printStackTrace();
+					}
+					setSelectionStart(selectionStart + 1);
+					setSelectionEnd(selectionEnd + 1);
 				}
 			}
 		});
@@ -216,26 +210,26 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		g.setColor(new Color(1f, 1f, 1f, .2f));
 		g.fillRect(0, 0, getWidth(), readOnlyHeight);
 		g.setColor(new Color(.4f, .4f, .4f));
-		if (getLastVisibleOffset() == 0 && !canUndo() && pb != null) {
-			// Paint welcome message.
-			g.setColor(Color.BLACK);
-			FontMetrics fm = g.getFontMetrics();
-			Font originalFont = g.getFont();
-			g.setFont(originalFont.deriveFont(originalFont.getSize() + 5.0f));
-			FontMetrics bigFm = g.getFontMetrics();
-			int lineHeight = (int) fm.getLineMetrics(welcomeMessage[0], g).getHeight() + 1;
-			int ySoFar = Math.max(0, (getHeight() - lineHeight * welcomeMessage.length) / 2);
-			g.drawString(Main.displayName,
-					(getWidth() - bigFm.stringWidth(Main.displayName) - pb.getWidth()) / 2,
-					ySoFar);
-			ySoFar += (int) bigFm.getLineMetrics(Main.displayName, g).getHeight() + 1;
-			g.setFont(originalFont);
-			for (String line : welcomeMessage) {
-				ySoFar += lineHeight;
-				g.drawString(line, (getWidth() - fm.stringWidth(line) - pb.getWidth()) / 2,
-						ySoFar);
-			}
-		}
+//		if (getLastVisibleOffset() == 0 && !canUndo() && pb != null) {
+//			// Paint welcome message.
+//			g.setColor(Color.BLACK);
+//			FontMetrics fm = g.getFontMetrics();
+//			Font originalFont = g.getFont();
+//			g.setFont(originalFont.deriveFont(originalFont.getSize() + 5.0f));
+//			FontMetrics bigFm = g.getFontMetrics();
+//			int lineHeight = (int) fm.getLineMetrics(welcomeMessage[0], g).getHeight() + 1;
+//			int ySoFar = Math.max(0, (getHeight() - lineHeight * welcomeMessage.length) / 2);
+//			g.drawString(Main.displayName,
+//					(getWidth() - bigFm.stringWidth(Main.displayName) - pb.getWidth()) / 2,
+//					ySoFar);
+//			ySoFar += (int) bigFm.getLineMetrics(Main.displayName, g).getHeight() + 1;
+//			g.setFont(originalFont);
+//			for (String line : welcomeMessage) {
+//				ySoFar += lineHeight;
+//				g.drawString(line, (getWidth() - fm.stringWidth(line) - pb.getWidth()) / 2,
+//						ySoFar);
+//			}
+//		}
 	}
 
 	public void admitBelowProofLine(String form) {
@@ -350,5 +344,38 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
 	public ActionListener getHelpAction() {
 		return lookUpAction;
+	}
+	
+	public String getWordAtMouse() {
+		Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
+		Point compLoc = getLocationOnScreen();
+		return getWordAt(new Point(mouseLoc.x - compLoc.x, mouseLoc.y - compLoc.y));
+	}
+	
+	public String getWordAt(Point p) {
+		return getWordAt(viewToModel(p));
+	}
+	
+	public String getWordAt(int loc) {
+		if (loc == -1) {
+			return null;
+		}
+		int line = 0;
+	    try {
+	    	line = getLineOfOffset(loc);
+	    } catch (BadLocationException e1) { }
+	    Token t = getTokenListForLine(line);
+	    while (t != null && t.textOffset + t.textCount < loc) {
+	    	t = t.getNextToken();
+	    }
+	    String name = null;
+	    if (t != null) {
+	    	try {
+	    		name = t.getLexeme();
+	    	} catch (NullPointerException ex) {
+	    		return null;
+	    	}
+	    }
+		return name;
 	}
 }

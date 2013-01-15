@@ -27,7 +27,7 @@ public class Toolbar extends JPanel {
 	JButton updateButton;
 	final JLabel prerelease;
 
-	public Toolbar(final IdeWindow parent) {
+	public Toolbar(final PPWindow parent) {
 		if (OSX) {
 			setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		} else {
@@ -35,14 +35,14 @@ public class Toolbar extends JPanel {
 		}
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		JButton button;
-		button = new JButton(new ImageIcon(getClass().getResource("/media/open.png")));
+		button = new JButton(new ImageIcon(getClass().getResource("/Icons/Open.png")));
 		button.setToolTipText("Open a file for editing. (" + modKeyStr + "O)");
 		button.addActionListener(OpenAction.instance);
 		button.addActionListener(new UserData.LogUse("openButton"));
 		button.putClientProperty("JButton.buttonType", "textured");
 		add(button);
 		add(Box.createHorizontalStrut(BUTTON_GAP));
-		button = new JButton(new ImageIcon(getClass().getResource("/media/save.png")));
+		button = new JButton(new ImageIcon(getClass().getResource("/Icons/Save.png")));
 		parent.saveButton = button;
 		button.setToolTipText("Save the current file. (" + modKeyStr + "S)");
 		button.addActionListener(parent.saveAction);
@@ -50,7 +50,7 @@ public class Toolbar extends JPanel {
 		button.putClientProperty("JButton.buttonType", "textured");
 		add(button);
 		add(Box.createHorizontalStrut(BUTTON_GAP * 2));
-		button = new JButton(new ImageIcon(getClass().getResource("/media/undo.png")));
+		button = new JButton(new ImageIcon(getClass().getResource("/Icons/Undo.png")));
 		button.setToolTipText("Undo the last action. (" + modKeyStr + "Z)");
 		parent.undoButton = button;
 		button.addActionListener(parent.undoAction);
@@ -62,7 +62,7 @@ public class Toolbar extends JPanel {
 		}
 		button.setEnabled(false);
 		add(button);
-		button = new JButton(new ImageIcon(getClass().getResource("/media/redo.png")));
+		button = new JButton(new ImageIcon(getClass().getResource("/Icons/Redo.png")));
 		button.setToolTipText("Redo the last action. (" + modKeyStr + (OSX ? "\u21e7Z" : "Y" ) + ")");
 		parent.redoButton = button;
 		button.addActionListener(parent.redoAction);
@@ -75,7 +75,7 @@ public class Toolbar extends JPanel {
 		button.setEnabled(false);
 		add(button);
 		add(Box.createHorizontalStrut(BUTTON_GAP * 2));
-		button = new JButton(new ImageIcon(getClass().getResource("/media/build.png")));
+		button = new JButton(new ImageIcon(getClass().getResource("/Icons/Build.png")));
 		final JButton buildButton = button;
 		buildButton.addActionListener(parent.buildAction);
 		button.addActionListener(new UserData.LogUse("buildButton"));
@@ -84,14 +84,14 @@ public class Toolbar extends JPanel {
 		button.putClientProperty("JButton.buttonType", "textured");
 		add(button);
 		add(Box.createHorizontalStrut(BUTTON_GAP * 2));
-		button = new JButton(new ImageIcon(getClass().getResource("/media/book.png")));
+		button = new JButton(new ImageIcon(getClass().getResource("/Icons/Book.png")));
 		button.setToolTipText("Include an external book.");
 		button.putClientProperty("JButton.buttonType", "textured");
 		button.addActionListener(parent.includeBookAction);
 		button.addActionListener(new UserData.LogUse("includeBookButton"));
 		add(button);
 		add(Box.createGlue());
-		button = new JButton(new ImageIcon(getClass().getResource("/media/update.png")));
+		button = new JButton(new ImageIcon(getClass().getResource("/Icons/Update.png")));
 		updateButton = button;
 		button.setToolTipText("An update is available.");
 		button.addActionListener(new ActionListener() {

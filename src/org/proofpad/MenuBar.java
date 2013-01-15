@@ -50,7 +50,7 @@ public class MenuBar extends JMenuBar {
 	JMenu recentMenu;
 	JMenuItem parentItem;
 
-	public MenuBar(final IdeWindow parent) {
+	public MenuBar(final PPWindow parent) {
 		this.parent = parent;
 		
 		final ActionListener prefsAction = new ActionListener() {
@@ -63,7 +63,7 @@ public class MenuBar extends JMenuBar {
 		JMenuItem item = new JMenuItem("New");
 		item.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				IdeWindow window = new IdeWindow();
+				PPWindow window = new PPWindow();
 				window.setVisible(true);
 			}
 		});
@@ -90,7 +90,7 @@ public class MenuBar extends JMenuBar {
 		item.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
 				if (parent != null && parent.promptIfUnsavedAndClose()) {
-					IdeWindow.updateWindowMenu();
+					PPWindow.updateWindowMenu();
 				}
 			}
 		});
@@ -117,7 +117,7 @@ public class MenuBar extends JMenuBar {
 			} else {
 				item.addActionListener(new ActionListener(){
 					@Override public void actionPerformed(ActionEvent e) {
-						IdeWindow dupWin = new IdeWindow(parent.editor.getText());
+						PPWindow dupWin = new PPWindow(parent.editor.getText());
 						dupWin.setVisible(true);
 					}
 				});
@@ -156,9 +156,7 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(new ActionListener() {
 				@Override public void actionPerformed(ActionEvent e) {
 					new UserData.LogUse("quitMenuItem").actionPerformed(e);
-					for (IdeWindow w : IdeWindow.windows) {
-						w.promptIfUnsavedAndClose();
-					}
+					Main.quit();
 				}
 			});
 			if (!WIN) {
@@ -568,7 +566,7 @@ public class MenuBar extends JMenuBar {
 			JMenuItem item = new JMenuItem(file.getName());
 			item.addActionListener(new ActionListener() {
 				@Override public void actionPerformed(ActionEvent e) {
-					new IdeWindow(file).setVisible(true);
+					new PPWindow(file).setVisible(true);
 				}
 			});
 			item.addActionListener(new UserData.LogUse("recentFileMenuItem"));
@@ -583,7 +581,7 @@ public class MenuBar extends JMenuBar {
 				for (int i = 1; i <= RECENT_MENU_ITEMS; i++) {
 					prefs.remove("recent" + i);
 				}
-				for (IdeWindow w : IdeWindow.windows) {
+				for (PPWindow w : PPWindow.windows) {
 					w.menuBar.updateRecentMenu();
 				}
 			}
@@ -620,12 +618,12 @@ public class MenuBar extends JMenuBar {
 		});
 		item.addActionListener(new UserData.LogUse("zoomMenuItem"));
 		windowMenu.add(item);
-		if (IdeWindow.windows.size() <= 0) {
+		if (PPWindow.windows.size() <= 0) {
 			return;
 		}
 		windowMenu.addSeparator();
 		final ButtonGroup winItems = new ButtonGroup();
-		for (final IdeWindow win : IdeWindow.windows) {
+		for (final PPWindow win : PPWindow.windows) {
 			JRadioButtonMenuItem winItem = new JRadioButtonMenuItem(win.getTitle(), win.isFocused());
 			winItems.add(winItem);
 			if (win == parent) {

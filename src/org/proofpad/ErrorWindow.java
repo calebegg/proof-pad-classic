@@ -80,7 +80,7 @@ public class ErrorWindow extends JDialog {
 						opts,
 						opts[1]);
 				if (choice == JOptionPane.OK_OPTION) {
-					Main.quit();
+					Main.saveUserDataAndExit();
 				}
 				
 			}

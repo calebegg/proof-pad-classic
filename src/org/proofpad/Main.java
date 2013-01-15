@@ -19,7 +19,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -48,21 +47,23 @@ import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class Main {
 	public static final String displayName = "Proof Pad";
-	public static final int RELEASE = 2;
+	public static final int RELEASE = 3;
 	public static final Border WINDOW_BORDER = BorderFactory.createEmptyBorder(4, 4, 4, 4);
 	public static final boolean OSX = System.getProperty("os.name").indexOf("Mac") != -1;
 	public static final boolean WIN =
 	System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
 	public static final boolean JAVA_7 = System.getProperty("java.version").startsWith("1.7");
 	
-	private static String userDataPath = new File(getJarPath()).getParent() +
+	static final String SESSION_PATH = new File(getJarPath()).getParent() +
+			System.getProperty("file.separator") + "saved_session.dat";
+	static final String USER_DATA_PATH = new File(getJarPath()).getParent() +
 			System.getProperty("file.separator") +
 			"user_data.dat";
     public static final String UPLOAD_URL = "http://www.calebegg.com/ppuserdata";
 	public static UserData userData = null;
 	static {
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(userDataPath));
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(USER_DATA_PATH));
 			userData = (UserData) ois.readObject();
 			ois.close();
 		} catch (Exception e) {
@@ -71,7 +72,6 @@ public class Main {
 		if (userData == null) {
 			userData = new UserData();
 		}
-		System.out.println(userData);
 	}
 	
 	public static boolean startingUp = true;
@@ -82,7 +82,7 @@ public class Main {
 
 	public static MenuBar menuBar;
 	
-	public static void main(String[] args) throws FileNotFoundException, IOException,
+	public static void main(final String[] args) throws FileNotFoundException, IOException,
 			ClassNotFoundException {
 		logtime("Starting main");
 		// http://java.net/jira/browse/MACOSX_PORT-764
@@ -114,8 +114,7 @@ public class Main {
 			app.setOpenFileHandler(new OpenFilesHandler() {
 				@Override public void openFiles(OpenFilesEvent e) {
 					for (Object file : e.getFiles()) {
-						IdeWindow win = new IdeWindow((File) file);
-						win.setVisible(true);
+						PPWindow.createOrReuse((File) file);
 					}
 				}
 			});
@@ -127,16 +126,7 @@ public class Main {
 			app.setQuitHandler(new QuitHandler() {
 				@Override public void handleQuitRequestWith(QuitEvent qe,
 						QuitResponse qr) {
-					for (Iterator<IdeWindow> ii = IdeWindow.windows.iterator(); ii.hasNext();) {
-						IdeWindow win = ii.next();
-						if (!win.promptIfUnsavedAndQuit(ii)) {
-							break;
-						}
-					}
-					IdeWindow.updateWindowMenu();
-					if (IdeWindow.windows.size() <= 0) {
-						quit();
-					} else {
+					if (!quit()) {
 						qr.cancelQuit();
 					}
 				}
@@ -148,18 +138,18 @@ public class Main {
 			});
 			app.addAppEventListener(new AppForegroundListener() {
 				@Override public void appMovedToBackground(AppForegroundEvent arg0) {
-					if (IdeWindow.windows.size() == 0 && !startingUp) {
-						Main.quit();
+					if (PPWindow.windows.size() == 0 && !startingUp) {
+						quit();
 					}
 				}
 				@Override public void appRaisedToForeground(AppForegroundEvent arg0) {}
 			});
 			app.addAppEventListener(new AppReOpenedListener() {
 				@Override public void appReOpened(AppReOpenedEvent arg0) {
-					if (IdeWindow.windows.size() == 0 && !startingUp) {
+					if (PPWindow.windows.size() == 0 && !startingUp) {
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override public void run() {
-								new IdeWindow().setVisible(true);
+								new PPWindow().setVisible(true);
 							}
 						});
 					}
@@ -168,12 +158,14 @@ public class Main {
 			if (!FAKE_WINDOWS) {
 				menuBar = new MenuBar(null);
 				// http://java.net/jira/browse/MACOSX_PORT-775
-				// app.setDefaultMenuBar(menuBar);
+				if (!JAVA_7) {
+					app.setDefaultMenuBar(menuBar);
+				}
 				PopupMenu dockMenu = new PopupMenu();
 				MenuItem item = new MenuItem("New");
 				item.addActionListener(new ActionListener() {
 					@Override public void actionPerformed(ActionEvent e) {
-						IdeWindow ide = new IdeWindow();
+						PPWindow ide = new PPWindow();
 						ide.setVisible(true);
 					}
 				});
@@ -184,10 +176,16 @@ public class Main {
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override public void run() {
-				logtime("Start creating main window");
-				final Preferences prefs = Preferences.userNodeForPackage(Main.class);
-				if (IdeWindow.windows.isEmpty()) {
-					IdeWindow win = new IdeWindow();
+				logtime("Start restoring session");
+				if (Prefs.saveSession.get()) {
+					tryToRestoreSession();
+				}
+				logtime("Session restore complete.");
+				for (String arg : args) {
+					new PPWindow(new File(arg)).setVisible(true);
+				}
+				if (PPWindow.windows.isEmpty()) {
+					PPWindow win = new PPWindow();
 					startingUp = false;
 					win.setVisible(true);
 				} else {
@@ -197,41 +195,49 @@ public class Main {
 				Date now = new Date();
 				Date oneWeekAgo = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
 				if (userData.recordingStart.before(oneWeekAgo)) {
-					int alwaysSend = prefs.getInt("alwaysSend", 0);
-					if (alwaysSend > 0) {
-						if (alwaysSend == 1) {
-							sendUserData();
-						}
-						return;
-					}
-					JCheckBox saveAction = new JCheckBox("Do the same thing every week");
-					Object[] params = {"<html>You've been using Proof Pad for one week. In order to " +
-							"<br />continually improve Proof Pad, we ask that you volunteer your " +
-							"<br />anonymous usage and error data.</html>", saveAction};
-					Object[] options = { "Send data", "Don't send" };
-					int shouldSend = JOptionPane.showOptionDialog(null, params, "",
-							JOptionPane.YES_NO_OPTION,
-							JOptionPane.QUESTION_MESSAGE,
-							null,
-							options,
-							options[0]
-							);
-					if (saveAction.isSelected()) {
-						prefs.putInt("alwaysSend", shouldSend == JOptionPane.YES_OPTION ? 1 : 2);
-					}
-					if (shouldSend == JOptionPane.YES_OPTION) {
-						sendUserData();
-					}
+					promptAndSendUserData();
 				}
 			}
 		});
 	}
 	
-	protected static void quit() {
+	static boolean quit() {
+		boolean needToCloseWindows = true;
+		if (Prefs.saveSession.get()) {
+			needToCloseWindows = false;
+			Session session = new Session(PPWindow.windows);
+			ObjectOutputStream oos;
+			try {
+				oos = new ObjectOutputStream(new FileOutputStream(
+						SESSION_PATH));
+				oos.writeObject(session);
+				oos.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				needToCloseWindows = true;
+			}
+		}
+		if (needToCloseWindows) {
+			for (Iterator<PPWindow> ii = PPWindow.windows.iterator(); ii.hasNext();) {
+				PPWindow win = ii.next();
+				if (!win.promptIfUnsavedAndQuit(ii)) {
+					break;
+				}
+			}
+		}
+		PPWindow.updateWindowMenu();
+		if (!needToCloseWindows || PPWindow.windows.size() <= 0) {
+			saveUserDataAndExit();
+			return true;
+		}
+		return false;
+	}
+	
+	protected static void saveUserDataAndExit() {
 		ObjectOutputStream oos;
 //		System.out.println("Quitting");
 		try {
-			oos = new ObjectOutputStream(new FileOutputStream(userDataPath));
+			oos = new ObjectOutputStream(new FileOutputStream(USER_DATA_PATH));
 			oos.writeObject(userData);
 			oos.close();
 		} catch (Exception e) {
@@ -242,8 +248,6 @@ public class Main {
 	
 	static String getJarPath() {
 		try {
-			System.out.println(URLDecoder.decode(Main.class.getProtectionDomain().getCodeSource().getLocation()
-					.getPath(), "UTF-8"));
 			return URLDecoder.decode(Main.class.getProtectionDomain().getCodeSource().getLocation()
 							.getPath(), "UTF-8");
 		} catch (UnsupportedEncodingException e) { }
@@ -294,5 +298,52 @@ public class Main {
 				}
 			}
 		}).start();
+	}
+
+	static void promptAndSendUserData() {
+		int alwaysSend = Prefs.alwaysSend.get();
+		if (alwaysSend != Prefs.Codes.ASK_EVERY_TIME) {
+			if (alwaysSend == Prefs.Codes.ALWAYS_SEND) {
+				sendUserData();
+			}
+			return;
+		}
+		JCheckBox saveAction = new JCheckBox("Do the same thing every week");
+		Object[] params = {"<html>You've been using Proof Pad for one week. In order to " +
+				"<br />continually improve Proof Pad, we ask that you volunteer your " +
+				"<br />anonymous usage and error data.</html>", saveAction};
+		Object[] options = { "Send data", "Don't send" };
+		int shouldSend = JOptionPane.showOptionDialog(null, params, "",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				options[0]
+				);
+		if (saveAction.isSelected()) {
+			Prefs.alwaysSend
+					.set(shouldSend == JOptionPane.YES_OPTION ? Prefs.Codes.ALWAYS_SEND
+							: Prefs.Codes.NEVER_SEND);
+		}
+		if (shouldSend == JOptionPane.YES_OPTION) {
+			sendUserData();
+		}
+	}
+
+	static void tryToRestoreSession() {
+		if (!new File(SESSION_PATH).exists()) return;
+		try {
+			ObjectInputStream sessionRestoreStream = new ObjectInputStream(
+					new FileInputStream(SESSION_PATH));
+			Session session = (Session) sessionRestoreStream.readObject();
+			sessionRestoreStream.close();
+			session.restore();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Prefs.saveSession.set(false);
+			JOptionPane.showMessageDialog(null, "Failed to restore from saved session. " +
+					"Session saving has been turned off to prevent any future data loss.",
+					"Session restore failed", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }

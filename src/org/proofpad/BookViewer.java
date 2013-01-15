@@ -65,7 +65,7 @@ public class BookViewer extends JFrame {
 		}
 	}
 	
-	public BookViewer(final IdeWindow parent) {
+	public BookViewer(final PPWindow parent) {
 		super("Include a book");
 		String acl2Dir = new File(parent.acl2.getAcl2Path()).getParent();
 		systemPath = acl2Dir + "/books";
@@ -78,14 +78,14 @@ public class BookViewer extends JFrame {
 		getContentPane().setLayout(bl);
 		getRootPane().setBorder(Main.WINDOW_BORDER);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Books");
-		DefaultMutableTreeNode sysBooks =
-				nodeFromFile(new File(systemPath), SYSTEM_BOOKS_SYMBOL, 10);
-		sysBooks.setUserObject(SYSTEM_BOOKS_SYMBOL);
-		root.add(sysBooks);
 		DefaultMutableTreeNode dracula =
 				nodeFromFile(new File(draculaPath), DRACULA_SYMBOL, 10);
 		dracula.setUserObject(":teachpacks");
 		root.add(dracula);
+		DefaultMutableTreeNode sysBooks =
+				nodeFromFile(new File(systemPath), SYSTEM_BOOKS_SYMBOL, 10);
+		sysBooks.setUserObject(SYSTEM_BOOKS_SYMBOL);
+		root.add(sysBooks);
 		final JTree tree = new JTree(root);
 		for (int i = tree.getRowCount(); i > 0; i--) {
 			tree.expandRow(i);
@@ -107,6 +107,7 @@ public class BookViewer extends JFrame {
 					BookView bv = (BookView) last.getUserObject();
 					if (bv.isBook()) {
 						parent.includeBookAtCursor(bv.getDirSymbol(), bv.getPath());
+						dispose();
 					}
 				}
 			}

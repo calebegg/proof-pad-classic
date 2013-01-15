@@ -27,17 +27,11 @@ class OpenAction implements ActionListener {
 			String filename = fd.getFile();
 			file = filename == null ? null : new File(fd.getDirectory(), filename);
 		} else {
-			int response = IdeWindow.fc.showOpenDialog(null);
-			file = response == JFileChooser.APPROVE_OPTION ? IdeWindow.fc.getSelectedFile() : null;
+			int response = PPWindow.fc.showOpenDialog(null);
+			file = response == JFileChooser.APPROVE_OPTION ? PPWindow.fc.getSelectedFile() : null;
 		}
 		if (file != null) {
-			IdeWindow window = new IdeWindow(file);
-			if (IdeWindow.windows.size() == 1 &&
-					IdeWindow.windows.get(0).isSaved &&
-					IdeWindow.windows.get(0).openFile == null) {
-				IdeWindow.windows.get(0).promptIfUnsavedAndClose();
-			}
-			window.setVisible(true);
+			PPWindow.createOrReuse(file);
 		}
 	}
 }

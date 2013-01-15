@@ -23,7 +23,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -48,6 +47,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.proofpad.Prefs.BooleanPref;
 
 public class PrefsWindow extends JDialog {
 
@@ -79,7 +80,6 @@ public class PrefsWindow extends JDialog {
 	
 	private static final long serialVersionUID = -5097145621288246384L;
 	private static PrefsWindow instance = null;
-	static Preferences prefs = Preferences.userNodeForPackage(Main.class);
 	private static List<FontChangeListener> fontChangeListeners =
 			new LinkedList<FontChangeListener>();
 	private static List<WidthGuideChangeListener> widthGuideChangeListeners =
@@ -95,13 +95,13 @@ public class PrefsWindow extends JDialog {
 		}
 		return instance;
 	}
-	
+
 	private PrefsWindow() {
 		super((JFrame)null, "Settings");
 		final PrefsWindow that = this;
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(4, 25, 4, 25));
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
-		final int widthGuide = prefs.getInt("widthguide", 60);
+		final int widthGuide = Prefs.widthGuide.get();
 		setResizable(false);
 		getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "HIDE");
 		getRootPane().getActionMap().put("HIDE", new AbstractAction() {
@@ -152,9 +152,11 @@ public class PrefsWindow extends JDialog {
 		c.anchor = GridBagConstraints.LINE_END;
 		add(new JLabel("Font:"), c);
 		c.gridx = 1;
+		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.anchor = GridBagConstraints.LINE_START;
 		add(fontPicker, c);
 		
+		c.gridwidth = 1;
 		c.gridx = 0;
 		c.gridy++;
 		c.anchor = GridBagConstraints.LINE_END;
@@ -206,7 +208,7 @@ public class PrefsWindow extends JDialog {
 		c.gridx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = new Insets(formSpacing, formSpacing, 0, formSpacing);
-		final JCheckBox showGuide = new JCheckBox("Show a width guide");
+		JCheckBox showGuide = new JCheckBox("Show a width guide at");
 		final JSpinner guideSpinner = new JSpinner(
 				new SpinnerNumberModel(widthGuide == -1 ? 60 : widthGuide, 40, 120, 10));
 		guideSpinner.setEnabled(widthGuide != -1);
@@ -214,7 +216,7 @@ public class PrefsWindow extends JDialog {
 		showGuide.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (showGuide.isSelected()) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
 					fireWidthGuideChangeEvent(60);
 					guideSpinner.setEnabled(true);	
 					guideSpinner.setValue(60);
@@ -225,7 +227,8 @@ public class PrefsWindow extends JDialog {
 			}
 		});
 		add(showGuide, c);
-		c.gridy++;
+
+		c.gridx++;
 		guideSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -234,76 +237,8 @@ public class PrefsWindow extends JDialog {
 		});
 		guideSpinner.setEditor(new JSpinner.NumberEditor(guideSpinner));
 		add(guideSpinner, c);
-		
-		c.gridx = 0;
-		c.gridy++;
-		
-		add(new JLabel("Usage data:"), c);
-		c.gridx = 1;
-		final String[] opts = { "Ask every time", "Always send", "Never send" };
-		final JComboBox usageData = new JComboBox(opts);
-		usageData.setSelectedIndex(Prefs.alwaysSend.get());
-		usageData.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				switch (usageData.getSelectedIndex()) {
-				case 0:
-					Prefs.alwaysSend.set(Prefs.Codes.ASK_EVERY_TIME);
-					break;
-				case 1:
-					Prefs.alwaysSend.set(Prefs.Codes.ALWAYS_SEND);
-					break;
-				case 2:
-					Prefs.alwaysSend.set(Prefs.Codes.NEVER_SEND);
-					break;
-				}
-				Prefs.alwaysSend.set(usageData.getSelectedIndex());
-			}
-		});
-		add(usageData, c);
-				
-		c.gridy++;
-		c.gridx = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridwidth = GridBagConstraints.REMAINDER;
-		add(new Separator(), c);
-		c.gridwidth = GridBagConstraints.NONE;
-
-		c.gridx = 1;
-		c.gridy++;
-		final JCheckBox showErrors = new JCheckBox("Highlight potential errors with a red underline");
-		showErrors.setSelected(Prefs.showErrors.get());
-		showErrors.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent arg0) {
-				Prefs.showErrors.set(showErrors.isSelected());
-			}
-		});
-		add(showErrors, c);
-
-		c.gridx = 1;
-		c.gridy++;
-		final JCheckBox incSearch = new JCheckBox("Find as you type");
-		incSearch.setSelected(prefs.getBoolean("incsearch", true));
-		incSearch.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				prefs.putBoolean("incsearch", incSearch.isSelected());
-			}
-		});
-		add(incSearch, c);
-		
-		c.gridx = 1;
-		c.gridy++;
-		final JCheckBox showLineNums = new JCheckBox("Show line numbers");
-		showLineNums.setSelected(prefs.getBoolean("linenums", false));
-		showLineNums.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent arg0) {
-				fireShowLineNumbersEvent(showLineNums.isSelected());
-			}
-		});
-		add(showLineNums, c);
+		c.gridx++;
+		add(new JLabel("characters."), c);
 		
 		c.gridx = 1;
 		c.gridy++;
@@ -321,6 +256,55 @@ public class PrefsWindow extends JDialog {
 			}
 		});
 		add(showToolbar, c);
+		
+		c.gridy++;
+		c.gridx = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		add(new Separator(), c);
+		c.gridwidth = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.NONE;
+		
+		c.gridx = 1;
+		c.gridy++;
+		JCheckBox showErrors = new JCheckBox("Highlight potential errors with a red underline");
+		showErrors.setSelected(Prefs.showErrors.get());
+		showErrors.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				Prefs.showErrors.set(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		add(showErrors, c);
+
+		c.gridx = 1;
+		c.gridy++;
+		JCheckBox incSearch = new JCheckBox("Find as you type");
+		incSearch.setSelected(Prefs.incSearch.get());
+		incSearch.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				Prefs.incSearch.set(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		add(incSearch, c);
+		
+		c.gridx = 1;
+		c.gridy++;
+		JCheckBox showLineNums = new JCheckBox("Show line numbers");
+		showLineNums.setSelected(Prefs.showLineNumbers.get());
+		showLineNums.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				fireShowLineNumbersEvent(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		add(showLineNums, c);
+		
+		c.gridx = 1;
+		c.gridy++;
+		final JCheckBox autoMatch = makeCheckboxForPref(Prefs.autoClose, "Smart match parentheses");
+		add(autoMatch, c);
 		
 		c.gridx = 0;
 		c.gridy++;
@@ -353,7 +337,7 @@ public class PrefsWindow extends JDialog {
 		useBuiltinAcl2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				prefs.putBoolean("customacl2", false);
+				Prefs.customAcl2.set(false);
 				acl2Browse.setEnabled(false);
 				acl2Path.setEnabled(false);
 				info.setText(String.format(htmlTemplate, "gray", infoText));
@@ -363,14 +347,14 @@ public class PrefsWindow extends JDialog {
 		useCustomAcl2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("customacl2", true);
+				Prefs.customAcl2.set(true);
 				acl2Browse.setEnabled(true);
 				acl2Path.setEnabled(true);
 				info.setText(String.format(htmlTemplate, "black", infoText));
 			}
 		});
 		
-		boolean customAcl2Enabled = prefs.getBoolean("customacl2", false);
+		boolean customAcl2Enabled = Prefs.customAcl2.get();
 		acl2Browse.setEnabled(customAcl2Enabled);
 		acl2Path.setEnabled(customAcl2Enabled);
 		useBuiltinAcl2.setSelected(!customAcl2Enabled);
@@ -379,7 +363,7 @@ public class PrefsWindow extends JDialog {
 		acl2Path.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent arg0) {
-				prefs.put("acl2Path", acl2Path.getText());
+				Prefs.acl2Path.set(acl2Path.getText());
 			}
 		});
 		acl2Browse.addActionListener(new ActionListener() {
@@ -391,7 +375,7 @@ public class PrefsWindow extends JDialog {
 				try {
 					path = new File(fc.getDirectory(), fc.getFile())
 							.getAbsolutePath();
-					prefs.put("acl2Path", path);
+					Prefs.acl2Path.set(path);
 					acl2Path.setText(path);
 				} catch (Exception e) { }
 			}
@@ -417,6 +401,41 @@ public class PrefsWindow extends JDialog {
 		c.gridx = 1;
 		c.gridy++;
 		add(info, c);
+		
+		c.gridy++;
+		c.gridx = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		add(new Separator(), c);
+		c.gridwidth = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.NONE;
+		
+		c.gridx = 0;
+		c.gridy++;
+		add(new JLabel("Usage data:"), c);
+		c.gridx = 1;
+		final String[] opts = { "Ask every time", "Always send", "Never send" };
+		final JComboBox usageData = new JComboBox(opts);
+		usageData.setSelectedIndex(Prefs.alwaysSend.get());
+		usageData.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				switch (usageData.getSelectedIndex()) {
+				case 0:
+					Prefs.alwaysSend.set(Prefs.Codes.ASK_EVERY_TIME);
+					break;
+				case 1:
+					Prefs.alwaysSend.set(Prefs.Codes.ALWAYS_SEND);
+					break;
+				case 2:
+					Prefs.alwaysSend.set(Prefs.Codes.NEVER_SEND);
+					break;
+				}
+				Prefs.alwaysSend.set(usageData.getSelectedIndex());
+			}
+		});
+		add(usageData, c);
+				
 		
 		///// Close button /////
 		c.gridx = 1;
@@ -447,45 +466,58 @@ public class PrefsWindow extends JDialog {
 		});
 		setMinimumSize(new Dimension(500, 1));
 		pack();
-		acl2Path.setText(prefs.get("acl2Path", ""));
+		acl2Path.setText(Prefs.acl2Path.get());
 		setLocationRelativeTo(null);
+	}
+
+	private static JCheckBox makeCheckboxForPref(final BooleanPref pref, String text) {
+		JCheckBox checkBox = new JCheckBox(text);
+		checkBox.setSelected(pref.get());
+		checkBox.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				pref.set(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		return checkBox;
 	}
 
 
 	public static void addFontChangeListener(FontChangeListener fcl) {
 		fontChangeListeners.add(fcl);
-		fcl.fontChanged(getPrefFont());
+		fcl.fontChanged(Prefs.font.get());
 	}
 	public static void addWidthGuideChangeListener(WidthGuideChangeListener wgcl) {
 		widthGuideChangeListeners.add(wgcl);
-		wgcl.widthGuideChanged(prefs.getInt("widthguide", 60));
+		wgcl.widthGuideChanged(Prefs.widthGuide.get());
 	}
 	public static void addToolbarVisibleListener(ToolbarVisibleListener tvl) {
 		toolbarVisibleListeners.add(tvl);
-		tvl.toolbarVisible(prefs.getBoolean("toolbarvisible", true));
+		tvl.toolbarVisible(Prefs.showToolbar.get());
 	}
 	public static void addShowLineNumbersListener(ShowLineNumbersListener showLineNumbersListener) {
 		showLineNumbersListeners .add(showLineNumbersListener);
-		showLineNumbersListener.lineNumbersVisible(prefs.getBoolean("linenums", false));
+		showLineNumbersListener.lineNumbersVisible(Prefs.showLineNumbers.get());
 	}
 	
 	protected static void fireWidthGuideChangeEvent(int value) {
 		for (WidthGuideChangeListener wgcl : widthGuideChangeListeners) {
 			wgcl.widthGuideChanged(value);
 		}
-		prefs.putInt("widthguide", value);
+		Prefs.widthGuide.set(value);
 	}
+	
 	protected static void fireFontChangeEvent() {
 		for (FontChangeListener fcl : fontChangeListeners) {
 			fcl.fontChanged(Prefs.font.get());
 		}
 	}
+	
 	protected static void toggleToolbarVisible() {
 		boolean visible = !Prefs.showToolbar.get();
 		for (ToolbarVisibleListener tvl : toolbarVisibleListeners) {
 			tvl.toolbarVisible(visible);
 		}
-		prefs.putBoolean("toolbarvisible", visible);
 		Prefs.showToolbar.set(visible);
 	}
 
@@ -493,21 +525,7 @@ public class PrefsWindow extends JDialog {
 		for (ShowLineNumbersListener slnl : showLineNumbersListeners) {
 			slnl.lineNumbersVisible(selected);
 		}
-		prefs.putBoolean("linenums", selected);
-	}
-
-	private static Font getPrefFont() {
-		int fontSize = Prefs.fontSize.get();
-		String defaultFamily;
-		if (Main.OSX) {
-			defaultFamily = "Monaco";
-		} else if (Main.WIN) {
-			defaultFamily = "Consolas";
-		} else {
-			defaultFamily = "monospaced";
-		}
-		String fontFamily = prefs.get("fontfamily", defaultFamily);
-		return new Font(fontFamily, Font.PLAIN, fontSize);
+		Prefs.showLineNumbers.set(selected);
 	}
 
 }

@@ -7,7 +7,7 @@ import javax.swing.text.BadLocationException;
 
 public class Utils {
 	public static void reindent(CodePane editor) {
-		final IdeDocument doc = (IdeDocument) editor.getDocument();
+		final PPDocument doc = (PPDocument) editor.getDocument();
 		int beginLine, endLine;
 		try {
 			beginLine = editor.getLineOfOffset(editor.getSelectionStart());

@@ -31,10 +31,10 @@ public class MoreBar extends JComponent {
 	long rotateStart;
 
 	List<ExpData> data;
-	private final IdeWindow win;
+	private final PPWindow win;
 	private int scrollbarVal;
 	
-	public MoreBar(final IdeWindow win) {
+	public MoreBar(final PPWindow win) {
 		super();
 		this.win = win;
 		setPreferredSize(new Dimension(width, 0));
@@ -154,13 +154,14 @@ public class MoreBar extends JComponent {
 	}
 	
 	public void selectExpression(ExpData ex) {
-		if (selectedIdx == ex.exp.expNum) {
+		if (ex == null || selectedIdx == ex.exp.expNum) {
 			oldIdx = selectedIdx;
 			selectedIdx = -1;
 			win.outputWindow.hideWindow();
 		} else {
 			if (!win.isVisible()) return;
-			win.outputWindow.showWithText(ex.output, new Runnable() {
+			if (ex.output.isEmpty()) return;
+			win.outputWindow.showWithText(ex.output, ex.type, new Runnable() {
 				@Override
 				public void run() {
 					selectedIdx = -1;

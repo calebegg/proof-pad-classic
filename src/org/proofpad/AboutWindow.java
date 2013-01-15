@@ -112,7 +112,8 @@ public class AboutWindow extends JDialog {
 
 	private static final long serialVersionUID = 2263577634446940344L;
 
-	public static final Icon icon128 = new ImageIcon("media/icon.iconset/icon_128x128.png");
+	public static final Icon icon128 = new ImageIcon(
+			AboutWindow.class.getResource("/icon.iconset/icon_128x128.png"));
 
 	int widthFor(Font font, int chars) {
 		char[] line = new char[chars];
@@ -127,7 +128,7 @@ public class AboutWindow extends JDialog {
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		getRootPane().setBorder(Main.WINDOW_BORDER);
 		JLabel label = new JLabel();
-		label.setIcon(icon128);
+		if (icon128 != null) label.setIcon(icon128);
 		label.setAlignmentX(CENTER_ALIGNMENT);
 		add(label);
 		add(Box.createVerticalStrut(6));
