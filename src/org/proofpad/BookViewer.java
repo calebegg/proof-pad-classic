@@ -1,4 +1,3 @@
-
 package org.proofpad;
 
 import java.awt.BorderLayout;
@@ -30,8 +29,8 @@ public class BookViewer extends JFrame {
 	private static final long serialVersionUID = 1276853161919844567L;
 	
 	private class BookView {
-		private final File f;
-		private final String symbol;
+		private File f;
+		private String symbol;
 		public BookView(File f, String symbol) {
 			this.f = f;
 			this.symbol = symbol;
@@ -55,7 +54,7 @@ public class BookViewer extends JFrame {
 			} else {
 				pathLen = 0;
 			}
-			if (Main.WIN) {
+			if (IdeWindow.WIN) {
 				path = path.replace("\\", "/");
 			}
 			return path.substring(pathLen, path.length() - 5);
@@ -65,9 +64,9 @@ public class BookViewer extends JFrame {
 		}
 	}
 	
-	public BookViewer(final PPWindow parent) {
+	public BookViewer(final IdeWindow parent) {
 		super("Include a book");
-		String acl2Dir = new File(parent.acl2.getAcl2Path()).getParent();
+		String acl2Dir = new File(parent.acl2.acl2Path).getParent();
 		systemPath = acl2Dir + "/books";
 		draculaPath =  acl2Dir + "/dracula";
 		System.out.println(systemPath);
@@ -78,14 +77,14 @@ public class BookViewer extends JFrame {
 		getContentPane().setLayout(bl);
 		getRootPane().setBorder(Main.WINDOW_BORDER);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Books");
-		DefaultMutableTreeNode dracula =
-				nodeFromFile(new File(draculaPath), DRACULA_SYMBOL, 10);
-		dracula.setUserObject(":teachpacks");
-		root.add(dracula);
 		DefaultMutableTreeNode sysBooks =
 				nodeFromFile(new File(systemPath), SYSTEM_BOOKS_SYMBOL, 10);
 		sysBooks.setUserObject(SYSTEM_BOOKS_SYMBOL);
 		root.add(sysBooks);
+		DefaultMutableTreeNode dracula =
+				nodeFromFile(new File(draculaPath), DRACULA_SYMBOL, 10);
+		dracula.setUserObject(":teachpacks");
+		root.add(dracula);
 		final JTree tree = new JTree(root);
 		for (int i = tree.getRowCount(); i > 0; i--) {
 			tree.expandRow(i);
@@ -107,7 +106,6 @@ public class BookViewer extends JFrame {
 					BookView bv = (BookView) last.getUserObject();
 					if (bv.isBook()) {
 						parent.includeBookAtCursor(bv.getDirSymbol(), bv.getPath());
-						dispose();
 					}
 				}
 			}
@@ -139,14 +137,14 @@ public class BookViewer extends JFrame {
 			}
 		});
 		buttons.add(Box.createGlue());
-		if (Main.OSX) {
+		if (IdeWindow.OSX) {
 			buttons.add(cancel);
 			buttons.add(include);
 		} else {
 			buttons.add(include);
 			buttons.add(cancel);
 		}
-		add(buttons, BorderLayout.PAGE_END);
+		add(buttons, BorderLayout.SOUTH);
 		setPreferredSize(new Dimension(300, 600));
 		pack();
 		setLocationRelativeTo(parent);
