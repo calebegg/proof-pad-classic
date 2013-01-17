@@ -29,8 +29,8 @@ public class BookViewer extends JFrame {
 	private static final long serialVersionUID = 1276853161919844567L;
 	
 	private class BookView {
-		private File f;
-		private String symbol;
+		private final File f;
+		private final String symbol;
 		public BookView(File f, String symbol) {
 			this.f = f;
 			this.symbol = symbol;
@@ -54,7 +54,7 @@ public class BookViewer extends JFrame {
 			} else {
 				pathLen = 0;
 			}
-			if (IdeWindow.WIN) {
+			if (Main.WIN) {
 				path = path.replace("\\", "/");
 			}
 			return path.substring(pathLen, path.length() - 5);
@@ -64,7 +64,7 @@ public class BookViewer extends JFrame {
 		}
 	}
 	
-	public BookViewer(final IdeWindow parent) {
+	public BookViewer(final PPWindow parent) {
 		super("Include a book");
 		String acl2Dir = new File(parent.acl2.acl2Path).getParent();
 		systemPath = acl2Dir + "/books";
@@ -77,14 +77,14 @@ public class BookViewer extends JFrame {
 		getContentPane().setLayout(bl);
 		getRootPane().setBorder(Main.WINDOW_BORDER);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Books");
-		DefaultMutableTreeNode sysBooks =
-				nodeFromFile(new File(systemPath), SYSTEM_BOOKS_SYMBOL, 10);
-		sysBooks.setUserObject(SYSTEM_BOOKS_SYMBOL);
-		root.add(sysBooks);
 		DefaultMutableTreeNode dracula =
 				nodeFromFile(new File(draculaPath), DRACULA_SYMBOL, 10);
 		dracula.setUserObject(":teachpacks");
 		root.add(dracula);
+		DefaultMutableTreeNode sysBooks =
+				nodeFromFile(new File(systemPath), SYSTEM_BOOKS_SYMBOL, 10);
+		sysBooks.setUserObject(SYSTEM_BOOKS_SYMBOL);
+		root.add(sysBooks);
 		final JTree tree = new JTree(root);
 		for (int i = tree.getRowCount(); i > 0; i--) {
 			tree.expandRow(i);
@@ -106,6 +106,7 @@ public class BookViewer extends JFrame {
 					BookView bv = (BookView) last.getUserObject();
 					if (bv.isBook()) {
 						parent.includeBookAtCursor(bv.getDirSymbol(), bv.getPath());
+						dispose();
 					}
 				}
 			}
@@ -137,14 +138,14 @@ public class BookViewer extends JFrame {
 			}
 		});
 		buttons.add(Box.createGlue());
-		if (IdeWindow.OSX) {
+		if (Main.OSX) {
 			buttons.add(cancel);
 			buttons.add(include);
 		} else {
 			buttons.add(include);
 			buttons.add(cancel);
 		}
-		add(buttons, BorderLayout.SOUTH);
+		add(buttons, BorderLayout.PAGE_END);
 		setPreferredSize(new Dimension(300, 600));
 		pack();
 		setLocationRelativeTo(parent);
