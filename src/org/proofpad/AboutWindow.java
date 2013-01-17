@@ -16,6 +16,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -113,7 +114,7 @@ public class AboutWindow extends JDialog {
 	private static final long serialVersionUID = 2263577634446940344L;
 
 	public static final Icon icon128 = new ImageIcon(
-			AboutWindow.class.getResource("/icon.iconset/icon_128x128.png"));
+			AboutWindow.class.getResource("/Icons/icon.iconset/icon_128x128.png"));
 
 	int widthFor(Font font, int chars) {
 		char[] line = new char[chars];
@@ -141,7 +142,8 @@ public class AboutWindow extends JDialog {
 		add(label);
 		JButton button = new JButton("<html><a href=\"\">View on Github</a></html>");
 		button.setAlignmentX(CENTER_ALIGNMENT);
-		button.setBorder(null);
+		button.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		button.setContentAreaFilled(false);
 		button.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
 				try {
@@ -150,6 +152,7 @@ public class AboutWindow extends JDialog {
 				} catch (URISyntaxException e) { }
 			}
 		});
+		button.setMaximumSize(button.getPreferredSize());
 		add(button);
 		
 		Font f = new Font("Monospaced", Font.PLAIN, 12);
@@ -193,7 +196,7 @@ public class AboutWindow extends JDialog {
 		
 		if (!Main.OSX) {
 			JButton close = new JButton("OK");
-			close.setAlignmentX(RIGHT_ALIGNMENT);
+			close.setAlignmentX(CENTER_ALIGNMENT);
 			close.addActionListener(new ActionListener() {
 				@Override public void actionPerformed(ActionEvent arg0) {
 					dispose();

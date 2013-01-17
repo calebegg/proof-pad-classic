@@ -550,17 +550,17 @@ public class PPWindow extends JFrame {
 		});
 		
 		String[] iconPaths = {
-				"icon.iconset/icon_16x16.png",
-				"icon.iconset/icon_32x32.png",
-				"icon.iconset/icon_128x128.png",
-				"icon.iconset/icon_32x32@2x.png"
+				"/Icons/icon.iconset/icon_16x16.png",
+				"/Icons/icon.iconset/icon_32x32.png",
+				"/Icons/icon.iconset/icon_128x128.png",
+				"/Icons/icon.iconset/icon_32x32@2x.png"
 		};
 		
 		List<Image> icons = new ArrayList<Image>();
 		for (String path : iconPaths) {
-			icons.add(new ImageIcon(path).getImage());
+			icons.add(new ImageIcon(getClass().getResource(path)).getImage());
 		}
-		setIconImages(icons );
+		setIconImages(icons);
 		
 		adjustMaximizedBounds();
 		pack();

@@ -80,6 +80,7 @@ public class DoubleCheckResult extends JPanel {
 	private static void linkToggleWithPanel(final JToggleButton b, final JPanel p) {
 		p.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 		b.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		b.setContentAreaFilled(false);
 		b.setIcon(b.isSelected() ? openIcon : closedIcon);
 		b.setFont(b.getFont().deriveFont(14f));
 		b.addItemListener(new ItemListener() {

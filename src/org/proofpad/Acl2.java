@@ -335,9 +335,11 @@ public class Acl2 extends Thread {
 		acl2IsSlowShown = false;
 
 		for (String maybeAcl2Path : acl2Paths) {
+			System.out.println(acl2Paths);
 			if (Main.WIN) {
-				String ctrlcPath = new File(Main.getJarPath()).getParent() + "\\ctrlc-windows.exe";
-				processBuilder = new ProcessBuilder(ctrlcPath, maybeAcl2Path);
+//				String ctrlcPath = new File(Main.getJarPath()).getParent() + "\\ctrlc-windows.exe";
+//				processBuilder = new ProcessBuilder(ctrlcPath, maybeAcl2Path);
+				processBuilder = new ProcessBuilder(maybeAcl2Path);
 			} else {
 				processBuilder = new ProcessBuilder("sh", "-c", "echo \"$$\"; exec \"$0\" \"$@\"" + maybeAcl2Path);
 			}
@@ -367,7 +369,11 @@ public class Acl2 extends Thread {
 			writeAndFlush("(cw \"" + marker + "\")\n");
 			String draculaPath = "";
 			try {
-				draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "") + "/dracula";
+				if (Main.WIN) {
+					draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "/") + "/dracula";
+				} else {
+					draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "") + "/dracula";
+				}
 			} catch (Exception e) { }
 			initializing = true;
 			numInitExps = 0;

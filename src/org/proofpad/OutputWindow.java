@@ -109,7 +109,7 @@ public class OutputWindow extends JFrame {
 		if (comp instanceof Scrollable) {
 		    height = ((Scrollable) comp).getPreferredScrollableViewportSize().height + 100;
 		} else {
-			height = comp.getPreferredSize().height;
+			height = comp.getPreferredSize().height + 100;
 		}
 		int width = 80 * getFontMetrics(Prefs.font.get()).charWidth('a');
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
