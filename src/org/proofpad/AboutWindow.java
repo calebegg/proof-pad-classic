@@ -113,7 +113,7 @@ public class AboutWindow extends JDialog {
 	private static final long serialVersionUID = 2263577634446940344L;
 
 	public static final Icon icon128 = new ImageIcon(
-			AboutWindow.class.getResource("/icon.iconset/icon_128x128.png"));
+			AboutWindow.class.getResource("/Icons/icon.iconset/icon_128x128.png"));
 
 	int widthFor(Font font, int chars) {
 		char[] line = new char[chars];
