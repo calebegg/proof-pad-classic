@@ -2,7 +2,7 @@
 !define DESCRIPTION "An IDE for ACL2"
 
 !define VERSIONMAJOR 0
-!define VERSIONMINOR 1
+!define VERSIONMINOR 3
  
 RequestExecutionLevel admin
  
@@ -10,11 +10,10 @@ InstallDir "$PROGRAMFILES\${APPNAME}"
  
 Name "${APPNAME}"
 Icon "Icons\icon.ico"
-outFile "Proof Pad installer.exe"
+outFile "InstallProofPad.exe"
  
 !include LogicLib.nsh
  
-# Just three pages - license agreement, install location, and installation
 page directory
 Page instfiles
  
@@ -36,6 +35,7 @@ functionEnd
 section "install"
 	setOutPath $INSTDIR
 	File "proofpad.jar"
+	File "proofpad.exe"
 	File "Icons\icon.ico"
 	File /r "acl2"
  
@@ -43,7 +43,7 @@ section "install"
  
 	# Start Menu
 	createDirectory "$SMPROGRAMS"
-	createShortCut "$SMPROGRAMS\${APPNAME}.lnk" "$INSTDIR\proofpad.jar" "" "$INSTDIR\icon.ico"
+	createShortCut "$SMPROGRAMS\${APPNAME}.lnk" "$INSTDIR\proofpad.exe" "" "$INSTDIR\icon.ico"
  
 	# Registry information for add/remove programs
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME} - ${DESCRIPTION}"
@@ -68,11 +68,6 @@ functionEnd
  
 section "uninstall"
 	delete "$SMPROGRAMS\${APPNAME}.lnk"
- 
-#	Delete $INSTDIR\launcher.exe
-#	Delete $INSTDIR\proofpad.jar
-#	RMDir /r $INSTDIR\acl2
-#	delete $INSTDIR\uninstall.exe
 	RMDir /r $INSTDIR
  
 	# Remove uninstaller information from the registry

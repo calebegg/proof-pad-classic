@@ -2,7 +2,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>proofpad.jar</jar>
-  <outfile>/Users/calebegg/Code/proof-pad/proofpad.exe</outfile>
+  <outfile>C:\Users\calebegg\Documents\GitHub\proof-pad\proofpad.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -12,7 +12,7 @@
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon>/Users/calebegg/Code/proof-pad/Icons/icon.ico</icon>
+  <icon>C:\Users\calebegg\Documents\GitHub\proof-pad\Icons\icon.ico</icon>
   <jre>
     <path></path>
     <minVersion>1.6.0</minVersion>
