@@ -296,21 +296,7 @@ public class PPWindow extends JFrame {
 			}
 		};
 		
-		buildAction = new ActionListener() {
-			@Override public void actionPerformed(ActionEvent arg0) {
-				if (!saveFile()) {
-					JOptionPane.showMessageDialog(PPWindow.this,
-							"Save the current file in order to build", "Build did not complete",
-							JOptionPane.INFORMATION_MESSAGE);
-					return;
-				}
-
-				final BuildWindow builder = new BuildWindow(openFile, acl2.getAcl2Path());
-
-				builder.setVisible(true);
-				builder.build();
-			}
-		};
+		buildAction = new BuildWorkflow(this);
 		
 		includeBookAction = new ActionListener() {
 			@Override
