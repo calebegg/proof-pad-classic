@@ -15,6 +15,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 
+import org.proofpad.Acl2.RestartListener;
+
 public class BuildWindow extends JFrame {
 
 	private static final long serialVersionUID = 8394742808899908090L;
@@ -59,12 +61,16 @@ public class BuildWindow extends JFrame {
 			builder.start();
 			builder.admit("(defttag builder)", null);
 			builder.admit(":set-raw-mode t", null);
-			builder.admit("(load \"" + file.getAbsolutePath()
+			String sourcePath = file.getAbsolutePath();
+			if (Main.WIN) {
+				sourcePath = sourcePath.replace('\\', '/');
+			}
+			builder.admit("(load \"" + sourcePath
 					+ "\" )", null);
 			builder.admit(
 					"(defun __main__ () (main state))",
 					null);
-			final String filename;
+			String filename;
 			if (OSX) {
 				FileDialog fc = new FileDialog(this, "Save Executable...");
 				fc.setMode(FileDialog.SAVE);
@@ -81,14 +87,18 @@ public class BuildWindow extends JFrame {
 				builder.terminate();
 				return;
 			}
-			builder.admit("(ccl:save-application \"" + filename
-					+ "\" :toplevel-function #'__main__ :prepend-kernel t)", new Acl2.Callback() {
-				@Override public boolean run(boolean success, String response) {
-					builder.terminate();
+			if (Main.WIN) {
+				filename = filename.replace('\\', '/');
+			}
+			String buildCmd = "(ccl:save-application \"" + filename
+					+ "\" :toplevel-function #'__main__ :prepend-kernel t)";
+//			System.out.println("Build commmand: " + buildCmd);
+			builder.addRestartListener(new RestartListener() {
+				@Override public void acl2Restarted() {
 					dispose();
-					return false;
 				}
 			});
+			builder.admit(buildCmd, null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
