@@ -44,7 +44,7 @@ public class Acl2 extends Thread {
 					}
 					logOutput.append((char) c);
 					fireOutputChangeEvent();
-//					System.out.print((char) c);
+					System.out.print((char) c);
 					synchronized (this) {
 						spool.add((char) c);
 						notify();
@@ -129,6 +129,8 @@ public class Acl2 extends Thread {
 	private final Acl2TokenMaker tm = new Acl2TokenMaker();
 	File workingDir;
 	
+	final boolean isBuilder;
+	
 	private final List<RestartListener> restartListeners = new LinkedList<RestartListener>();
 
 	private int procId;
@@ -177,13 +179,18 @@ public class Acl2 extends Thread {
 		outputChangeListeners.remove(ocl);
 	}
 	
-	public Acl2(List<String> acl2Paths, File workingDir) {
+	public Acl2(List<String> acl2Paths, File workingDir, boolean isBuilder) {
 		super("ACL2 background thread");
+		this.isBuilder = isBuilder;
 		this.acl2Paths = acl2Paths;
 		sb = new StringBuilder();
 		this.workingDir = workingDir;
 		// Startup callback
 		callbacks.add(null);
+	}
+	
+	public Acl2(List<String> acl2Paths, File workingDir) {
+		this(acl2Paths, workingDir, false);
 	}
 
 	@Override
@@ -333,7 +340,6 @@ public class Acl2 extends Thread {
 	public void initialize() throws IOException {
 		ProcessBuilder processBuilder;
 		acl2IsSlowShown = false;
-
 		for (String maybeAcl2Path : acl2Paths) {
 			System.out.println(acl2Paths);
 			if (Main.WIN) {
@@ -357,10 +363,10 @@ public class Acl2 extends Thread {
 				e.printStackTrace();
 				continue;
 			}
-			acl2Path = maybeAcl2Path.replaceAll("\\\\ ", " ");
+			acl2Path = maybeAcl2Path;
 			workingDir = maybeWorkingDir;
-			BufferedReader in = new BufferedReader(new InputStreamReader(acl2Proc.getInputStream()));
 			if (!Main.WIN) {
+				BufferedReader in = new BufferedReader(new InputStreamReader(acl2Proc.getInputStream()));
 				procId = Integer.parseInt(in.readLine());
 			}
 			sp = new Spooler(acl2Proc.getInputStream());
@@ -387,13 +393,13 @@ public class Acl2 extends Thread {
 			@Override public void run() {
 				while (true) {
 					try {
-						Thread.sleep(4000);
+						Thread.sleep(isBuilder ? 500 : 4000);
 					} catch (InterruptedException e) { }
 					if (acl2Proc == null) return;
 					try {
-						acl2Proc.exitValue();
+						int exitVal = acl2Proc.exitValue();
 						// If we get here, the process has terminated.
-						System.out.println("ACL2 terminated.");
+						System.out.println("Exit code: " + exitVal);
 						failAllCallbacks();
 						fireRestartEvent();
 						showAcl2TerminatedError();
