@@ -99,6 +99,8 @@ public class ProofBar extends JComponent {
 	Expression tried;
 	private final Image inProgressThrobber = 
 			new ImageIcon(getClass().getResource("/Icons/in-progress-blue.gif")).getImage();
+	private final Image admittingThrobber = 
+			new ImageIcon(getClass().getResource("/Icons/admitting.gif")).getImage();
 	private int flashIndex;
 	int flashPhase;
 	Runnable flashTimeout;
@@ -117,6 +119,8 @@ public class ProofBar extends JComponent {
 	final MoreBar mb;
 
 	boolean alreadyShownAnError = false;
+
+	boolean isAdmitting = false;
 
 	public ProofBar(final Acl2 acl2, final MoreBar mb) {
 		super();
@@ -299,7 +303,7 @@ public class ProofBar extends JComponent {
 				g.fillRect(0, begin, 30, height);
 				g.drawImage(inProgressThrobber, (width - 16) / 2, begin + (height - 16) / 2, this);
 			} else if (e.firstType != SExpUtils.ExpType.FINAL) {
-				// Drawing untried terms
+				// Drawing untried or admitted terms
 				Color expColor = expStatus == Status.SUCCESS ? ADMITTED_COLOR : UNTRIED_COLOR; 
 				if (hover && my > begin && !error && !e.contents.equals("")) {
 					g.setColor(PROVED_COLOR);
@@ -315,6 +319,10 @@ public class ProofBar extends JComponent {
 				} else {
 					g.setColor(expColor);
 					g.fillRect(0, begin, 30, height);
+					if (expStatus == Status.UNTRIED && isAdmitting) {
+						g.drawImage(admittingThrobber, (width - 16) / 2, begin + (height - 16) / 2,
+								this);
+					}
 				}
 			}
 			g.setColor(Color.GRAY);
@@ -350,6 +358,10 @@ public class ProofBar extends JComponent {
 	
 	public void adjustHeights(java.util.LinkedList<Expression> newExps) {
 		expressions = newExps;
+		if (!Main.WIN && isAdmitting) {
+			acl2.ctrlc();
+			isAdmitting = false;
+		}
 		int i = 0;
 		for (Expression ex : expressions) {
 			ex.expNum = i;
@@ -571,13 +583,15 @@ public class ProofBar extends JComponent {
 	public void admitUnprovenExps() {
 		if (numProving > 0) return;
 		int provedSoFar = numProved;
+		isAdmitting = true;
+		repaint();
 		acl2.admit(":program", Acl2.doNothingCallback);
 		acl2.admit("(set-ld-redefinition-action '(:doit . :erase) state)", Acl2.doNothingCallback);
 		if (unprovenStates == null) unprovenStates = new ArrayList<UnprovenExp>();
 		int unprovenIdx = 0;
 		for (int i = 0; i < expressions.size(); i++) {
 			final Expression ex = expressions.get(i);
-			final boolean lastExp = i == expressions.size() - 1;
+			final boolean lastExp = i == expressions.size() - 2;
 			if (provedSoFar > 0) {
 				provedSoFar--;
 				if (lastExp) {
@@ -599,6 +613,7 @@ public class ProofBar extends JComponent {
 						setExpData(ex, success, response, lastExp);
 						if (lastExp) {
 							alreadyShownAnError = false;
+							isAdmitting = false;
 						}
 						repaint();
 						ue.status = success ? Status.SUCCESS : Status.FAILURE;
