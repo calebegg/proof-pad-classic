@@ -77,6 +77,7 @@ import org.fife.ui.rsyntaxtextarea.Token;
  *
  */
 
+@SuppressWarnings("all")
 public class Acl2TokenMaker extends AbstractJFlexTokenMaker {
 
   /** This character denotes the end of file */
@@ -3504,7 +3505,7 @@ public class Acl2TokenMaker extends AbstractJFlexTokenMaker {
 
   /** this buffer contains the current text to be matched and is
       the source of the yytext() string */
-  private char zzBuffer[] = new char[ZZ_BUFFERSIZE];
+  private char zzBuffer[] = null;
 
   /** the textposition at the last accepting state */
   private int zzMarkedPos;
