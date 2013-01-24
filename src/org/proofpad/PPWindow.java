@@ -250,7 +250,7 @@ public class PPWindow extends JFrame {
 					"Error", JOptionPane.ERROR_MESSAGE);
 		}
 		if (acl2.getAcl2Path() != null) {
-			parser.setAcl2Dir(new File(acl2.getAcl2Path()).getParentFile());
+			parser.setAcl2Dir(new File(acl2.getAcl2Path().replaceAll("\\\\ ", " ")).getParentFile());
 		}
 
 		undoAction = new ActionListener() {
