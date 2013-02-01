@@ -500,7 +500,9 @@ public class PPWindow extends JFrame {
 		}
 		updateWindowMenu();
 
-		setPreferredSize(new Dimension(600, 600));
+		int startWidth = Math.max(600, getFontMetrics(Prefs.font.get()).charWidth('a') * Prefs.widthGuide.get() + 50);
+		
+		setPreferredSize(new Dimension(startWidth, 600));
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setMinimumSize(new Dimension(550, 300));
 
