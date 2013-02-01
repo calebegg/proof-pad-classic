@@ -93,4 +93,8 @@ public class FilePicker extends JPanel {
 		pathBox.setEnabled(enabled);
 		browseButton.setEnabled(enabled);
 	}
+
+	public void setPath(String path) {
+		pathBox.setText(path);
+	}
 }

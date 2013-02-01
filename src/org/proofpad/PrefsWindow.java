@@ -17,14 +17,12 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -34,14 +32,11 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -50,7 +45,7 @@ import javax.swing.event.ChangeListener;
 
 import org.proofpad.Prefs.BooleanPref;
 
-public class PrefsWindow extends JDialog {
+public class PrefsWindow extends PPDialog {
 
 	private class Separator extends JComponent {
 		private static final long serialVersionUID = 7305509836424390157L;
@@ -97,19 +92,11 @@ public class PrefsWindow extends JDialog {
 	}
 
 	private PrefsWindow() {
-		super((JFrame)null, "Settings");
+		super((PPWindow)null, "Settings");
 		final PrefsWindow that = this;
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(4, 25, 4, 25));
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 		final int widthGuide = Prefs.widthGuide.get();
-		setResizable(false);
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "HIDE");
-		getRootPane().getActionMap().put("HIDE", new AbstractAction() {
-			private static final long serialVersionUID = -5310527346557745533L;
-			@Override public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-			}
-		});
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();

@@ -11,7 +11,6 @@ import java.io.File;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -19,7 +18,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-public class BookViewer extends JFrame {
+public class BookViewer extends PPDialog {
 
 	private static final String SYSTEM_BOOKS_SYMBOL = ":system";
 	private static final String DRACULA_SYMBOL = ":teachpacks";
@@ -65,8 +64,8 @@ public class BookViewer extends JFrame {
 	}
 	
 	public BookViewer(final PPWindow parent) {
-		super("Include a book");
-		String acl2Dir = new File(parent.acl2.acl2Path).getParent();
+		super(parent, "Include a book");
+		String acl2Dir = new File(parent.acl2.acl2Path.replaceAll("\\\\ ", " ")).getParent();
 		systemPath = acl2Dir + "/books";
 		draculaPath =  acl2Dir + "/dracula";
 		System.out.println(systemPath);
@@ -75,7 +74,6 @@ public class BookViewer extends JFrame {
 		bl.setHgap(8);
 		bl.setVgap(8);
 		getContentPane().setLayout(bl);
-		getRootPane().setBorder(Main.WINDOW_BORDER);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Books");
 		DefaultMutableTreeNode dracula =
 				nodeFromFile(new File(draculaPath), DRACULA_SYMBOL, 10);

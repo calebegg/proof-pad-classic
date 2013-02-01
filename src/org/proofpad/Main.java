@@ -20,13 +20,11 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Iterator;
 
-import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.AppEvent.AboutEvent;
@@ -47,8 +45,7 @@ import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class Main {
 	public static final String displayName = "Proof Pad";
-	public static final int RELEASE = 3;
-	public static final Border WINDOW_BORDER = BorderFactory.createEmptyBorder(4, 4, 4, 4);
+	public static final int RELEASE = 4;
 	public static final boolean OSX = System.getProperty("os.name").indexOf("Mac") != -1;
 	public static final boolean WIN =
 	System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
@@ -120,7 +117,7 @@ public class Main {
 			});
 			app.setAboutHandler(new AboutHandler() {
 				@Override public void handleAbout(AboutEvent e) {
-					new AboutWindow().setVisible(true);
+					new AboutWindow(null).setVisible(true);
 				}
 			});
 			app.setQuitHandler(new QuitHandler() {

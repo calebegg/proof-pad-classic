@@ -22,14 +22,12 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
-public class AboutWindow extends JDialog {
+public class AboutWindow extends PPDialog {
 	class License {
 		final String title;
 		final String body;
@@ -123,11 +121,10 @@ public class AboutWindow extends JDialog {
 		return getFontMetrics(font).stringWidth(new String(line));
 	}
 	
-	public AboutWindow() {
-		super((JFrame)null, "About Proof Pad");
+	public AboutWindow(PPWindow parent) {
+		super(parent, "About Proof Pad");
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-		getRootPane().setBorder(Main.WINDOW_BORDER);
 		JLabel label = new JLabel();
 		if (icon128 != null) label.setIcon(icon128);
 		label.setAlignmentX(CENTER_ALIGNMENT);

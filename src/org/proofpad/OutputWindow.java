@@ -19,7 +19,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -30,14 +29,15 @@ import javax.swing.SwingUtilities;
 import org.proofpad.Repl.Message;
 import org.proofpad.Repl.MsgType;
 
-public class OutputWindow extends JFrame {
+public class OutputWindow extends PPDialog {
 	private static final long serialVersionUID = -763205019202829248L;
 	private final PPWindow ideWindow;
 	private Runnable afterPreview;
 
 	public OutputWindow(PPWindow ideWindow) {
+		super((PPWindow)null, "");
 		getRootPane().putClientProperty("Window.style", "small");
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.ideWindow = ideWindow;
 		setVisible(false);
 		getRootPane().setBorder(BorderFactory.createEmptyBorder());

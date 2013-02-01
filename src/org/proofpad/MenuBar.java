@@ -526,7 +526,7 @@ public class MenuBar extends JMenuBar {
 			item = new JMenuItem("About Proof Pad");
 			item.addActionListener(new ActionListener() {
 				@Override public void actionPerformed(ActionEvent e) {
-					new AboutWindow().setVisible(true);
+					new AboutWindow(parent).setVisible(true);
 				}
 			});
 			item.addActionListener(new UserData.LogUse("aboutMenuItem"));

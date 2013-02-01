@@ -1,5 +1,6 @@
 package org.proofpad;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
@@ -12,7 +13,6 @@ import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -24,32 +24,31 @@ import org.proofpad.Acl2.RestartListener;
 
 final class BuildWorkflow implements ActionListener {
 
-	public static class BuildWindow extends JFrame {
+	public static class BuildWindow extends PPDialog {
 		private static final long serialVersionUID = 8394742808899908090L;
-		private static final boolean OSX = Main.OSX;
-		private static final boolean WIN = Main.WIN;
+		static final boolean OSX = Main.OSX && !Main.FAKE_WINDOWS;
+		static final boolean WIN = Main.WIN || Main.FAKE_WINDOWS;
 		private final String acl2Dir;
 //		private final JProgressBar progress;
 		Acl2 builder;
 		final FilePicker destPicker;
-		private final File sourceFile;
-		public BuildWindow(final File sourceFile, String acl2Dir) {
-			super("Build an executable");
+	    private final File sourceFile;
+		public BuildWindow(PPWindow parent, final File sourceFile, String acl2Dir, boolean tempFile) {
+			super(parent, "Build an executable");
 			this.sourceFile = sourceFile;
 			getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 			this.acl2Dir = acl2Dir;
 			getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-			getRootPane().setBorder(Main.WINDOW_BORDER);
-//			progress = new JProgressBar();
-//			progress.setIndeterminate(true);
-//			progress.setAlignmentX(CENTER_ALIGNMENT);
-//			add(progress);
 			JLabel destLabel = new JLabel("Destination:");
 			destLabel.setAlignmentX(LEFT_ALIGNMENT);
 			destLabel.setMaximumSize(new Dimension(2<<16, 2<<16));
 			add(destLabel);
 			add(Box.createVerticalStrut(8));
 			destPicker = new FilePicker("Choose destination for executable...", FileDialog.SAVE);
+			if (!tempFile) {
+				destPicker.setPath(sourceFile.getAbsolutePath().replaceFirst(".lisp$",
+						WIN ? ".exe" : ""));
+			}
 			destPicker.setAlignmentX(LEFT_ALIGNMENT);
 			final JButton buildButton = new JButton("Build");
 			buildButton.setEnabled(!destPicker.getPath().isEmpty());
@@ -74,6 +73,14 @@ final class BuildWorkflow implements ActionListener {
 			});
 			buildButton.addActionListener(new ActionListener() {
 				@Override public void actionPerformed(ActionEvent e) {
+					if (destPicker.getFile().exists()) {
+						int resp = JOptionPane.showOptionDialog(BuildWindow.this,
+								destPicker.getPath() + " already exists", "File exists",
+								JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null,
+								new String[] { "Overwrite", "Cancel" }, "Overwrite");
+						if (resp == 1) return;
+					}
+					setTitle("Building...");
 					build(sourceFile.getAbsolutePath(), destPicker.getPath());
 					buildButton.setEnabled(false);
 					destPicker.setEnabled(false);
@@ -90,9 +97,11 @@ final class BuildWorkflow implements ActionListener {
 			setMinimumSize(new Dimension(400, 0));
 			pack();
 			setLocationRelativeTo(null);
+			getRootPane().setDefaultButton(buildButton);
+			buildButton.requestFocus();
 		}
 
-		public void build(String source, String dest) {
+		public void build(String source, final String dest) {
 			List<String> acl2Paths = new ArrayList<String>();
 			acl2Paths.add(acl2Dir);
 			builder = new Acl2(acl2Paths, sourceFile.getParentFile(), true);
@@ -101,23 +110,37 @@ final class BuildWorkflow implements ActionListener {
 				builder.start();
 				builder.admit("(defttag builder)", null);
 				builder.admit(":set-raw-mode t", null);
+				String escDest = dest;
 				if (WIN) {
 					source = source.replace('\\', '/');
-					dest = dest.replace('\\', '/');
+					escDest = dest.replace('\\', '/');
 				}
 				builder.admit("(load \"" + source + "\" )", null);
 				builder.admit("(defun __main__ () (main state))", null);
-				String buildCmd = "(ccl:save-application \"" + dest
+				String buildCmd = "(ccl:save-application \"" + escDest
 						+ "\" :toplevel-function #'__main__ :prepend-kernel t)";
 				System.out.println("buildCmd: " + buildCmd);
 				builder.addRestartListener(new RestartListener() {
 					@Override public void acl2Restarted() {
 						dispose();
+						if (WIN) {
+							try {
+								Runtime.getRuntime().exec("explorer /select, " + dest);
+							} catch (IOException e) { }
+						} else if (OSX) {
+							try {
+								Runtime.getRuntime().exec("open -R " + dest);
+							} catch (IOException e) { }
+						} else if (Desktop.isDesktopSupported()) {
+							Desktop desktop = Desktop.getDesktop();
+							try {
+								desktop.open(new File(dest).getParentFile());
+							} catch (IOException e) { }
+						}
 					}
 				});
 				builder.admit(buildCmd, new Callback() {
 					@Override public boolean run(boolean success, String response) {
-						System.out.println("Response from builder: " + response);
 						return false;
 					}
 				});
@@ -135,10 +158,12 @@ final class BuildWorkflow implements ActionListener {
 
 	@Override public void actionPerformed(ActionEvent e) {
 		File sourceFile;
+		boolean tempFile;
 		if (ppWindow.openFile == null) {
 			// Use a temporary file instead
 			try {
 				sourceFile = File.createTempFile("proof-pad-build-source", null);
+				tempFile = true;
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(null, "Proof Pad was unable to create a temporary " +
 						"file. Save the file you want to build and try again.", "Build error",
@@ -148,8 +173,10 @@ final class BuildWorkflow implements ActionListener {
 		} else {
 			this.ppWindow.saveFile();
 			sourceFile = ppWindow.openFile;
+			tempFile = false;
 		}
-		final BuildWindow builder = new BuildWindow(sourceFile, this.ppWindow.acl2.getAcl2Path());
+		final BuildWindow builder = new BuildWindow(ppWindow, sourceFile,
+				this.ppWindow.acl2.getAcl2Path(), tempFile);
 		builder.setVisible(true);
 	}
 }
