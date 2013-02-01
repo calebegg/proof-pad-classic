@@ -44,7 +44,7 @@ public class Acl2 extends Thread {
 					}
 					logOutput.append((char) c);
 					fireOutputChangeEvent();
-					System.out.print((char) c);
+//					System.out.print((char) c);
 					synchronized (this) {
 						spool.add((char) c);
 						notify();
