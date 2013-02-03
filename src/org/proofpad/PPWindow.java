@@ -197,7 +197,7 @@ public class PPWindow extends JFrame {
 			}
 		});
 		moreBar = new MoreBar(this);
-		proofBar = new ProofBar(acl2, moreBar);
+		proofBar = new ProofBar(acl2, moreBar, parser);
 		editor = new CodePane(proofBar);
 		final JPanel editorContainer = new JPanel();
 		editorContainer.setBackground(Color.WHITE);

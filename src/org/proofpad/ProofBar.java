@@ -122,10 +122,13 @@ public class ProofBar extends JComponent {
 
 	boolean isAdmitting = false;
 
-	public ProofBar(final Acl2 acl2, final MoreBar mb) {
+	private final Acl2Parser parser;
+
+	public ProofBar(final Acl2 acl2, final MoreBar mb, final Acl2Parser parser) {
 		super();
 		this.acl2 = acl2;
 		this.mb = mb;
+		this.parser = parser;
 		mb.updateWith(data);
 		setCursor(HAND);
 		acl2.addRestartListener(new Acl2.RestartListener() {
@@ -635,7 +638,8 @@ public class ProofBar extends JComponent {
 		}
 		data.set(exp.expNum, expData);
 		mb.repaint();
-		if (!success && Prefs.showOutputOnError.get() && !alreadyShownAnError) {
+		if (!success && Prefs.showOutputOnError.get() && !alreadyShownAnError &&
+				!parser.isErrorShown()) {
 			alreadyShownAnError = true;
 			mb.selectExpression(expData);
 		} else if (last && !alreadyShownAnError) {

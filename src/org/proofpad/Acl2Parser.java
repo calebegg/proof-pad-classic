@@ -79,6 +79,7 @@ public class Acl2Parser extends AbstractParser {
 	private File acl2Dir;
 	private final List<ParseListener> parseListeners = new LinkedList<Acl2Parser.ParseListener>();
 	private final Map<String, Acl2ParserNotice> funcNotices = new HashMap<String, Acl2Parser.Acl2ParserNotice>();
+	private boolean errorShown;
 	
 	public Acl2Parser(File workingDir, File acl2Dir) {
 		this.workingDir = workingDir;
@@ -478,6 +479,7 @@ public class Acl2Parser extends AbstractParser {
 	
 	@Override
 	public ParseResult parse(RSyntaxDocument doc, String style /* ignored */) {
+		errorShown = false;
 		DefaultParseResult result = new DefaultParseResult(this);
 		int lines = doc.getDefaultRootElement().getElementCount();
 		result.setParsedLines(0, lines);
@@ -718,6 +720,12 @@ public class Acl2Parser extends AbstractParser {
 		for (ParseListener pl : parseListeners) {
 			pl.wasParsed();
 		}
+		for (Object pn : result.getNotices()) {
+			if (((ParserNotice) pn).getLevel() == ParserNotice.ERROR) {
+				errorShown = true;
+				break;
+			}
+		}
 		return result;
 	}
 	
@@ -756,6 +764,10 @@ public class Acl2Parser extends AbstractParser {
 
 	public void setAcl2Dir(File acl2Dir) {
 		this.acl2Dir = acl2Dir;
+	}
+
+	public boolean isErrorShown() {
+		return errorShown;
 	}
 
 }
