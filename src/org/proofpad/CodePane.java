@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
 import javax.swing.ToolTipManager;
 import javax.swing.event.CaretEvent;
 import javax.swing.text.BadLocationException;
@@ -64,13 +65,31 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 			} else {
 				name = id;
 			}
-		    if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
-		    	try {
-		    		Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
-		    				+ name.toUpperCase() + ".html"));
-		    	} catch (IOException e1) {
-		    	} catch (URISyntaxException e1) { }
-		    }
+		    if (name != null) {
+				if (Main.cache.getDocs().containsKey(name.toUpperCase())) {
+					try {
+						Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
+								+ name.toUpperCase() + ".html"));
+					} catch (IOException e1) {
+					} catch (URISyntaxException e1) { }
+				} else {
+					String[] opts = new String[] { "Index", "Cancel" };
+					int choice = JOptionPane.showOptionDialog(null,
+							"No documentation found for \"" + name + "\"",
+							"Topic not found",
+							JOptionPane.OK_CANCEL_OPTION,
+							JOptionPane.INFORMATION_MESSAGE,
+							null,
+							opts,
+							opts[1]);
+					if (choice == 0) {
+						try {
+							Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/acl2-doc-index.html"));
+						} catch (IOException e1) {
+						} catch (URISyntaxException e1) { }
+					}
+				}
+			}
 		}
 	}
 

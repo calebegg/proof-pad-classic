@@ -503,13 +503,15 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(new UserData.LogUse("lookUpMenuItem"));
 		}
 		menu.add(item);
-		item = new JMenuItem("Tutorial");
-		if (parent == null) {
-			item.setEnabled(false);
-		} else {
-			item.addActionListener(parent.tutorialAction);
-			item.addActionListener(new UserData.LogUse("tutorialMenuItem"));
-		}
+		item = new JMenuItem("Documentation");
+		item.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				try {
+					Desktop.getDesktop().browse(new URI("http://proofpad.org/docs/"));
+				} catch (Exception ex) { }
+			}
+		});
+		item.addActionListener(new UserData.LogUse("docsMenuItem"));
 		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem(applyTitleCase("Report a bug"));
