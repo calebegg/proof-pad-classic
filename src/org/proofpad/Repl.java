@@ -13,8 +13,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -323,7 +325,13 @@ public class Repl extends JPanel {
 			"WARRANTY\\..*");
 	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard " +
 			"for the function call (.*?), which is (.*?), is violated by the arguments in the " +
-			"call (.*?)\\. See :DOC set-guard-checking for information.*");
+			"call (.*?)\\..*");
+	private static Pattern guardViolationDetail = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard " +
+			"for the function call \\(([^\\s]*?) ([^\\s]*?)\\), which is (.*?), is violated by the arguments in the " +
+			"call \\(([^\\s]*?) ([^\\s]*?)\\)\\..*");
+	private static Pattern guardViolationDetail2 = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard " +
+			"for the function call \\(([^\\s]*?) ([^\\s]*?) ([^\\s]*?)\\), which is (.*?), is violated by the arguments in the " +
+			"call \\(([^\\s]*?) ([^\\s]*?) ([^\\s]*?)\\)\\..*");
 	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL: Global " +
 			"variables, such as (.*?), are not allowed. See :DOC ASSIGN and :DOC @.");
 	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL: (.*?) " +
@@ -338,6 +346,19 @@ public class Repl extends JPanel {
 	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL: The symbol " +
 			"(.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in " +
 			"ACL2\\. Please define it\\..*");
+	
+	private static Map<String, String> commonGuards = new HashMap<String, String>();
+	static {
+		commonGuards.put("(AND (INTEGERP VAR) (<= 0 VAR))", "a natural number");
+		commonGuards.put("(OR (CONSP VAR) (EQUAL VAR NIL))", "a list");
+		commonGuards.put("(INTEGERP VAR)", "an integer");
+		commonGuards.put("(AND (ACL2-NUMBERP VAR) (NOT (EQUAL VAR 0)))", "a nonzero number");
+
+		commonGuards.put("(AND (ACL2-NUMBERP VAR1) (ACL2-NUMBERP VAR2))", "two numbers");
+		commonGuards.put("(AND (REAL/RATIONALP VAR1) (REAL/RATIONALP VAR2) (NOT (EQL VAR2 0)))",
+				"two rationals, the second nonzero");
+		commonGuards.put("(TRUE-LISTP VAR1)", "a list");
+	}
 	
 	public static List<Message> summarize(String result) {
 		return summarize(result, null);
@@ -356,8 +377,30 @@ public class Repl extends JPanel {
 			msgs.add(new Message("ACL2 started successfully.", MsgType.INFO));
 		}
 		if ((match = guardViolation.matcher(joined)).matches()) {
-			msgs.add(new Message("Guard violation in " + match.group(3).toLowerCase() + ".", MsgType.ERROR));
-			Main.userData.addReplMsg("guardViolation");
+			Matcher detailMatch;
+			String key = null;
+			System.out.println("Is a guard violation");
+			if ((detailMatch = guardViolationDetail.matcher(joined)).matches() && 
+					commonGuards.containsKey(key = detailMatch.group(3).replace(
+							" " + detailMatch.group(2), " VAR"))) {
+				msgs.add(new Message(detailMatch.group(1).toLowerCase() + " expects " +
+						commonGuards.get(key) + " but instead received " +
+						detailMatch.group(5).toLowerCase() + ".", MsgType.ERROR));
+				Main.userData.addReplMsg("guardViolationDetail");
+			} else if ((detailMatch = guardViolationDetail2.matcher(joined)).matches() && 
+						commonGuards.containsKey(key = detailMatch.group(4).replace(
+								" " + detailMatch.group(2), " VAR1").replace(
+										" " + detailMatch.group(3), " VAR2"))) {
+					msgs.add(new Message(detailMatch.group(1).toLowerCase() + " expects " +
+							commonGuards.get(key) + " but instead received " +
+							detailMatch.group(6).toLowerCase() + " and " +
+							detailMatch.group(7).toLowerCase() + ".", MsgType.ERROR));
+					Main.userData.addReplMsg("guardViolationDetail");
+			} else {
+				System.out.println("" + key);
+				msgs.add(new Message("Guard violation in " + match.group(3).toLowerCase() + ".", MsgType.ERROR));
+				Main.userData.addReplMsg("guardViolation");
+			}
 		}
 		if ((match = globalVar.matcher(joined)).matches()) {
 			msgs.add(new Message("Global variables, such as " + match.group(1).toLowerCase() +
