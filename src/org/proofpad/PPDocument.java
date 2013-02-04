@@ -120,7 +120,6 @@ public class PPDocument extends RSyntaxDocument {
 				}
 			}
 		}
-		// Read-only & flashing of proof bar
 		if (pb == null || offs > pb.getReadOnlyIndex()) {
 			// Insertion/collapsing of parentheses
 			if (caret != null && Prefs.autoClose.get()
@@ -132,8 +131,9 @@ public class PPDocument extends RSyntaxDocument {
 					caret.setDot(caret.getDot() - 1);
 				}
 			}
-		} else if (pb != null) {
-			while (pb.getReadOnlyIndex() >= offs) {
+		}
+		if (pb != null && pb.getReadOnlyIndex() > -1) {
+			while (pb.getReadOnlyIndex() >= offs - 1) {
 				pb.undoOneItem();
 			}
 		}
