@@ -498,8 +498,9 @@ public class MenuBar extends JMenuBar {
 		item = new JMenuItem("Look up...");
 		lookUpItem = item;
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey | KeyEvent.ALT_DOWN_MASK));
-		item.setEnabled(false);
-		if (parent != null) {
+		if (parent == null) {
+			item.setEnabled(false);
+		} else {
 			item.addActionListener(parent.helpAction);
 			item.addActionListener(new UserData.LogUse("lookUpMenuItem"));
 		}
@@ -660,14 +661,11 @@ public class MenuBar extends JMenuBar {
 		return new String(cs);
 	}
 
-	public void enableLookUp(String name) {
-		lookUpItem.setEnabled(true);
-		lookUpItem.setText(applyTitleCase("Look up") + " \"" + name + "\"...");
+	public void setLookUpName(String name) {
+		if (name != null && !name.isEmpty()) {
+			lookUpItem.setText(applyTitleCase("Look up") + " \"" + name + "\"...");
+		} else {
+			lookUpItem.setText(applyTitleCase("Look up..."));
+		}
 	}
-
-	public void disableLookUp() {
-		lookUpItem.setText(applyTitleCase("Look up..."));
-		lookUpItem.setEnabled(false);
-	}
-
 }

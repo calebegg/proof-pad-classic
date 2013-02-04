@@ -288,9 +288,9 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		if (getMenuBar() != null) {
 			String name = getWordAt(getCaretPosition());
 			if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
-				getMenuBar().enableLookUp(name);
+				menuBar.setLookUpName(name);
 			} else {
-				getMenuBar().disableLookUp();
+				menuBar.setLookUpName("");
 			}
 		}
 	}
