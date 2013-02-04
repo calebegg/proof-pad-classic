@@ -299,7 +299,6 @@ public class PPWindow extends JFrame {
 		editor.addParser(parser);
 		try {
 			acl2.initialize();
-			acl2.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "ACL2 executable not found",
@@ -618,7 +617,14 @@ public class PPWindow extends JFrame {
 			}
 		});
 	}
-
+	
+	@Override public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible) {
+			acl2.start();
+		}
+	}
+	
 	protected void setInfoBar(JComponent ib) {
 		Component child = ((BorderLayout) splitTop.getLayout())
 				.getLayoutComponent(BorderLayout.PAGE_START);

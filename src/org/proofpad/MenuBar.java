@@ -1,6 +1,5 @@
 package org.proofpad;
 
-import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
@@ -10,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
@@ -508,9 +506,7 @@ public class MenuBar extends JMenuBar {
 		item = new JMenuItem("Documentation");
 		item.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				try {
-					Desktop.getDesktop().browse(new URI("http://proofpad.org/docs/"));
-				} catch (Exception ex) { }
+				Utils.browseTo("http://proofpad.org/docs/");
 			}
 		});
 		item.addActionListener(new UserData.LogUse("docsMenuItem"));
@@ -519,9 +515,7 @@ public class MenuBar extends JMenuBar {
 		item = new JMenuItem(applyTitleCase("Report a bug"));
 		item.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				try {
-					Desktop.getDesktop().browse(new URI("https://github.com/calebegg/proof-pad/issues/new"));
-				} catch (Exception ex) { }
+				Utils.browseTo("https://github.com/calebegg/proof-pad/issues/new");
 			}
 		});
 		item.addActionListener(new UserData.LogUse("reportBugMenuItem"));

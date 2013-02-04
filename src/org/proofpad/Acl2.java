@@ -163,6 +163,8 @@ public class Acl2 extends Thread {
 
 	private final LinkedList<OutputChangeListener> outputChangeListeners = new LinkedList<OutputChangeListener>();
 
+	private boolean hasStarted = false;
+
 	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
 	private final static List<Character> markerChars = stringToCharacterList(marker);
 
@@ -225,8 +227,8 @@ public class Acl2 extends Thread {
 						}
 					});
 				}
-				if (sp.spool.isEmpty()) {
-					synchronized(sp) {
+				synchronized(sp) {
+					if (sp.spool.isEmpty()) {
 						sp.wait();
 					}
 				}
@@ -471,9 +473,6 @@ public class Acl2 extends Thread {
 		if (exps.isEmpty()) {
 			callback.run(true, "");
 		}
-		synchronized (this) {
-			notify();
-		}
 	}
 	private static List<Character> stringToCharacterList(String s) {
 		List<Character> r = new LinkedList<Character>();
@@ -488,9 +487,6 @@ public class Acl2 extends Thread {
 		terminate();
 		initialize();
 		this.interrupt();
-		synchronized (this) {
-			notify();
-		}
 		fireRestartEvent();
 		System.out.println("ACL2 is restarting");
 		failAllCallbacks();
@@ -580,5 +576,12 @@ public class Acl2 extends Thread {
 	}
 	public void setErrorListener(ErrorListener errorListener) {
 		this.errorListener = errorListener;
+	}
+	@Override public synchronized void start() {
+		hasStarted = true;
+		super.start();
+	}
+	public boolean hasStarted() {
+		return hasStarted;
 	}
 }

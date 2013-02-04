@@ -1,5 +1,9 @@
 package org.proofpad;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,5 +38,12 @@ public class Utils {
 				doc.insertString(offset - eolLen, "\n", null);
 			} catch (BadLocationException e) { }
 		}
+	}
+
+	public static void browseTo(String url) {
+		try {
+			Desktop.getDesktop().browse(new URI(url));
+		} catch (IOException e1) {
+		} catch (URISyntaxException e1) { }		
 	}
 }

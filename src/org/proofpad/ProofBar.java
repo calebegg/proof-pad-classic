@@ -87,7 +87,7 @@ public class ProofBar extends JComponent {
 	boolean hover = false;
 	final static int width = 20;
 	
-	static int lineHeight;
+	int lineHeight;
 	final Acl2 acl2;
 	
 	int numProved;
@@ -347,7 +347,7 @@ public class ProofBar extends JComponent {
 		readOnlyHeight = newHeight;
 	}
 
-	static int pixelHeight(Expression ex) {
+	int pixelHeight(Expression ex) {
 		if (ex.prev == null) {
 			return (ex.lines + ex.prevGapHeight) * lineHeight + ex.nextGapHeight * lineHeight / 2;
 		} else if (ex.firstType == ExpType.FINAL) {
@@ -357,12 +357,12 @@ public class ProofBar extends JComponent {
 		}
 	}
 	
-	public static int getLineHeight() {
+	public int getLineHeight() {
 		return lineHeight;
 	}
 
 	public void setLineHeight(int lineHeight) {
-		ProofBar.lineHeight = lineHeight;
+		this.lineHeight = lineHeight;
 		repaint();
 	}
 	

@@ -58,7 +58,10 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 					Field f = ttManager.getClass().getDeclaredField("tipShowing");
 					f.setAccessible(true);
 					tipShowing = f.getBoolean(ttManager);
-				} catch (Exception ex) { }
+				} catch (SecurityException e1) {
+				} catch (NoSuchFieldException e1) {
+				} catch (IllegalArgumentException e1) {
+				} catch (IllegalAccessException e1) { }
 				if (tipShowing) {
 					name = getWordAtMouse();
 				} else {

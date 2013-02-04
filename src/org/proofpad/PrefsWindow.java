@@ -360,11 +360,10 @@ public class PrefsWindow extends PPDialog {
 				FileDialog fc = new FileDialog((Frame) null, "Choose ACL2 executable");
 				fc.setVisible(true);
 				try {
-					path = new File(fc.getDirectory(), fc.getFile())
-							.getAbsolutePath();
+					path = new File(fc.getDirectory(), fc.getFile()).getAbsolutePath();
 					Prefs.acl2Path.set(path);
 					acl2Path.setText(path);
-				} catch (Exception e) { }
+				} catch (RuntimeException e) { }
 			}
 		});
 		c.gridx = 1;

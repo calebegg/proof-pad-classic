@@ -644,7 +644,7 @@ public class Acl2Parser extends AbstractParser {
 								}
 							}
 							if (Main.WIN) {
-								bookName.replaceAll("\\\\/", "\\");
+								bookName = bookName.replaceAll("\\\\/", "\\");
 							}
 							File book = new File(dir, bookName.substring(1, bookName.length() - 1) + ".lisp");
 							CacheSets bookCache = null;
