@@ -18,6 +18,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
@@ -132,7 +134,32 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		setBackground(PPWindow.transparent);
 		lookUpAction = new LookUpListener();
 		addKeyListener(new KeyAdapter() {
+			final Pattern wordPattern = Pattern.compile("^\\w+-?");
 			@Override public void keyPressed(KeyEvent e) {
+				if ((Main.OSX && e.isMetaDown() || !Main.OSX && e.isControlDown()) &&
+						e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+					String toScan;
+					try {
+						toScan = getText(getLineStartOffsetOfCurrentLine(),
+								getCaretOffsetFromLineStart());
+					} catch (BadLocationException e1) {
+						return;
+					}
+					toScan = new StringBuffer(toScan).reverse().toString();
+					Matcher m = wordPattern.matcher(toScan);
+					int len;
+					if (!m.find()) {
+						len = 1;
+					} else {
+						len = m.end();
+					}
+					try {
+						getDocument().remove(getCaretPosition() - len, len);
+					} catch (BadLocationException e1) {
+						return;
+					}
+					e.consume();
+				}
 				if (pb == null) return;
 				if (Main.OSX && e.isAltDown() && e.isMetaDown()
 						&& (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_UP)) {
