@@ -225,30 +225,6 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 			g.drawLine(linex, 0, linex, getHeight());
 		}
 		super.paintComponent(g);
-		// Paint a semi-transparent rectangle over read-only part.
-		g.setColor(new Color(1f, 1f, 1f, .2f));
-		g.fillRect(0, 0, getWidth(), readOnlyHeight);
-		g.setColor(new Color(.4f, .4f, .4f));
-//		if (getLastVisibleOffset() == 0 && !canUndo() && pb != null) {
-//			// Paint welcome message.
-//			g.setColor(Color.BLACK);
-//			FontMetrics fm = g.getFontMetrics();
-//			Font originalFont = g.getFont();
-//			g.setFont(originalFont.deriveFont(originalFont.getSize() + 5.0f));
-//			FontMetrics bigFm = g.getFontMetrics();
-//			int lineHeight = (int) fm.getLineMetrics(welcomeMessage[0], g).getHeight() + 1;
-//			int ySoFar = Math.max(0, (getHeight() - lineHeight * welcomeMessage.length) / 2);
-//			g.drawString(Main.displayName,
-//					(getWidth() - bigFm.stringWidth(Main.displayName) - pb.getWidth()) / 2,
-//					ySoFar);
-//			ySoFar += (int) bigFm.getLineMetrics(Main.displayName, g).getHeight() + 1;
-//			g.setFont(originalFont);
-//			for (String line : welcomeMessage) {
-//				ySoFar += lineHeight;
-//				g.drawString(line, (getWidth() - fm.stringWidth(line) - pb.getWidth()) / 2,
-//						ySoFar);
-//			}
-//		}
 	}
 
 	public void admitBelowProofLine(String form) {
