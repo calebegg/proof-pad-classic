@@ -110,15 +110,6 @@ public class Toolbar extends JPanel {
 		checkForUpdate();
 		add(prerelease);
 		add(button);
-		add(Box.createHorizontalStrut(BUTTON_GAP));
-		button = new JButton();
-		button.putClientProperty("JButton.buttonType", "help");
-		if (!OSX) {
-			button.setText("Tutorial");
-		}
-		button.addActionListener(parent.tutorialAction);
-		button.addActionListener(new UserData.LogUse("tutorialButton"));
-		//add(button);
 	}
 	
 	public void checkForUpdate() {
