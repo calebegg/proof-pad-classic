@@ -107,6 +107,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	private UndoManagerCreatedListener undoManagerCreatedListener;
 	private RUndoManager undoManager;
 	private ActionListener lookUpAction;
+	private MenuBar menuBar;
 	
 	public CodePane(final ProofBar pb) {
 		this.pb = pb;
@@ -284,6 +285,14 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	@Override protected void fireCaretUpdate(CaretEvent e) {
 		super.fireCaretUpdate(e);
 		highlightBracketMatch();
+		if (getMenuBar() != null) {
+			String name = getWordAt(getCaretPosition());
+			if (name != null && Main.cache.getDocs().containsKey(name.toUpperCase())) {
+				getMenuBar().enableLookUp(name);
+			} else {
+				getMenuBar().disableLookUp();
+			}
+		}
 	}
 	
 	@Override public Iterator<Token> iterator() {
@@ -372,5 +381,13 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	    	}
 	    }
 		return name;
+	}
+
+	public MenuBar getMenuBar() {
+		return menuBar;
+	}
+
+	public void setMenuBar(MenuBar menuBar) {
+		this.menuBar = menuBar;
 	}
 }

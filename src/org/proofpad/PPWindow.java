@@ -403,8 +403,9 @@ public class PPWindow extends JFrame {
 			toolbar.setBackground(activeToolbar);
 		}
 		menuBar = new MenuBar(this);
-		splitMain.add(toolbar, BorderLayout.PAGE_START);
 		setJMenuBar(menuBar);
+		editor.setMenuBar(menuBar);
+		splitMain.add(toolbar, BorderLayout.PAGE_START);
 		
 		// Preferences
 		PrefsWindow.addFontChangeListener(new FontChangeListener() {

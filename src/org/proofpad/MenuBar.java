@@ -49,6 +49,7 @@ public class MenuBar extends JMenuBar {
 	public JMenuItem saveItem;
 	JMenu recentMenu;
 	JMenuItem parentItem;
+	private JMenuItem lookUpItem;
 
 	public MenuBar(final PPWindow parent) {
 		this.parent = parent;
@@ -495,10 +496,10 @@ public class MenuBar extends JMenuBar {
 		/* ******* */
 		menu = new JMenu(OSX ? "Help " : "Help");
 		item = new JMenuItem("Look up...");
+		lookUpItem = item;
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey | KeyEvent.ALT_DOWN_MASK));
-		if (parent == null) {
-			item.setEnabled(false);
-		} else {
+		item.setEnabled(false);
+		if (parent != null) {
 			item.addActionListener(parent.helpAction);
 			item.addActionListener(new UserData.LogUse("lookUpMenuItem"));
 		}
@@ -657,6 +658,16 @@ public class MenuBar extends JMenuBar {
 			afterSpace = cs[i]==' ';
 		}
 		return new String(cs);
+	}
+
+	public void enableLookUp(String name) {
+		lookUpItem.setEnabled(true);
+		lookUpItem.setText(applyTitleCase("Look up") + " \"" + name + "\"...");
+	}
+
+	public void disableLookUp() {
+		lookUpItem.setText(applyTitleCase("Look up..."));
+		lookUpItem.setEnabled(false);
 	}
 
 }
