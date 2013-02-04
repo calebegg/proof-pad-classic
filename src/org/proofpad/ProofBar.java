@@ -101,10 +101,6 @@ public class ProofBar extends JComponent {
 			new ImageIcon(getClass().getResource("/Icons/in-progress-blue.gif")).getImage();
 	private final Image admittingThrobber = 
 			new ImageIcon(getClass().getResource("/Icons/admitting.gif")).getImage();
-	private int flashIndex;
-	int flashPhase;
-	Runnable flashTimeout;
-	protected Thread flashThread;
 	public int readOnlyHeight;
 	UndoManager undoManager;
 	private final List<ReadOnlyIndexChangeListener> readOnlyIndexListeners =
@@ -115,20 +111,18 @@ public class ProofBar extends JComponent {
 		public Status status;
 	}
 	private List<UnprovenExp> unprovenStates = new ArrayList<UnprovenExp>();
-
 	final MoreBar mb;
-
 	boolean alreadyShownAnError = false;
-
 	boolean isAdmitting = false;
-
 	private final Acl2Parser parser;
+	private final PPWindow window;
 
-	public ProofBar(final Acl2 acl2, final MoreBar mb, final Acl2Parser parser) {
+	public ProofBar(final Acl2 acl2, final MoreBar mb, final Acl2Parser parser, final PPWindow window) {
 		super();
 		this.acl2 = acl2;
 		this.mb = mb;
 		this.parser = parser;
+		this.window = window;
 		mb.updateWith(data);
 		setCursor(HAND);
 		acl2.addRestartListener(new Acl2.RestartListener() {
@@ -143,6 +137,9 @@ public class ProofBar extends JComponent {
 		setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
 		addMouseListener(new MouseAdapter() {
 			@Override public void mouseClicked(MouseEvent e) {
+				if (e.getButton() != MouseEvent.BUTTON1) {
+					return;
+				}
 				if (numProving > 0) {
 					return;
 				}
@@ -239,18 +236,20 @@ public class ProofBar extends JComponent {
 		// TODO: Draw warnings
 		Graphics2D g = (Graphics2D) gOld;
 		Rectangle clipBounds = g.getClipBounds();
+		int clipYMax = clipBounds.y + clipBounds.height + 10;
 		// TODO: Draw only what's in clipBounds to scroll faster.
 		int begin = 0;
 		int provedSoFar = numProved;
 		int provingSoFar = numProving;
 		int addToNextHeight = 0;
 		boolean isError = error;
-		int flashStartIndex = 0;
 		if (numProving == 0 && numProved == 0) {
 			setReadOnlyHeight(0);
 		}
 		int unprovenIdx = 0;
 		Status expStatus = Status.UNTRIED;
+		boolean calloutBelowShown = false;
+		boolean calloutAboveShown = false;
 		for (Expression e: expressions) {
 			int height = pixelHeight(e);
 			height += addToNextHeight;
@@ -268,7 +267,8 @@ public class ProofBar extends JComponent {
 					setReadOnlyHeight(begin + height);
 				}
 				if (hover && my < begin + height) {
-					g.setPaint(unprove);
+//					g.setPaint(unprove);
+					g.setColor(UNTRIED_COLOR);
 					g.fillRect(0, begin, 30, height);
 					if (my >= begin) {
 						g.setColor(PROVED_COLOR);
@@ -279,11 +279,6 @@ public class ProofBar extends JComponent {
 					}
 				} else {
 					g.setColor(PROVED_COLOR);
-					int flashEndIndex = e.nextIndex + e.nextGapHeight / 2;
-					if (flashPhase % 2 == 1 && flashIndex <= flashEndIndex && flashIndex > flashStartIndex) {
-						g.setColor(PROVED_COLOR.darker());
-					}
-					flashStartIndex = flashEndIndex;
 					g.fillRect(0, begin, 30, height);
 					g.drawImage(successIcon.getImage(), (width - 19) / 2, (height - 19) / 2 + begin, this);
 				}
@@ -294,6 +289,13 @@ public class ProofBar extends JComponent {
 				g.fillRect(0, begin, 30, height);
 				if (hover && my > begin && my <= begin + height) {
 					setToolTipText("An error occured. See the log below for details.");
+				}
+				if (begin > clipBounds.y + clipBounds.height) {
+					window.showErrorCallout(true, new Rectangle(0, begin, 0, height));
+					calloutBelowShown = true;
+				} else if (begin + height < clipBounds.y) {
+					window.showErrorCallout(false, new Rectangle(0, begin, 0, height));
+					calloutAboveShown = true;
 				}
 				g.drawImage(errorIcon.getImage(), (width - 19) / 2, (height - 19) / 2 + begin, this); 
 			} else if (provingSoFar > 0) {
@@ -332,8 +334,13 @@ public class ProofBar extends JComponent {
 			g.drawLine(0, begin, width, begin);
 			begin += height;
 		}
-		setPreferredSize(new Dimension(clipBounds.x + clipBounds.width,
-				clipBounds.y + clipBounds.height + 10));
+		if (!calloutAboveShown) {
+			window.hideErrorCallout(false);
+		}
+		if (!calloutBelowShown) {
+			window.hideErrorCallout(true);
+		}
+		setPreferredSize(new Dimension(clipBounds.x + clipBounds.width, clipYMax));
 	}
 
 	private void setReadOnlyHeight(int newHeight) {
@@ -535,36 +542,12 @@ public class ProofBar extends JComponent {
 		t.start();
 	}
 
-	public void flashAt(int offs) {
-		if (flashThread != null) {
-			flashThread.interrupt();
-		}
-		flashIndex = offs;
-		flashPhase = 1;
-		flashTimeout = new Runnable() {
-			@Override public void run() {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) { return; }
-				flashPhase++;
-				repaint();
-				if (flashPhase <= 5 && !Thread.interrupted()) {
-					flashThread = new Thread(flashTimeout);
-					flashThread.start();
-				} else {
-					flashPhase = 6;
-				}
-			}
-		};
-		flashThread = new Thread(flashTimeout);
-		flashThread.start();
-	}
-
 	public int getReadOnlyIndex() {
 		return readOnlyIndex;
 	}
 
 	public void setReadOnlyIndex(int readOnlyIndex) {
+
 		repaint();
 		if (this.readOnlyIndex != readOnlyIndex) {
 			fireReadOnlyIndexChange(readOnlyIndex);
@@ -631,7 +614,11 @@ public class ProofBar extends JComponent {
 		while (data.size() <= exp.expNum) {
 			data.add(null);
 		}
-		data.subList(exp.expNum, data.size() - 1).clear();
+		try {
+			data.subList(exp.expNum, data.size() - 1).clear();
+		} catch (IndexOutOfBoundsException e) {
+			return;
+		}
 		ExpData expData = new ExpData(exp, response, success ? MsgType.SUCCESS : MsgType.ERROR);
 		while (data.size() <= exp.expNum) {
 			data.add(null);

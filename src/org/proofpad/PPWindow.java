@@ -6,9 +6,12 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.IllegalComponentStateException;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -19,9 +22,13 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
@@ -45,6 +52,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -63,6 +71,51 @@ import org.proofpad.PrefsWindow.FontChangeListener;
 import org.proofpad.Repl.MsgType;
 
 public class PPWindow extends JFrame {
+	public class ErrorCallout extends JComponent {
+		private static final long serialVersionUID = -2592917877553979143L;
+		private final boolean below;
+		
+		private static final int WIDTH = 25;
+		private static final int HEIGHT = 30;
+
+		public ErrorCallout(final boolean below) {
+			this.below = below;
+			setOpaque(false);
+			setVisible(false);
+			setCursor(ProofBar.HAND);
+			addMouseListener(new MouseAdapter() {
+				@Override public void mouseClicked(MouseEvent e) {
+					Rectangle toScroll = below ? errorRectBelow : errorRectAbove;
+					if (toScroll != null) editor.scrollRectToVisible(toScroll);
+				}
+			});
+		}
+
+		public void adjustBounds() {
+			if (below) {
+				setBounds(proofBar.getWidth() + 5,
+						toolbar.getHeight() + editorScroller.getHeight() - HEIGHT - 2, WIDTH + 1, HEIGHT + 1);
+			} else {
+				setBounds(proofBar.getWidth() + 5, toolbar.getHeight() + 1, WIDTH + 1, HEIGHT + 1);
+			}
+		}
+		@Override protected void paintComponent(Graphics gOld) {
+			Graphics2D g = (Graphics2D) gOld;
+			if (!below) {
+				g.translate(0, HEIGHT / 2);
+				g.transform(AffineTransform.getScaleInstance(1, -1));
+				g.translate(0, - HEIGHT / 2);
+			}
+			super.paintComponent(g);
+			g.setColor(ProofBar.ERROR_COLOR);
+			RoundRectangle2D.Float rect = new RoundRectangle2D.Float(0, 0, WIDTH, WIDTH, 6, 6);
+			g.fill(rect);
+			g.draw(rect);
+			g.fill(new Polygon(new int[] {0, 0, HEIGHT - WIDTH}, new int[] {12, HEIGHT, 25}, 3));
+			g.drawImage(ProofBar.errorIcon.getImage(), (25 - 19) / 2, (25 - 19) / 2, null);
+		}
+	}
+
 	static final Color activeToolbar = new Color(.8627f, .8627f, .8627f);
 	static final Color inactiveToolbar = new Color(.9529f, .9529f, .9529f);
 	public static final Color transparent = new Color(1f, 1f, 1f, 0f);
@@ -117,7 +170,6 @@ public class PPWindow extends JFrame {
 	ActionListener admitNextAction;
 	ActionListener undoPrevAction;
 	ActionListener clearReplScrollback;
-	ActionListener tutorialAction;
 	ActionListener saveAsAction;
 	ActionListener showAcl2Output;
 
@@ -130,6 +182,10 @@ public class PPWindow extends JFrame {
 	private JPanel splitTop;
 	boolean userLocation;
 	InfoBar infoBar;
+	ErrorCallout errorCalloutBelow;
+	ErrorCallout errorCalloutAbove;
+	Rectangle errorRectBelow;
+	Rectangle errorRectAbove;
 
 	public PPWindow() {
 		this((File)null);
@@ -197,7 +253,7 @@ public class PPWindow extends JFrame {
 			}
 		});
 		moreBar = new MoreBar(this);
-		proofBar = new ProofBar(acl2, moreBar, parser);
+		proofBar = new ProofBar(acl2, moreBar, parser, this);
 		editor = new CodePane(proofBar);
 		final JPanel editorContainer = new JPanel();
 		editorContainer.setBackground(Color.WHITE);
@@ -334,14 +390,6 @@ public class PPWindow extends JFrame {
 			}
 		};
 
-		setGlassPane(new TutorialGlassPane(this));
-		tutorialAction = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				getGlassPane().setVisible(!getGlassPane().isVisible());
-			}
-		};
-		
 		showAcl2Output = new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
 				new Acl2OutputWindow(acl2).setVisible(true);
@@ -473,6 +521,8 @@ public class PPWindow extends JFrame {
 		addComponentListener(new ComponentAdapter() {
 			@Override public void componentResized(ComponentEvent e) {
 				userLocation = true;
+				errorCalloutAbove.adjustBounds();
+				errorCalloutBelow.adjustBounds();
 			}
 			
 			@Override public void componentMoved(ComponentEvent e) {
@@ -517,6 +567,8 @@ public class PPWindow extends JFrame {
 				new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent pce) {
+				errorCalloutAbove.adjustBounds();
+				errorCalloutBelow.adjustBounds();
 				adjustMaximizedBounds();
 			}
 		});
@@ -536,6 +588,11 @@ public class PPWindow extends JFrame {
 				proofBar.repaint();
 			}
 		});
+		
+		errorCalloutBelow = new ErrorCallout(true);
+		errorCalloutAbove = new ErrorCallout(false);
+		getLayeredPane().add(errorCalloutBelow, JLayeredPane.MODAL_LAYER);
+		getLayeredPane().add(errorCalloutAbove, JLayeredPane.MODAL_LAYER);
 		
 		String[] iconPaths = {
 				"/Icons/icon.iconset/icon_16x16.png",
@@ -870,5 +927,25 @@ public class PPWindow extends JFrame {
 			PPWindow win = new PPWindow(file);
 			win.setVisible(true);
 		}		
+	}
+	
+	public void showErrorCallout(boolean below, Rectangle location) {
+		if (below) {
+			errorCalloutBelow.adjustBounds();
+			errorCalloutBelow.setVisible(true);
+			errorRectBelow = location;
+		} else {
+			errorCalloutAbove.adjustBounds();
+			errorCalloutAbove.setVisible(true);
+			errorRectAbove = location;
+		}
+	}
+	
+	public void hideErrorCallout(boolean below) {
+		if (below) {
+			errorCalloutBelow.setVisible(false);
+		} else {
+			errorCalloutAbove.setVisible(false);
+		}
 	}
 }
