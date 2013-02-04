@@ -73,7 +73,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 					} catch (IOException e1) {
 					} catch (URISyntaxException e1) { }
 				} else {
-					String[] opts = new String[] { "Index", "Cancel" };
+					String[] opts = new String[] { "Go to Index", "Close" };
 					int choice = JOptionPane.showOptionDialog(null,
 							"No documentation found for \"" + name + "\"",
 							"Topic not found",
