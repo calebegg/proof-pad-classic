@@ -620,7 +620,7 @@ public class PPWindow extends JFrame {
 	
 	@Override public void setVisible(boolean visible) {
 		super.setVisible(visible);
-		if (visible) {
+		if (visible && !acl2.hasStarted()) {
 			acl2.start();
 		}
 	}
