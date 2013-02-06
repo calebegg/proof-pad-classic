@@ -19,7 +19,7 @@ public class SExpUtils {
 		int height = 0;
 		boolean first = false;
 		StringBuilder contents = new StringBuilder();
-		boolean contentsAdmittable = true;
+		boolean contentsAdmittable = false;
 		ExpType firstType = ExpType.FINAL;
 		int charIndex = -1;
 		Expression prev = null;
