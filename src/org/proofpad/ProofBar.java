@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.LinearGradientPaint;
 import java.awt.MultipleGradientPaint;
-import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +33,8 @@ import org.proofpad.SExpUtils.ExpType;
 
 public class ProofBar extends JComponent {
 	
-	static final Cursor HAND = new Cursor(Cursor.HAND_CURSOR);
+	final static Cursor HAND = new Cursor(Cursor.HAND_CURSOR);
+	final static int WIDTH = 20;
 
 	private final class PBMouseListener extends MouseAdapter {
 		private final Acl2 acl2;
@@ -169,16 +169,12 @@ public class ProofBar extends JComponent {
 				MultipleGradientPaint.CycleMethod.REPEAT);
 	}
 	
-	static Paint prove = diagonalPaint(PROVED_COLOR, UNTRIED_COLOR, 8, .8f);
-	static Paint unprove = diagonalPaint(PROVED_COLOR, UNTRIED_COLOR, 8, .2f);
-
 	private static final long serialVersionUID = 8267405348010307267L;
 	
 	List<Expression> expressions;
 	List<Expression> proofQueue = new LinkedList<Expression>();
 	int my;
 	boolean hover = false;
-	final static int width = 20;
 	
 	int lineHeight;
 	final Acl2 acl2;
@@ -225,7 +221,7 @@ public class ProofBar extends JComponent {
 				generateSegments();
 			}
 		});
-		setPreferredSize(new Dimension(width, 0));
+		setPreferredSize(new Dimension(WIDTH, 0));
 		setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.GRAY));
 		addMouseListener(new PBMouseListener(acl2, mb));
 		addMouseMotionListener(new MouseMotionListener() {
@@ -282,7 +278,7 @@ public class ProofBar extends JComponent {
 				g.setColor(Color.GRAY);
 				g.draw(rect);
 				if (seg.icon != null) {
-					g.drawImage(seg.icon, (width - seg.icon.getWidth(this)) / 2,
+					g.drawImage(seg.icon, (WIDTH - seg.icon.getWidth(this)) / 2,
 							(height - seg.icon.getHeight(this)) / 2 + begin, this);
 				}
 				int end = begin + height;
@@ -309,7 +305,7 @@ public class ProofBar extends JComponent {
 						g.setColor(UNTRIED_COLOR);
 						setToolTipText("Undo admitting this term.");
 						if (my > begin) {
-							g.fillPolygon(new int[] {1, 1, width / 2, width - 1, width - 1},
+							g.fillPolygon(new int[] {1, 1, WIDTH / 2, WIDTH - 1, WIDTH - 1},
 										  new int[] {begin + 20, begin + 9, begin, begin + 9, begin + 20},
 										  5);
 						}
@@ -323,7 +319,7 @@ public class ProofBar extends JComponent {
 						g.draw(rect);
 						g.setColor(PROVED_COLOR);
 						if (my < end) {
-							g.fillPolygon(new int[] {1, 1, width / 2, width - 1, width - 1},
+							g.fillPolygon(new int[] {1, 1, WIDTH / 2, WIDTH - 1, WIDTH - 1},
 									  new int[] {end - 20, end - 9, end, end - 9, end - 20},
 									  5);
 							setToolTipText("Admit this term.");
