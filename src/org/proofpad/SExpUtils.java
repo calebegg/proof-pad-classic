@@ -28,7 +28,6 @@ public class SExpUtils {
 			height++;
 			Token token = doc.getTokenListForLine(i);
 			while (token != null && token.offset != -1) {
-				//System.out.println(token);
 				if (charIndex == -1) {
 					charIndex = token.offset;
 				}
