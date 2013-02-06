@@ -552,7 +552,9 @@ public class Acl2Parser extends AbstractParser {
 				ParseToken parent = s.size() <= 1 ? null : s.get(s.size() - 2);
 				ParseToken grandparent = s.size() <= 2 ? null : s.get(s.size() - 3);
 				boolean isVariableOfParent = parent != null && parent.name != null &&
-						(parent.name.equals("defun") && parent.params.size() == 2 ||
+						((parent.name.equals("defun") ||
+								parent.name.equals("defmacro") ||
+								parent.name.equals("defabbrev")) && parent.params.size() == 2 ||
 						 parent.name.equals("mv-let") && parent.params.size() == 1);
 				boolean isVariableOfGrandparent = (grandparent != null && grandparent.name != null &&
 						((grandparent.name.equals("let") || grandparent.name.equals("let*")) &&
