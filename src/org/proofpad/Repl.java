@@ -136,7 +136,7 @@ public class Repl extends JPanel {
 
 	public class StatusLabel extends JLabel {
 		private static final long serialVersionUID = -6292618935259682146L;
-		static final int size = ProofBar.width;
+		static final int size = ProofBar.WIDTH;
 		public StatusLabel(MsgType msg) {
 			setHorizontalAlignment(CENTER);
 			setMsgType(msg);
@@ -346,6 +346,8 @@ public class Repl extends JPanel {
 	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL: The symbol " +
 			"(.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in " +
 			"ACL2\\. Please define it\\..*");
+	private static Pattern checkExpectFailed = Pattern.compile("HARD ACL2 ERROR in TESTING: " +
+			"Expected: (.*?) Actual: (.*?) ACL2 Error in TOP-LEVEL: Evaluation aborted.*");
 	
 	private static Map<String, String> commonGuards = new HashMap<String, String>();
 	static {
@@ -417,10 +419,12 @@ public class Repl extends JPanel {
 				   (match = nonRec.matcher(joined)).matches() ||
 				   (match = admission.matcher(joined)).matches()) {
 			if (type == MsgType.ERROR) {
-				msgs.add(new Message("Admission of " + match.group(1).toLowerCase() + " failed.", MsgType.ERROR));
+				msgs.add(new Message("Admission of " + match.group(1).toLowerCase() + " failed.",
+						MsgType.ERROR));
 				Main.userData.addReplMsg("admissionFailed");
 			} else {
-				msgs.add(new Message(match.group(1).toLowerCase() + " was admitted successfully.", MsgType.SUCCESS));
+				msgs.add(new Message(match.group(1).toLowerCase() + " was admitted successfully.",
+						MsgType.SUCCESS));
 				Main.userData.addReplMsg("admissionSucceeded");
 			}
 		}
@@ -432,6 +436,11 @@ public class Repl extends JPanel {
 		if ((match = proved.matcher(joined)).find()) {
 			msgs.add(new Message("Proof successful.", MsgType.SUCCESS));
 			Main.userData.addReplMsg("proofSuccess");
+		}
+		if ((match = checkExpectFailed.matcher(joined)).matches()) {
+			msgs.add(new Message("Test failed. Expected: " + match.group(1) + "; Actual: " +
+					match.group(2), MsgType.ERROR));
+			Main.userData.addReplMsg("checkExpectFailed");
 		}
 		if (isTestResults(joined)) {
 			if (type == MsgType.ERROR) {
