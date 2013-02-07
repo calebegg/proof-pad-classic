@@ -1,40 +1,24 @@
 package org.proofpad;
 
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.Rectangle;
+import org.fife.ui.rsyntaxtextarea.*;
+import org.fife.ui.rtextarea.RUndoManager;
+
+import javax.swing.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.undo.UndoManager;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.swing.BorderFactory;
-import javax.swing.JOptionPane;
-import javax.swing.ToolTipManager;
-import javax.swing.event.CaretEvent;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.undo.UndoManager;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
-import org.fife.ui.rsyntaxtextarea.Style;
-import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
-import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rtextarea.RUndoManager;
 
 public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 
@@ -58,10 +42,10 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 					Field f = ttManager.getClass().getDeclaredField("tipShowing");
 					f.setAccessible(true);
 					tipShowing = f.getBoolean(ttManager);
-				} catch (SecurityException e1) {
-				} catch (NoSuchFieldException e1) {
-				} catch (IllegalArgumentException e1) {
-				} catch (IllegalAccessException e1) { }
+				} catch (SecurityException ignored) {
+				} catch (NoSuchFieldException ignored) {
+				} catch (IllegalArgumentException ignored) {
+				} catch (IllegalAccessException ignored) { }
 				if (tipShowing) {
 					name = getWordAtMouse();
 				} else {
@@ -72,12 +56,9 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 			}
 		    if (name != null) {
 				if (Main.cache.getDocs().containsKey(name.toUpperCase())) {
-					try {
-						Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
-								+ name.toUpperCase() + ".html"));
-					} catch (IOException e1) {
-					} catch (URISyntaxException e1) { }
-				} else {
+                    Utils.browseTo("http://www.cs.utexas.edu/~moore/acl2/v4-3/"
+                            + name.toUpperCase() + ".html");
+                } else {
 					String[] opts = new String[] { "Go to Index", "Close" };
 					int choice = JOptionPane.showOptionDialog(null,
 							"No documentation found for \"" + name + "\"",
@@ -88,11 +69,8 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 							opts,
 							opts[1]);
 					if (choice == 0) {
-						try {
-							Desktop.getDesktop().browse(new URI("http://www.cs.utexas.edu/~moore/acl2/v4-3/acl2-doc-index.html"));
-						} catch (IOException e1) {
-						} catch (URISyntaxException e1) { }
-					}
+                        Utils.browseTo("http://www.cs.utexas.edu/~moore/acl2/v4-3/acl2-doc-index.html");
+                    }
 				}
 			}
 		}
@@ -172,7 +150,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 				int readOnlyLine = 0;
 				try {
 					readOnlyLine = getLineOfOffset(pb.getReadOnlyIndex() + 2) - 1;
-				} catch (BadLocationException e1) { }
+				} catch (BadLocationException ignored) { }
 				if (getCaretLineNumber() == readOnlyLine + 1
 						&& e.getKeyCode() == KeyEvent.VK_UP) {
 					// Up arrow at the top of the readable area moves the cursor
@@ -263,7 +241,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 			boolean breakBefore = pb.getReadOnlyIndex() >= 0;
 			getDocument().insertString(pb.getReadOnlyIndex() + 1, (breakBefore ? "\n" : "") + form.trim(), null);
 			pb.admitNextForm();
-		} catch (BadLocationException e) { }
+		} catch (BadLocationException ignored) { }
 	}
 	
 	public void highlightBracketMatch() {
@@ -327,37 +305,36 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	
 	@Override public Iterator<Token> iterator() {
 		final CodePane that = this;
-		Iterator<Token> it = new Iterator<Token>() {
-			int line = -1;
-			CodePane pane = that;
-			Token token = null;
-			boolean first = true;
+        return new Iterator<Token>() {
+            int line = -1;
+            CodePane pane = that;
+            Token token = null;
+            boolean first = true;
 
-			@Override public boolean hasNext() {
-				return first || token != null && token.type != Token.NULL;
-			}
+            @Override public boolean hasNext() {
+                return first || token != null && token.type != Token.NULL;
+            }
 
-			@Override public Token next() {
-				first = false;
-				if (token != null) {
-					token = token.getNextToken();
-				}
-				while (token == null || token.type == Token.NULL) {
-					line++;
-					if (line >= pane.getLineCount()) {
-						break;
-					}
-					token = pane.getTokenListForLine(line);
-				}
+            @Override public Token next() {
+                first = false;
+                if (token != null) {
+                    token = token.getNextToken();
+                }
+                while (token == null || token.type == Token.NULL) {
+                    line++;
+                    if (line >= pane.getLineCount()) {
+                        break;
+                    }
+                    token = pane.getTokenListForLine(line);
+                }
 //				System.out.println(token);
-				return token;
-			}
+                return token;
+            }
 
-			@Override public void remove() {
-				throw new RuntimeException();
-			}	
-		};
-		return it;
+            @Override public void remove() {
+                throw new RuntimeException();
+            }
+        };
 	}
 	
 	@Override protected RUndoManager createUndoManager() {
@@ -397,7 +374,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		int line = 0;
 	    try {
 	    	line = getLineOfOffset(loc);
-	    } catch (BadLocationException e1) { }
+	    } catch (BadLocationException ignored) { }
 	    Token t = getTokenListForLine(line);
 	    while (t != null && t.textOffset + t.textCount < loc) {
 	    	t = t.getNextToken();

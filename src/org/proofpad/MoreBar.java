@@ -1,10 +1,9 @@
 package org.proofpad;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import org.proofpad.ProofBar.ExpData;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -14,12 +13,6 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-
-import org.proofpad.ProofBar.ExpData;
 
 public class MoreBar extends JComponent {
 	
@@ -100,7 +93,7 @@ public class MoreBar extends JComponent {
 		int top = scrollbarVal;
 		g.setBackground(Color.WHITE);
 		g.clearRect(0, 0, width, getHeight());
-		g.setColor(Color.GRAY);
+		g.setColor(Colors.PROOF_BAR_BORDER);
 		g.drawLine(width, 0, width, getHeight());
 		int offset = -top;
 		if (data == null) return;
@@ -131,9 +124,9 @@ public class MoreBar extends JComponent {
 						angle = 0;
 					}
 				}
-				g.setColor(Color.GRAY);
-				g.drawLine(0, offset + height, width, offset + height);
 				if (ex.output.length() > 0) {
+					g.setColor(Colors.PROOF_BAR_BORDER);
+					g.drawLine(0, offset + height, width, offset + height);
 					AffineTransform savedTx = g.getTransform();
 					g.rotate(angle, width / 2, offset + height / 2);
 					g.drawImage(moreIcon.getImage(), (width - 19) / 2, (height - 19) / 2
@@ -190,10 +183,9 @@ public class MoreBar extends JComponent {
 	}
 	
 	static MouseEvent shiftMouseEvent(MouseEvent e) {
-		MouseEvent ret = new MouseEvent((Component) e.getSource(), e.getID(), e.getWhen(),
-				e.getModifiers(), e.getX() - width / 2, e.getY(), e.getXOnScreen() - width / 2,
-				e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(), e.getButton());
-		return ret;
+        return new MouseEvent((Component) e.getSource(), e.getID(), e.getWhen(),
+                e.getModifiers(), e.getX() - width / 2, e.getY(), e.getXOnScreen() - width / 2,
+                e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(), e.getButton());
 	}
 
 	public int getScrollbarVal() {

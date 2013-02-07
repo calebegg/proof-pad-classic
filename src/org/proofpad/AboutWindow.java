@@ -1,31 +1,15 @@
 package org.proofpad;
 
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 
 public class AboutWindow extends PPDialog {
 	class License {
@@ -122,11 +106,11 @@ public class AboutWindow extends PPDialog {
 	}
 	
 	public AboutWindow(PPWindow parent) {
-		super(parent, "About Proof Pad");
+		super(parent, "About " + Main.displayName);
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		JLabel label = new JLabel();
-		if (icon128 != null) label.setIcon(icon128);
+		label.setIcon(icon128);
 		label.setAlignmentX(CENTER_ALIGNMENT);
 		add(label);
 		add(Box.createVerticalStrut(6));
@@ -145,8 +129,8 @@ public class AboutWindow extends PPDialog {
 			@Override public void actionPerformed(ActionEvent arg0) {
 				try {
 					Desktop.getDesktop().browse(new URI("https://github.com/calebegg/proof-pad/"));
-				} catch (IOException e) {
-				} catch (URISyntaxException e) { }
+				} catch (IOException ignored) {
+				} catch (URISyntaxException ignored) { }
 			}
 		});
 		button.setMaximumSize(button.getPreferredSize());
@@ -181,14 +165,14 @@ public class AboutWindow extends PPDialog {
 				hash += String.format("%02x", b);
 			}
 			hash = hash.substring(0, 5);
-		} catch (NoSuchAlgorithmException e) {
-		} catch (FileNotFoundException e) {
-		} catch (IOException e) { }
+		} catch (NoSuchAlgorithmException ignored) {
+		} catch (FileNotFoundException ignored) {
+		} catch (IOException ignored) { }
 		JLabel versionLabel = new JLabel("Release number: " + Main.RELEASE + ", Release code: " + hash);
 		versionLabel.setFont(versionLabel.getFont().deriveFont(10.0f));
 		versionLabel.setAlignmentX(CENTER_ALIGNMENT);
 		add(versionLabel);
-		
+
 		add(Box.createVerticalStrut(6));
 		
 		if (!Main.OSX) {

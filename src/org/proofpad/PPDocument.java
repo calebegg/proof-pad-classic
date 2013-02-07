@@ -1,14 +1,13 @@
 package org.proofpad;
 
-import java.util.Stack;
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.Token;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rsyntaxtextarea.Token;
+import java.util.Stack;
 
 public class PPDocument extends RSyntaxDocument {
 	private static final long serialVersionUID = 7048788640273203918L;
@@ -144,7 +143,7 @@ public class PPDocument extends RSyntaxDocument {
 			if (caret != null && Prefs.autoClose.get() && len == 1 && getText(offs, 2).equals("()")) {
 				len = 2;
 			}
-		} else if (pb != null && pb.getReadOnlyIndex() != -1) {
+		} else if (pb.getReadOnlyIndex() != -1) {
 			while (pb.getReadOnlyIndex() >= offs) {
 				pb.undoOneItem();
 			}

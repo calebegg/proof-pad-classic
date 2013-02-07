@@ -1,23 +1,15 @@
 package org.proofpad;
 
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.ArrayList;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.ArrayList;
 
 public class FilePicker extends JPanel {
 
@@ -33,7 +25,7 @@ public class FilePicker extends JPanel {
 		browseButton = new JButton("Browse...");
 		browseButton.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				String path = null;
+				String path;
 				if (Main.OSX) {
 					FileDialog fc = new FileDialog((Frame) null, title);
 					fc.setMode(mode);
@@ -41,7 +33,7 @@ public class FilePicker extends JPanel {
 					try {
 						path = new File(fc.getDirectory(), fc.getFile()).getAbsolutePath();
 						pathBox.setText(path);
-					} catch (Exception ex) { }
+					} catch (Exception ignored) { }
 				} else {
 					JFileChooser fc = new JFileChooser();
 					fc.setSelectedFile(new File(pathBox.getText()));

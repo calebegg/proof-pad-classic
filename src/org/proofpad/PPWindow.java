@@ -1,32 +1,18 @@
 package org.proofpad;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.IllegalComponentStateException;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
+import org.fife.ui.rtextarea.Gutter;
+import org.proofpad.Acl2.ErrorListener;
+import org.proofpad.InfoBar.InfoButton;
+import org.proofpad.PrefWindow.FontChangeListener;
+import org.proofpad.Repl.MsgType;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.undo.UndoManager;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.print.PrinterException;
@@ -35,40 +21,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.prefs.Preferences;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.undo.UndoManager;
-
-import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rtextarea.Gutter;
-import org.proofpad.Acl2.ErrorListener;
-import org.proofpad.InfoBar.InfoButton;
-import org.proofpad.PrefsWindow.FontChangeListener;
-import org.proofpad.Repl.MsgType;
 
 public class PPWindow extends JFrame {
 	public class ErrorCallout extends JComponent {
@@ -125,12 +84,9 @@ public class PPWindow extends JFrame {
 			}
 			@Override
 			public boolean accept(File f) {
-				if (f.isDirectory()) {
-					return true;
-				}
-				return f.getName().endsWith(".lisp") || f.getName().endsWith(".lsp")
-						|| f.getName().endsWith(".acl2");
-			}
+                return f.isDirectory() || f.getName().endsWith(".lisp") || f.getName().endsWith(".lsp") ||
+                        f.getName().endsWith(".acl2");
+            }
 		});
 	}
 	private static final long serialVersionUID = -7435370608709935765L;
@@ -148,8 +104,7 @@ public class PPWindow extends JFrame {
 	final CodePane editor;
 	JButton undoButton;
 	JButton redoButton;
-	Token tokens;
-	Acl2 acl2;
+    Acl2 acl2;
 	ProofBar proofBar;
 	MenuBar menuBar;
 	JScrollPane editorScroller;
@@ -172,11 +127,9 @@ public class PPWindow extends JFrame {
 
 	MoreBar moreBar;
 	Gutter gutter;
-	Runnable afterPreview;
-	JPanel westPanel;
+    JPanel westPanel;
 	public OutputWindow outputWindow;
-	boolean findBarIsOpen;
-	private JPanel splitTop;
+    private JPanel splitTop;
 	boolean userLocation;
 	InfoBar infoBar;
 	ErrorCallout errorCalloutBelow;
@@ -228,7 +181,7 @@ public class PPWindow extends JFrame {
 				acl2Paths.add("C:\\PROGRA~3\\PROOFP~1\\acl2\\run_acl2.exe");
 			}
 			try {
-				String maybeAcl2Path = "";
+				String maybeAcl2Path;
 				String jarPath = Main.getJarPath();
 				File jarFile = new File(jarPath);
 				String sep = System.getProperty("file.separator");
@@ -352,7 +305,7 @@ public class PPWindow extends JFrame {
 		
 		includeBookAction = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				BookViewer viewer = new BookViewer(PPWindow.this);
 				viewer.setVisible(true);
 			}
@@ -360,14 +313,14 @@ public class PPWindow extends JFrame {
 		
 		admitNextAction = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				proofBar.admitNextForm();
 			}
 		};
 		
 		undoPrevAction = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				proofBar.undoOneItem();
 			}
 		};
@@ -381,13 +334,13 @@ public class PPWindow extends JFrame {
 		
 		reindentAction = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				Utils.reindent(editor);
 			}
 		};
 
 		showAcl2Output = new ActionListener() {
-			@Override public void actionPerformed(ActionEvent arg0) {
+			@Override public void actionPerformed(ActionEvent e) {
 				new Acl2OutputWindow(acl2).setVisible(true);
 			}
 		};
@@ -404,37 +357,37 @@ public class PPWindow extends JFrame {
 		splitMain.add(toolbar, BorderLayout.PAGE_START);
 		
 		// Preferences
-		PrefsWindow.addFontChangeListener(new FontChangeListener() {
-			@Override
-			public void fontChanged(Font font) {
-				editor.setFont(font);
-				repl.setFont(font);
-				proofBar.setLineHeight(editor.getLineHeight());
-				editorScroller.getVerticalScrollBar().setUnitIncrement(editor.getLineHeight());
-				editorScroller.getHorizontalScrollBar().setUnitIncrement(editor.getLineHeight());
-			}
-		});
-		PrefsWindow.addWidthGuideChangeListener(new PrefsWindow.WidthGuideChangeListener() {
-			@Override
-			public void widthGuideChanged(int value) {
-				editor.widthGuide = value;
-				editor.repaint();
-			}
-		});
-		PrefsWindow.addToolbarVisibleListener(new PrefsWindow.ToolbarVisibleListener() {
-			@Override
-			public void toolbarVisible(boolean visible) {
-				toolbar.setVisible(visible);
-				getRootPane().revalidate();
-			}
-		});
-		PrefsWindow.addShowLineNumbersListener(new PrefsWindow.ShowLineNumbersListener() {
-			@Override
-			public void lineNumbersVisible(boolean visible) {
-				gutter.setVisible(visible);
-				westPanel.revalidate();
-			}
-		});
+		PrefWindow.addFontChangeListener(new FontChangeListener() {
+            @Override
+            public void fontChanged(Font font) {
+                editor.setFont(font);
+                repl.setFont(font);
+                proofBar.setLineHeight(editor.getLineHeight());
+                editorScroller.getVerticalScrollBar().setUnitIncrement(editor.getLineHeight());
+                editorScroller.getHorizontalScrollBar().setUnitIncrement(editor.getLineHeight());
+            }
+        });
+		PrefWindow.addWidthGuideChangeListener(new PrefWindow.WidthGuideChangeListener() {
+            @Override
+            public void widthGuideChanged(int value) {
+                editor.widthGuide = value;
+                editor.repaint();
+            }
+        });
+		PrefWindow.addToolbarVisibleListener(new PrefWindow.ToolbarVisibleListener() {
+            @Override
+            public void toolbarVisible(boolean visible) {
+                toolbar.setVisible(visible);
+                getRootPane().revalidate();
+            }
+        });
+		PrefWindow.addShowLineNumbersListener(new PrefWindow.ShowLineNumbersListener() {
+            @Override
+            public void lineNumbersVisible(boolean visible) {
+                gutter.setVisible(visible);
+                westPanel.revalidate();
+            }
+        });
 		
 		///// Event Listeners /////
 
@@ -471,7 +424,7 @@ public class PPWindow extends JFrame {
 		});
 		
 		doc.addDocumentListener(new DocumentListener() {
-			private void update(DocumentEvent e) {
+			private void update() {
 				List<Expression> exps = SExpUtils.topLevelExps(doc);
 				proofBar.adjustHeights((LinkedList<Expression>) exps);
 				fixUndoRedoStatus();
@@ -479,13 +432,13 @@ public class PPWindow extends JFrame {
 				setSaved(false);
 			}
 			@Override public void changedUpdate(DocumentEvent e) {
-				update(e);
+				update();
 			}
 			@Override public void insertUpdate(DocumentEvent e) {
-				update(e);
+				update();
 			}
 			@Override public void removeUpdate(DocumentEvent e) {
-				update(e);
+				update();
 			}
 		});
 
@@ -683,7 +636,7 @@ public class PPWindow extends JFrame {
 							+ " you want to save before closing?",
 					"Unsaved changes", JOptionPane.DEFAULT_OPTION,
 					JOptionPane.WARNING_MESSAGE, null, new String[] { "Save",
-							"Don't Save", "Cancel" }, "Save");
+							Main.OSX ? "Delete" : "Don't save", "Cancel" }, "Save");
 		}
 		if (response == 0) {
 			saveFile();
@@ -805,21 +758,12 @@ public class PPWindow extends JFrame {
 		getRootPane().putClientProperty("Window.documentFile", file);
 		setTitle(file.getName() + (!Main.OSX ? " - Proof Pad" : ""));
 		openFile = file;
-		Scanner scan = null;
-		try {
-			scan = new Scanner(openFile);
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-			return;
-		}
-		String content = scan.useDelimiter("\\Z").next();
-		content = content.replaceAll("\\r", "");
-		scan.close();
+        String content = Utils.readFile(openFile);
 		editor.setText(content);
 		editor.setCaretPosition(0);
-		java.util.List<Expression> exps = SExpUtils
+		java.util.List<Expression> expressions = SExpUtils
 				.topLevelExps((PPDocument) editor.getDocument());
-		proofBar.adjustHeights((LinkedList<Expression>) exps);
+		proofBar.adjustHeights((LinkedList<Expression>) expressions);
 		setSaved(true);
 		adjustMaximizedBounds();
 		updateWindowMenu();
@@ -925,7 +869,7 @@ public class PPWindow extends JFrame {
 	public static void createOrReuse(File file) {
 		if (PPWindow.windows.size() == 1 &&
 				PPWindow.windows.get(0).openFile == null &&
-				PPWindow.windows.get(0).isSaved == true) {
+				PPWindow.windows.get(0).isSaved) {
 			PPWindow.windows.get(0).openAndDisplay(file);
 		} else {
 			PPWindow win = new PPWindow(file);

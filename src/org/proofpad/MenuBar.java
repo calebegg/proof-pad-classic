@@ -1,29 +1,18 @@
 package org.proofpad;
 
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GraphicsEnvironment;
-import java.awt.Toolkit;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
+import org.proofpad.PrefWindow.ToolbarVisibleListener;
+
+import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultEditorKit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.prefs.Preferences;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.KeyStroke;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultEditorKit;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
-import org.proofpad.PrefsWindow.ToolbarVisibleListener;
 
 /*
  * GNOME HIG: http://developer.gnome.org/hig-book/3.4/menus-standard.html.en
@@ -54,7 +43,7 @@ public class MenuBar extends JMenuBar {
 		
 		final ActionListener prefsAction = new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				PrefsWindow.getInstance().setVisible(true);
+				PrefWindow.getInstance().setVisible(true);
 			}
 		};
 		
@@ -246,7 +235,7 @@ public class MenuBar extends JMenuBar {
 						int selStart = parent.editor.getSelectionStart();
 						int selEnd = parent.editor.getSelectionEnd();
 						parent.editor.getDocument().remove(selStart, selEnd - selStart);
-					} catch (BadLocationException e1) { }
+					} catch (BadLocationException ignored) { }
 				}
 			});
 			item.addActionListener(new UserData.LogUse("deleteMenuItem"));
@@ -298,23 +287,25 @@ public class MenuBar extends JMenuBar {
 		final JMenuItem showToolbarItem;
 		if (OSX) {
 			showToolbarItem = new JMenuItem(getToolbarLabelPrefix() + "Toolbar");
-			PrefsWindow.addToolbarVisibleListener(new ToolbarVisibleListener() {
-				@Override public void toolbarVisible(boolean visible) {
-					showToolbarItem.setText(getToolbarLabelPrefix() + "Toolbar");
-				}
-			});
+			PrefWindow.addToolbarVisibleListener(new ToolbarVisibleListener() {
+                @Override
+                public void toolbarVisible(boolean visible) {
+                    showToolbarItem.setText(getToolbarLabelPrefix() + "Toolbar");
+                }
+            });
 		} else {
 			showToolbarItem = new JCheckBoxMenuItem("Toolbar");
 			showToolbarItem.setSelected(Prefs.showToolbar.get());
-			PrefsWindow.addToolbarVisibleListener(new ToolbarVisibleListener() {
-				@Override public void toolbarVisible(boolean visible) {
-					showToolbarItem.setSelected(visible);
-				}
-			});
+			PrefWindow.addToolbarVisibleListener(new ToolbarVisibleListener() {
+                @Override
+                public void toolbarVisible(boolean visible) {
+                    showToolbarItem.setSelected(visible);
+                }
+            });
 		}
 		showToolbarItem.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				PrefsWindow.toggleToolbarVisible();
+				PrefWindow.toggleToolbarVisible();
 				showToolbarItem.setText(getToolbarLabelPrefix() + "Toolbar");
 			}
 		});
@@ -332,7 +323,7 @@ public class MenuBar extends JMenuBar {
 			@Override public void actionPerformed(ActionEvent e) {
 				Font font = Prefs.font.get();
 				Prefs.font.set(font.deriveFont((float) (font.getSize() + 2)));
-				PrefsWindow.fireFontChangeEvent();
+				PrefWindow.fireFontChangeEvent();
 			}
 		});
 		menu.add(item);
@@ -346,7 +337,7 @@ public class MenuBar extends JMenuBar {
 			@Override public void actionPerformed(ActionEvent e) {
 				Font font = Prefs.font.get();
 				Prefs.font.set(font.deriveFont((float) (font.getSize() - 2)));
-				PrefsWindow.fireFontChangeEvent();
+				PrefWindow.fireFontChangeEvent();
 			}
 		});
 		menu.add(item);
@@ -357,7 +348,7 @@ public class MenuBar extends JMenuBar {
 				@Override public void actionPerformed(ActionEvent e) {
 					Font font = Prefs.font.get();
 					Prefs.font.set(font.deriveFont((float) Prefs.fontSize.def));
-					PrefsWindow.fireFontChangeEvent();
+					PrefWindow.fireFontChangeEvent();
 				}
 			});
 			menu.add(item);

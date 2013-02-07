@@ -1,21 +1,15 @@
 package org.proofpad;
 
+import org.proofpad.Acl2Parser.CacheKey;
+import org.proofpad.Acl2Parser.CacheSets;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.ObjectOutputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.proofpad.Acl2Parser.CacheKey;
-import org.proofpad.Acl2Parser.CacheSets;
 
 
 public class GenerateData {
@@ -26,28 +20,20 @@ public class GenerateData {
 
 		// Documentation
 		Map<String, String> docs = new HashMap<String, String>();
-		File docdir = new File(pathToAcl2 + "doc" + File.separator + "HTML");
-		for (File f : docdir.listFiles(new FilenameFilter() {
+		File docDir = new File(pathToAcl2 + "doc" + File.separator + "HTML");
+        Pattern otherSymbol = Pattern.compile("(_.*?_)");
+		for (File f : docDir.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File file, String s) {
 				return s.endsWith(".html");
 			}
 		})) {
-			Scanner docScanner = null;
-			try {
-				docScanner = new Scanner(f);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				return;
-			}
-			docScanner.useDelimiter("\\Z");
-			String doc = docScanner.next();
-			docScanner.close();
+			String doc = Utils.readFile(f);
 			Matcher m = Pattern.compile("</h2>(.*?)\\n").matcher(doc);
 			if (!m.find()) {
 				continue;
 			}
-			String shortdoc = m.group(1)
+			String shortDoc = m.group(1)
 					.replaceAll("<.*?>", "");
 			String fun = f.getName();
 			fun = fun.substring(0, fun.length() - 5)
@@ -62,11 +48,12 @@ public class GenerateData {
 					.replaceAll("_rparen_", ")")
 					.replaceAll("_qm_", "?")
 					.replaceAll("_at_", "@");
-			if ((m = Pattern.compile("_.*?_").matcher(fun)).find()) {
-				continue;
-			}
-			docs.put(fun, shortdoc);
-		}
+            if ((m = otherSymbol.matcher(fun)).find()) {
+                System.err.println("Unexpected symbol found: " + m.group(1));
+            } else {
+                docs.put(fun, shortDoc);
+            }
+        }
 		docs.put("DEFUN", "Defines a new function and adds it to the logical world so it can be " +
 				"used in other functions and in the console.");
 		cache.setDocs(docs);
@@ -74,22 +61,28 @@ public class GenerateData {
 		// Parameters
 
 		// Included book parse results
-		File bookdir = new File(pathToAcl2 + "books");
+		File bookDir = new File(pathToAcl2 + "books");
 		List<File> booksToParse = new LinkedList<File>();
 		Map<CacheKey, CacheSets> bookCache = new HashMap<CacheKey, CacheSets>();
-		booksToParse.addAll(Arrays.asList(bookdir.listFiles()));
-		do {
+        File[] newBooks = bookDir.listFiles();
+        if (newBooks != null) {
+            booksToParse.addAll(Arrays.asList(newBooks));
+        }
+        do {
 			if (booksToParse.size() == 0) {
 				break;
 			}
 			File book = booksToParse.remove(0);
 			if (book.getName().equals("rtl")) continue;
 			if (book.isDirectory()) {
-				booksToParse.addAll(Arrays.asList(book.listFiles()));
-			} else if (book.getName().endsWith(".lisp") &&
+                File[] children = book.listFiles();
+                if (children != null) {
+                    booksToParse.addAll(Arrays.asList(children));
+                }
+            } else if (book.getName().endsWith(".lisp") &&
 					!bookCache.containsKey(new CacheKey(book, Long.MAX_VALUE))) {
 				bookCache.put(new CacheKey(book, Long.MAX_VALUE),
-						Acl2Parser.parseBook(book, bookdir, bookCache));
+						Acl2Parser.parseBook(book, bookDir, bookCache));
 			}
 		} while (booksToParse.size() > 0);
 		cache.setBookCache(bookCache);

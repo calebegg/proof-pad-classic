@@ -1,8 +1,12 @@
 package org.proofpad;
 
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.FileDialog;
+import org.proofpad.Acl2.Callback;
+import org.proofpad.Acl2.RestartListener;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -10,19 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import org.proofpad.Acl2.Callback;
-import org.proofpad.Acl2.RestartListener;
-
-final class BuildWorkflow implements ActionListener {
+public class BuildWorkflow implements ActionListener {
 
 	public static class BuildWindow extends PPDialog {
 		private static final long serialVersionUID = 8394742808899908090L;
@@ -31,7 +23,7 @@ final class BuildWorkflow implements ActionListener {
 		private final String acl2Dir;
 //		private final JProgressBar progress;
 		Acl2 builder;
-		final FilePicker destPicker;
+		final FilePicker destinationPicker;
 	    private final File sourceFile;
 		public BuildWindow(PPWindow parent, final File sourceFile, String acl2Dir, boolean tempFile) {
 			super(parent, "Build an executable");
@@ -44,20 +36,21 @@ final class BuildWorkflow implements ActionListener {
 			destLabel.setMaximumSize(new Dimension(2<<16, 2<<16));
 			add(destLabel);
 			add(Box.createVerticalStrut(8));
-			destPicker = new FilePicker("Choose destination for executable...", FileDialog.SAVE);
+			destinationPicker = new FilePicker("Choose destination for executable...", FileDialog.SAVE);
 			if (!tempFile) {
-				destPicker.setPath(sourceFile.getAbsolutePath().replaceFirst(".lisp$",
-						WIN ? ".exe" : ""));
+				destinationPicker.setPath(sourceFile.getAbsolutePath().replaceFirst(".lisp$",
+                        WIN ? ".exe" : ""));
 			}
-			destPicker.setAlignmentX(LEFT_ALIGNMENT);
+			destinationPicker.setAlignmentX(LEFT_ALIGNMENT);
 			final JButton buildButton = new JButton("Build");
-			buildButton.setEnabled(!destPicker.getPath().isEmpty());
-			destPicker.addChangeListener(new ChangeListener() {
-				@Override public void stateChanged(ChangeEvent arg0) {
-					buildButton.setEnabled(!destPicker.getPath().isEmpty());
-				}
-			});
-			add(destPicker);
+			buildButton.setEnabled(!destinationPicker.getPath().isEmpty());
+			destinationPicker.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent arg0) {
+                    buildButton.setEnabled(!destinationPicker.getPath().isEmpty());
+                }
+            });
+			add(destinationPicker);
 			add(Box.createVerticalStrut(8));
 			JPanel buttonPanel = new JPanel();
 			buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -73,17 +66,17 @@ final class BuildWorkflow implements ActionListener {
 			});
 			buildButton.addActionListener(new ActionListener() {
 				@Override public void actionPerformed(ActionEvent e) {
-					if (destPicker.getFile().exists()) {
+					if (destinationPicker.getFile().exists()) {
 						int resp = JOptionPane.showOptionDialog(BuildWindow.this,
-								destPicker.getPath() + " already exists", "File exists",
+								destinationPicker.getPath() + " already exists", "File exists",
 								JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null,
 								new String[] { "Overwrite", "Cancel" }, "Overwrite");
 						if (resp == 1) return;
 					}
 					setTitle("Building...");
-					build(sourceFile.getAbsolutePath(), destPicker.getPath());
+					build(sourceFile.getAbsolutePath(), destinationPicker.getPath());
 					buildButton.setEnabled(false);
-					destPicker.setEnabled(false);
+					destinationPicker.setEnabled(false);
 				}
 			});
 			if (OSX) {
@@ -126,16 +119,16 @@ final class BuildWorkflow implements ActionListener {
 						if (WIN) {
 							try {
 								Runtime.getRuntime().exec("explorer /select, " + dest);
-							} catch (IOException e) { }
+							} catch (IOException ignored) { }
 						} else if (OSX) {
 							try {
 								Runtime.getRuntime().exec("open -R " + dest);
-							} catch (IOException e) { }
+							} catch (IOException ignored) { }
 						} else if (Desktop.isDesktopSupported()) {
 							Desktop desktop = Desktop.getDesktop();
 							try {
 								desktop.open(new File(dest).getParentFile());
-							} catch (IOException e) { }
+							} catch (IOException ignored) { }
 						}
 					}
 				});
@@ -167,7 +160,7 @@ final class BuildWorkflow implements ActionListener {
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(null, "Proof Pad was unable to create a temporary " +
 						"file. Save the file you want to build and try again.", "Build error",
-						JOptionPane.ERROR);
+						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		} else {

@@ -1,37 +1,12 @@
 package org.proofpad;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.Scrollable;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
 import org.proofpad.Repl.Message;
 import org.proofpad.Repl.MsgType;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.List;
 
 public class OutputWindow extends PPDialog {
 	private static final long serialVersionUID = -763205019202829248L;
@@ -39,7 +14,7 @@ public class OutputWindow extends PPDialog {
 	private Runnable afterPreview;
 
 	public OutputWindow(PPWindow ideWindow) {
-		super((PPWindow)null, "");
+		super(null, "");
 		getRootPane().putClientProperty("Window.style", "small");
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.ideWindow = ideWindow;
@@ -141,7 +116,7 @@ public class OutputWindow extends PPDialog {
 					@Override public void run() {
 						try {
 							Thread.sleep(3000);
-						} catch (InterruptedException e) { }
+						} catch (InterruptedException ignored) { }
 						getRootPane().revalidate();
 						repaint();
 					}

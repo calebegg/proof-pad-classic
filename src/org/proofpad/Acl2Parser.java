@@ -1,29 +1,15 @@
 package org.proofpad;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.Token;
+import org.fife.ui.rsyntaxtextarea.parser.*;
+
+import javax.swing.text.BadLocationException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.logging.Logger;
-
-import javax.swing.text.BadLocationException;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
-import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
-import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
-import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
-import org.fife.ui.rsyntaxtextarea.parser.ParseResult;
-import org.fife.ui.rsyntaxtextarea.parser.ParserNotice;
 
 public class Acl2Parser extends AbstractParser {
 	
@@ -499,6 +485,7 @@ public class Acl2Parser extends AbstractParser {
 				"declare", "include-book", "defttag"
 		}));
 		constants = new HashSet<String>();
+		List<ParserNotice> info = new LinkedList<ParserNotice>();
 		constants.add("state");
 		Stack<ParseToken> s = new Stack<ParseToken>();
 		Token token;
@@ -515,6 +502,11 @@ public class Acl2Parser extends AbstractParser {
 					top.params.add(token.getLexeme());
 					if (top.name.equals("defun") && top.params.size() == 1) {
 						if (!macros.contains(tokenName) && !functions.contains(tokenName)) {
+							if (token.type != Token.IDENTIFIER) {
+								result.addNotice(new Acl2ParserNotice(this,
+										"Function names must be identifiers, but " + tokenName +
+										" is not.", line, token, ParserNotice.ERROR));
+							}
 							functions.add(tokenName);
 							if (funcNotices.containsKey(tokenName)) {
 								Acl2ParserNotice notice = funcNotices.get(tokenName);
@@ -621,6 +613,12 @@ public class Acl2Parser extends AbstractParser {
 								msg = "<html><b>" + htmlEncode(top.name) + "</b> expects "
 										+ range.lower + " parameter" +
 										(range.lower == 1 ? "" : "s")  + ".</html>";
+							} else if (range.upper == Integer.MAX_VALUE) {
+								msg = "<html><b>" + htmlEncode(top.name) + "</b> expects at least "
+										+ range.lower + " parameters.</html>";							
+							} else if (range.lower == Integer.MIN_VALUE) {
+								msg = "<html><b>" + htmlEncode(top.name) + "</b> expects at most "
+										+ range.upper + " parameters.</html>";							
 							} else {
 								msg = "<html><b>" + htmlEncode(top.name) + "</b> expects between "
 										+ range.lower + " and " + range.upper + " parameters.</html>";							
@@ -721,7 +719,7 @@ public class Acl2Parser extends AbstractParser {
 							String msg = "<html>" + docs.get(upperToken) + "<br><font " +
 									"color=\"gray\" size=\"2\">" + modKey +
 									"L for more.</font></html>";
-							result.addNotice(new Acl2ParserNotice(this,
+							info.add(new Acl2ParserNotice(this,
 									msg, line, token, ParserNotice.INFO));
 						}
 					}
@@ -739,6 +737,9 @@ public class Acl2Parser extends AbstractParser {
 		}
 		for (ParseListener pl : parseListeners) {
 			pl.wasParsed();
+		}
+		for (ParserNotice infoNotice : info ) {
+			result.addNotice(infoNotice);
 		}
 		for (Object pn : result.getNotices()) {
 			if (((ParserNotice) pn).getLevel() == ParserNotice.ERROR) {

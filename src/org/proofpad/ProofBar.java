@@ -1,35 +1,17 @@
 package org.proofpad;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.LinearGradientPaint;
-import java.awt.MultipleGradientPaint;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
-import java.awt.geom.RoundRectangle2D;
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Vector;
-
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.Timer;
-import javax.swing.undo.UndoManager;
 
 import org.proofpad.ProofBar.UnprovenExp.Status;
 import org.proofpad.Repl.MsgType;
 import org.proofpad.SExpUtils.ExpType;
+
+import javax.swing.*;
+import javax.swing.Timer;
+import javax.swing.undo.UndoManager;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
+import java.util.*;
+import java.util.List;
 
 public class ProofBar extends JComponent {
 	
@@ -216,7 +198,7 @@ public class ProofBar extends JComponent {
 			}
 		});
 		setPreferredSize(new Dimension(WIDTH, 0));
-		setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.GRAY));
+		setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Colors.PROOF_BAR_BORDER));
 		addMouseListener(new PBMouseListener(acl2, mb));
 		addMouseMotionListener(new MouseMotionListener() {
 			@Override public void mouseDragged(MouseEvent e) {
@@ -254,10 +236,9 @@ public class ProofBar extends JComponent {
 		boolean calloutBelowShown = false;
 		boolean calloutAboveShown = false;
 		int roundDim = 5;
-		g.setColor(Color.GRAY);
+		g.setColor(Colors.PROOF_BAR_BORDER);
 		g.draw(clipBounds);
 		try {
-			//for (PBSegment seg : segments) {
 			for (int i = segments.size() - 1; i >= 0; i--) {
 				PBSegment seg = segments.get(i);
 				if (seg.fill.equals(Color.WHITE)) {
@@ -269,7 +250,7 @@ public class ProofBar extends JComponent {
 				RoundRectangle2D.Double rect = new RoundRectangle2D.Double(0, begin - 10, 19,
 						height + 10, roundDim, roundDim);
 				g.fill(rect);
-				g.setColor(Color.GRAY);
+				g.setColor(Colors.PROOF_BAR_BORDER);
 				g.draw(rect);
 				if (seg.icon != null) {
 					g.drawImage(seg.icon, (WIDTH - seg.icon.getWidth(this)) / 2,
@@ -294,7 +275,7 @@ public class ProofBar extends JComponent {
 						rect = new RoundRectangle2D.Double(0, begin - 10 + (my > begin ? 20 : 0), 19,
 								height + 10 - (my > begin ? 20 : 0), roundDim, roundDim);
 						g.fill(rect);
-						g.setColor(Color.GRAY);
+						g.setColor(Colors.PROOF_BAR_BORDER);
 						g.draw(rect);
 						g.setColor(Colors.UNTRIED);
 						setToolTipText("Undo admitting this term.");
@@ -309,7 +290,7 @@ public class ProofBar extends JComponent {
 						rect = new RoundRectangle2D.Double(0, begin - 10, 19, height + 10 -
 								(my < end ? 10 : 0), roundDim, roundDim);
 						g.fill(rect);
-						g.setColor(Color.GRAY);
+						g.setColor(Colors.PROOF_BAR_BORDER);
 						g.draw(rect);
 						g.setColor(Colors.PROVED);
 						if (my < end) {
@@ -320,8 +301,6 @@ public class ProofBar extends JComponent {
 						}
 					}
 				}
-//				g.setColor(Color.GRAY);
-//				g.drawLine(0, begin, width, begin);
 				if (!calloutAboveShown) {
 					window.hideErrorCallout(false);
 				}

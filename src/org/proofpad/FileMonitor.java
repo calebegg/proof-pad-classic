@@ -20,7 +20,7 @@ public class FileMonitor extends Thread {
 		while (running) {
 			try {
 				Thread.sleep(1000);
-			} catch (InterruptedException e) { }
+			} catch (InterruptedException ignored) { }
 			if (mtime == -1) {
 				mtime = file.lastModified();
 			} else if (file.lastModified() != mtime) {
