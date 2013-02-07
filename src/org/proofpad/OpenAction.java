@@ -1,13 +1,11 @@
 package org.proofpad;
 
-import java.awt.FileDialog;
-import java.awt.Frame;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FilenameFilter;
-
-import javax.swing.JFileChooser;
 
 class OpenAction implements ActionListener {
 	public static final ActionListener instance = new OpenAction();

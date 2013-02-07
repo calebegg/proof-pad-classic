@@ -1,20 +1,12 @@
 package org.proofpad;
 
-import java.awt.Color;
-import java.awt.Container;
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.CompoundBorder;
 
 public class InfoBar extends JPanel {
 	public static interface CloseListener {

@@ -1,9 +1,10 @@
 package org.proofpad;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.Token;
+
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class SExpUtils {

@@ -1,17 +1,10 @@
 package org.proofpad;
 
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JToggleButton;
-import javax.swing.UIManager;
 
 public class DoubleCheckResult extends JPanel {
 	private static final long serialVersionUID = -2822280272207904268L;

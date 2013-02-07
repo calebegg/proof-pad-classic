@@ -1,6 +1,6 @@
 package org.proofpad;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;

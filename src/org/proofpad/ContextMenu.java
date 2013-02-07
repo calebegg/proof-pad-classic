@@ -1,12 +1,10 @@
 package org.proofpad;
 
-import java.awt.event.ActionListener;
-
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
+import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.DefaultEditorKit;
+import java.awt.event.ActionListener;
 
 public class ContextMenu extends JPopupMenu {
 	private static final long serialVersionUID = 16174547297114415L;

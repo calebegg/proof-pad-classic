@@ -1,14 +1,11 @@
 package org.proofpad;
 
-import java.awt.Dimension;
+import org.proofpad.Acl2.OutputChangeListener;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-
-import org.proofpad.Acl2.OutputChangeListener;
 
 public class Acl2OutputWindow extends JFrame{
 	private static final long serialVersionUID = 4417064003350445275L;

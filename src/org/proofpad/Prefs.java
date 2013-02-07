@@ -1,6 +1,6 @@
 package org.proofpad;
 
-import java.awt.Font;
+import java.awt.*;
 import java.util.prefs.Preferences;
 
 public class Prefs {
