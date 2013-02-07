@@ -88,6 +88,8 @@ public class Acl2Parser extends AbstractParser {
 
 	private static Map<String, Range> paramCounts = new HashMap<String, Range>();
 	static {
+		paramCounts.put("defun", new Range(3, Integer.MAX_VALUE));
+		
 		paramCounts.put("-", new Range(1, 2));
 		paramCounts.put("/", new Range(1, 2));
 		paramCounts.put("/=", new Range(2, 2));
