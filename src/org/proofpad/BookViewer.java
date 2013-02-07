@@ -28,21 +28,25 @@ public class BookViewer extends PPDialog {
 	private static final long serialVersionUID = 1276853161919844567L;
 	
 	private class BookView {
-		private final File f;
+		private final File file;
 		private final String symbol;
+		private File currentDir;
 		public BookView(File f, String symbol) {
-			this.f = f;
+			this.file = f;
 			this.symbol = symbol;
 		}
 		@Override
 		public String toString() {
-			return f.getName();
+			return file.getName();
 		}
 		public String getDirSymbol() {
 			return symbol;
 		}
 		public String getPath() {
-			String path = f.getAbsolutePath();
+			String path = file.getAbsolutePath();
+			if (currentDir != null && path.startsWith(currentDir.getAbsolutePath())) {
+				path = path.substring(currentDir.getAbsolutePath().length() + 1);
+			}
 			int pathLen;
 			if (symbol == null) {
 				pathLen = 0;
@@ -59,7 +63,10 @@ public class BookViewer extends PPDialog {
 			return path.substring(pathLen, path.length() - 5);
 		}
 		public boolean isBook() {
-			return f.getName().endsWith(".lisp");
+			return file.getName().endsWith(".lisp");
+		}
+		public void setCurrentDir(File currentDir) {
+			this.currentDir = currentDir;
 		}
 	}
 	
@@ -75,13 +82,20 @@ public class BookViewer extends PPDialog {
 		bl.setVgap(8);
 		getContentPane().setLayout(bl);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Books");
+		if (parent.openFile != null) {
+			File workingDir = parent.openFile.getParentFile();
+			DefaultMutableTreeNode currDirBooks =
+					nodeFromFile(workingDir, null, 10, workingDir);
+			currDirBooks.setUserObject("Current Directory");
+			root.add(currDirBooks);
+		}
 		DefaultMutableTreeNode dracula =
 				nodeFromFile(new File(draculaPath), DRACULA_SYMBOL, 10);
-		dracula.setUserObject(":teachpacks");
+		dracula.setUserObject(MenuBar.applyTitleCase("Teach packs"));
 		root.add(dracula);
 		DefaultMutableTreeNode sysBooks =
 				nodeFromFile(new File(systemPath), SYSTEM_BOOKS_SYMBOL, 10);
-		sysBooks.setUserObject(SYSTEM_BOOKS_SYMBOL);
+		sysBooks.setUserObject(MenuBar.applyTitleCase("System books"));
 		root.add(sysBooks);
 		final JTree tree = new JTree(root);
 		for (int i = tree.getRowCount(); i > 0; i--) {
@@ -150,6 +164,10 @@ public class BookViewer extends PPDialog {
 	}
 	
 	private DefaultMutableTreeNode nodeFromFile(File dir, String sym, int maxdepth) {
+		return nodeFromFile(dir, sym, maxdepth, null);
+	}
+
+	private DefaultMutableTreeNode nodeFromFile(File dir, String sym, int maxdepth, File workingDir) {
 		DefaultMutableTreeNode r = new DefaultMutableTreeNode(new BookView(dir, null));
 		if (maxdepth == 0 || !dir.isDirectory()) return r;
 		for (File f : dir.listFiles()) {
@@ -157,7 +175,9 @@ public class BookViewer extends PPDialog {
 				r.add(nodeFromFile(f, sym, maxdepth - 1));
 			} else {
 				if (f.getName().endsWith(".lisp")) {
-					r.add(new DefaultMutableTreeNode(new BookView(f, sym)));
+					BookView bookView = new BookView(f, sym);
+					bookView.setCurrentDir(workingDir);
+					r.add(new DefaultMutableTreeNode(bookView));
 				}
 			}
 		}

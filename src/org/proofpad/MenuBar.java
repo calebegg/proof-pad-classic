@@ -639,7 +639,7 @@ public class MenuBar extends JMenuBar {
 		}
 	}
 	
-	private static String applyTitleCase(String phrase) {
+	public static String applyTitleCase(String phrase) {
 		if (!TITLE_CASE || phrase.isEmpty()) {
 			return phrase;
 		}
