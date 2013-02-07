@@ -107,7 +107,7 @@ public class PPWindow extends JFrame {
 				g.translate(0, - HEIGHT / 2);
 			}
 			super.paintComponent(g);
-			g.setColor(ProofBar.ERROR_COLOR);
+			g.setColor(Colors.ERROR);
 			RoundRectangle2D.Float rect = new RoundRectangle2D.Float(0, 0, WIDTH, WIDTH, 6, 6);
 			g.fill(rect);
 			g.draw(rect);
@@ -116,9 +116,6 @@ public class PPWindow extends JFrame {
 		}
 	}
 
-	static final Color activeToolbar = new Color(.8627f, .8627f, .8627f);
-	static final Color inactiveToolbar = new Color(.9529f, .9529f, .9529f);
-	public static final Color transparent = new Color(1f, 1f, 1f, 0f);
 	static JFileChooser fc = new JFileChooser();
 	static {
 		fc.addChoosableFileFilter(new FileFilter() {
@@ -399,7 +396,7 @@ public class PPWindow extends JFrame {
 		findAction = findBar.findAction;
 		toolbar = new Toolbar(this);
 		if (Main.OSX && Main.JAVA_7) {
-			toolbar.setBackground(activeToolbar);
+			toolbar.setBackground(Colors.ACTIVE_TOOLBAR_BG);
 		}
 		menuBar = new MenuBar(this);
 		setJMenuBar(menuBar);
@@ -498,12 +495,12 @@ public class PPWindow extends JFrame {
 				proofBar.repaint();
 				// TODO: Remove these setBackground calls if this bug is ever fixed:
 				// http://java.net/jira/browse/MACOSX_PORT-775
-				if (Main.JAVA_7) toolbar.setBackground(activeToolbar);
+				if (Main.JAVA_7) toolbar.setBackground(Colors.ACTIVE_TOOLBAR_BG);
 			}
 			@Override
 			public void windowDeactivated(WindowEvent e) {
 				proofBar.repaint();
-				if (Main.JAVA_7) toolbar.setBackground(inactiveToolbar);
+				if (Main.JAVA_7) toolbar.setBackground(Colors.INACTIVE_TOOLBAR_BG);
 			}
 			@Override
 			public void windowClosing(WindowEvent arg0) {

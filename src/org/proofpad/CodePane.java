@@ -103,7 +103,7 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 	}
 
 	private static final long serialVersionUID = 2585177201079384705L;
-	private static final int leftMargin = 2;
+	private static final int LEFT_MARGIN = 2;
 //	private static final String[] welcomeMessage =
 //		{"See Help > Tutorial for a basic overview."};
 	private ProofBar pb;
@@ -119,22 +119,22 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		setAntiAliasingEnabled(true);
 		setAutoIndentEnabled(false);
 		setHighlightCurrentLine(pb != null);
-		setCurrentLineHighlightColor(new Color(0, .6f, .8f, .1f));
+		setCurrentLineHighlightColor(Colors.CURRENT_LINE_HIGHLIGHT);
 		setBracketMatchingEnabled(false);
 		setUseFocusableTips(false);
 		SyntaxScheme scheme = getSyntaxScheme();
 		Style builtinStyle = scheme.getStyle(Token.RESERVED_WORD);
 		Style eventStyle = scheme.getStyle(Token.RESERVED_WORD_2);
 		builtinStyle.font = eventStyle.font = builtinStyle.font.deriveFont(Font.PLAIN);
-		scheme.getStyle(Token.COMMENT_EOL).foreground = new Color(.4f, .6f, .4f);
-		scheme.getStyle(Token.COMMENT_MULTILINE).foreground = new Color(.4f, .6f, .4f);
-		scheme.getStyle(Token.RESERVED_WORD_2).foreground = new Color(0f, .3f, .7f);
-		scheme.getStyle(Token.SEPARATOR).foreground = Color.black;
-		setBorder(BorderFactory.createEmptyBorder(0, leftMargin, 0, 0));
+		scheme.getStyle(Token.COMMENT_EOL).foreground = Colors.COMMENT;
+		scheme.getStyle(Token.COMMENT_MULTILINE).foreground = Colors.COMMENT;
+		scheme.getStyle(Token.RESERVED_WORD_2).foreground = Colors.BUILTIN_EVENT;
+		scheme.getStyle(Token.SEPARATOR).foreground = Color.BLACK;
+		setBorder(BorderFactory.createEmptyBorder(0, LEFT_MARGIN, 0, 0));
 		setTabSize(4);
 		ContextMenu menu = new ContextMenu(this);
 		setPopupMenu(menu);
-		setBackground(PPWindow.transparent);
+		setBackground(Colors.TRANSPARENT);
 		lookUpAction = new LookUpListener();
 		addKeyListener(new KeyAdapter() {
 			final Pattern wordPattern = Pattern.compile("^\\w+-?");
@@ -240,19 +240,19 @@ public class CodePane extends RSyntaxTextArea implements Iterable<Token> {
 		g.setColor(Color.WHITE);
 		g.fillRect(0, readOnlyHeight, getWidth(), getHeight() - readOnlyHeight);
 		// Paint bracket match
-		g.setColor(new Color(1f, 1f, .8f));
+		g.setColor(Colors.PAREN_MATCH);
 		for (Rectangle match : fullMatch) {
 			g.fillRect(match.x, match.y, match.width, match.height);
 		}
 		// Paint read only background.
-		g.setColor(new Color(240, 235, 231));
+		g.setColor(Colors.READ_ONLY_BG);
 		g.fillRect(0, 0, getWidth(), readOnlyHeight);
-		g.setColor(new Color(.6f, .6f, .6f));
+		g.setColor(Colors.READ_ONLY_LINE);
 		g.drawLine(0, readOnlyHeight - 1, getWidth(), readOnlyHeight - 1);
 		// Paint width guide
 		if (widthGuide != -1) {
-			g.setColor(new Color(1f, .8f, .8f));
-			int linex = widthGuide * getFontMetrics(getFont()).charWidth('a') + leftMargin + 1;
+			g.setColor(Colors.WIDTH_GUIDE);
+			int linex = widthGuide * getFontMetrics(getFont()).charWidth('a') + LEFT_MARGIN + 1;
 			g.drawLine(linex, 0, linex, getHeight());
 		}
 		super.paintComponent(g);

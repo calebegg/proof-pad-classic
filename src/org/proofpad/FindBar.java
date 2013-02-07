@@ -47,7 +47,7 @@ public class FindBar extends JPanel {
 
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBorder(InfoBar.INFO_BAR_BORDER);
-		setBackground(InfoBar.INFO_BAR_COLOR);
+		setBackground(Colors.INFO_BAR);
 		if (!Main.OSX) {
 			add(new JLabel("Find: "));
 		}

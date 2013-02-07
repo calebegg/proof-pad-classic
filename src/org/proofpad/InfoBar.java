@@ -25,7 +25,6 @@ public class InfoBar extends JPanel {
 	static final CompoundBorder INFO_BAR_BORDER = BorderFactory.createCompoundBorder(
 			BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK),
 			BorderFactory.createEmptyBorder(0, 5, 0, 5));
-	static final Color INFO_BAR_COLOR = new Color(.95f, .95f, .95f);
 	public static class InfoButton {
 		public final ActionListener listener;
 		public final String text;
@@ -39,7 +38,7 @@ public class InfoBar extends JPanel {
 	public InfoBar(String msg, InfoButton[] buttons) {
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		setBackground(INFO_BAR_COLOR);
+		setBackground(Colors.INFO_BAR);
 		setBorder(INFO_BAR_BORDER);
 		ActionListener closeAction = new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {

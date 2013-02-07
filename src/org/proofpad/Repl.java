@@ -497,21 +497,21 @@ public class Repl extends JPanel {
 		status.setMsgType(type);
 		switch (type) {
 		case ERROR:
-			line.setBackground(ProofBar.ERROR_COLOR);
-			status.setBackground(ProofBar.ERROR_COLOR);
+			line.setBackground(Colors.ERROR);
+			status.setBackground(Colors.ERROR);
 			break;
 		case INFO:
 			break;
 		case SUCCESS:
-			status.setBackground(ProofBar.ADMITTED_COLOR);
+			status.setBackground(Colors.ADMITTED);
 			break;
 		case INPUT:
 			status.setForeground(Color.GRAY);
 			text.setForeground(Color.GRAY);
 			break;
 		case WARNING:
-			line.setBackground(ProofBar.WARNING_COLOR);
-			status.setBackground(ProofBar.WARNING_COLOR);
+			line.setBackground(Colors.WARNING);
+			status.setBackground(Colors.WARNING);
 			break;
 		}
 		line.add(text);

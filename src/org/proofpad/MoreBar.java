@@ -119,7 +119,7 @@ public class MoreBar extends JComponent {
 					} else {
 						angle = Math.toRadians(180);
 					}
-					g.setColor(ProofBar.UNTRIED_COLOR);
+					g.setColor(Colors.UNTRIED);
 					g.fillRect(0, offset + (first ? 0 : 1), width, height - (first ? 0 : 1));
 					drewSelected = true;
 				} else if (ex.exp.expNum == oldIdx) {

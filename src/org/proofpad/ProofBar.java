@@ -149,12 +149,6 @@ public class ProofBar extends JComponent {
 	}
 	ArrayList<ExpData> data = new ArrayList<ExpData>();
 
-	static final Color PROVED_COLOR = new Color(0x5B9653);
-	static final Color UNTRIED_COLOR = new Color (0xDDDDDD);
-	static final Color IN_PROGRESS_COLOR = new Color(0xA3D6BC);
-	static final Color ERROR_COLOR = new Color(0xFFAAAA);
-	static final Color WARNING_COLOR = new Color(0xFFFF00);
-	static final Color ADMITTED_COLOR = new Color(0xDDF8CC);
 	public static final ImageIcon errorIcon = new ImageIcon(
 			ProofBar.class.getResource("/Icons/Error.png"));
 	public static final ImageIcon successIcon = new ImageIcon(
@@ -285,7 +279,7 @@ public class ProofBar extends JComponent {
 				if (my >= begin && my < end) {
 					setToolTipText(seg.tooltip);
 				}
-				if (seg.fill == ERROR_COLOR) {
+				if (seg.fill == Colors.ERROR) {
 					if (begin > clipBounds.y + clipBounds.height) {
 						window.showErrorCallout(true, new Rectangle(0, begin, 0, height));
 						calloutBelowShown = true;
@@ -296,13 +290,13 @@ public class ProofBar extends JComponent {
 				}
 				if (hover && numProving == 0) {
 					if (seg.proved && my <= end) {
-						g.setColor(UNTRIED_COLOR);
+						g.setColor(Colors.UNTRIED);
 						rect = new RoundRectangle2D.Double(0, begin - 10 + (my > begin ? 20 : 0), 19,
 								height + 10 - (my > begin ? 20 : 0), roundDim, roundDim);
 						g.fill(rect);
 						g.setColor(Color.GRAY);
 						g.draw(rect);
-						g.setColor(UNTRIED_COLOR);
+						g.setColor(Colors.UNTRIED);
 						setToolTipText("Undo admitting this term.");
 						if (my > begin) {
 							g.fillPolygon(new int[] {1, 1, WIDTH / 2, WIDTH - 1, WIDTH - 1},
@@ -311,13 +305,13 @@ public class ProofBar extends JComponent {
 						}
 					}
 					if (!seg.proved && my >= begin) {
-						g.setColor(PROVED_COLOR);
+						g.setColor(Colors.PROVED);
 						rect = new RoundRectangle2D.Double(0, begin - 10, 19, height + 10 -
 								(my < end ? 10 : 0), roundDim, roundDim);
 						g.fill(rect);
 						g.setColor(Color.GRAY);
 						g.draw(rect);
-						g.setColor(PROVED_COLOR);
+						g.setColor(Colors.PROVED);
 						if (my < end) {
 							g.fillPolygon(new int[] {1, 1, WIDTH / 2, WIDTH - 1, WIDTH - 1},
 									  new int[] {end - 20, end - 9, end, end - 9, end - 20},
@@ -372,13 +366,13 @@ public class ProofBar extends JComponent {
 					seg.height -= addToNextHeight;
 					setReadOnlyHeight(begin + seg.height);
 				}
-				seg.fill = PROVED_COLOR;
+				seg.fill = Colors.PROVED;
 				seg.icon = successIcon.getImage();
 			} else if ((isError && provedSoFar == 0) || expStatus == Status.FAILURE) {
 				unprovenIdx++;
 				isError = false;
 				seg.proved = false;
-				seg.fill = ERROR_COLOR;
+				seg.fill = Colors.ERROR;
 				seg.icon = errorIcon.getImage();
 				seg.tooltip = "An error occured. See the log below for details.";
 			} else if (provingSoFar > 0) {
@@ -387,12 +381,12 @@ public class ProofBar extends JComponent {
 				if (provingSoFar == 0) {
 					setReadOnlyHeight(begin + seg.height - e.nextGapHeight * lineHeight / 2);
 				}
-				seg.fill = IN_PROGRESS_COLOR;
+				seg.fill = Colors.IN_PROGRESS;
 				seg.icon = inProgressThrobber;
 			} else if (e.firstType != SExpUtils.ExpType.FINAL) {
 				// Drawing untried or admitted terms
 				seg.proved = false;
-				Color expColor = expStatus == Status.SUCCESS ? ADMITTED_COLOR : UNTRIED_COLOR;
+				Color expColor = expStatus == Status.SUCCESS ? Colors.ADMITTED : Colors.UNTRIED;
 				seg.fill = expColor;
 				if (expStatus == Status.UNTRIED && isAdmitting) {
 					seg.icon = admittingThrobber;
