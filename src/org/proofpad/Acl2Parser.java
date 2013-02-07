@@ -635,9 +635,17 @@ public class Acl2Parser extends AbstractParser {
 							File dir;
 							String dirKey = "";
 							if (dirLoc == 0) {
-								dir = workingDir;
+								if (bookName.startsWith("\"/")) {
+									dir = null;
+								} else {
+									dir = workingDir;
+								}
 							} else {
-								dirKey = top.params.get(dirLoc);
+								try {
+									dirKey = top.params.get(dirLoc);
+								} catch (IndexOutOfBoundsException e) {
+									dirKey = "";
+								}
 								if (dirKey.equals(":system")) {
 									dir = new File(getAcl2Dir(), "books");
 								} else if (dirKey.equals(":teachpacks")) {
@@ -653,7 +661,12 @@ public class Acl2Parser extends AbstractParser {
 							if (Main.WIN) {
 								bookName = bookName.replaceAll("\\\\/", "\\");
 							}
-							File book = new File(dir, bookName.substring(1, bookName.length() - 1) + ".lisp");
+							File book;
+							if (dir == null) {
+								book = new File(bookName.substring(1, bookName.length() - 1) + ".lisp");
+							} else {
+								book = new File(dir, bookName.substring(1, bookName.length() - 1) + ".lisp");
+							}
 							CacheSets bookCache = null;
 							long mtime = book.lastModified();
 							if (dirKey.equals(":system")) {
