@@ -1,6 +1,7 @@
 package org.proofpad;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -9,8 +10,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -25,6 +28,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.proofpad.Repl.Message;
 import org.proofpad.Repl.MsgType;
@@ -59,32 +63,15 @@ public class OutputWindow extends PPDialog {
 			}
 		});
 		bottom.add(closeButton);
-		addWindowListener(new WindowListener() {
-			@Override public void windowOpened(WindowEvent e) { }
-			@Override public void windowIconified(WindowEvent e) { }
-			@Override public void windowDeiconified(WindowEvent e) { }
-			@Override public void windowDeactivated(WindowEvent e) { }
+		addWindowListener(new WindowAdapter() {
 			@Override public void windowClosing(WindowEvent e) {
 				hideWindow();
 			}
-			@Override public void windowClosed(WindowEvent e) { }
-			@Override public void windowActivated(WindowEvent e) { }
 		});
 		getRootPane().add(bottom, BorderLayout.PAGE_END);
 	}
 
 	public void showWithText(String output, MsgType type, Runnable after) {
-		JComponent comp;
-		if (Repl.isTestResults(output)) {
-			comp = new DoubleCheckResult(output);
-		} else {
-			JTextArea textComp = new JTextArea(output);
-			textComp.setEditable(false);
-			comp = textComp;
-		}
-		comp.setFont(Prefs.font.get());
-		comp.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		
 		JPanel summaries = new JPanel();
 		summaries.setLayout(new BoxLayout(summaries, BoxLayout.Y_AXIS));
 		List<Message> msgs = Repl.summarize(output, type);
@@ -92,6 +79,29 @@ public class OutputWindow extends PPDialog {
 			JComponent line = ideWindow.repl.createSummary(msg.msg, msg.type, null);
 			summaries.add(line);
 		}
+		JComponent comp;
+		if (Repl.isTestResults(output)) {
+			comp = new DoubleCheckResult(output);
+		} else {
+			final JTextArea textComp = new JTextArea(output);
+			textComp.setEditable(false);
+			if (!msgs.isEmpty()) {
+				changeToDisabledColor(textComp);
+				textComp.addMouseListener(new MouseAdapter() {
+					@Override public void mouseExited(MouseEvent arg0) {
+						changeToDisabledColor(textComp);
+					}
+					@Override public void mouseEntered(MouseEvent arg0) {
+						changeToEnabledColor(textComp);
+					}
+				});
+			}
+			comp = textComp;
+		}
+		comp.setFont(Prefs.font.get());
+		comp.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		JScrollPane scroller = new JScrollPane(comp);
+		
 		Component oldPgStartComp = ((BorderLayout) getRootPane().getLayout())
 				.getLayoutComponent(BorderLayout.PAGE_START);
 		if (oldPgStartComp != null) getRootPane().remove(oldPgStartComp);
@@ -101,10 +111,9 @@ public class OutputWindow extends PPDialog {
 		Component oldCenterComp = ((BorderLayout) getRootPane().getLayout())
 				.getLayoutComponent(BorderLayout.CENTER);
 		if (oldCenterComp != null) getRootPane().remove(oldCenterComp);
-		JScrollPane textScroller = new JScrollPane(comp);
-		textScroller.setBorder(BorderFactory.createEmptyBorder());
-		textScroller.getVerticalScrollBar().setUnitIncrement(20);
-		getRootPane().add(textScroller, BorderLayout.CENTER);
+		scroller.setBorder(BorderFactory.createEmptyBorder());
+		scroller.getVerticalScrollBar().setUnitIncrement(20);
+		getRootPane().add(scroller, BorderLayout.CENTER);
 		int height;
 		if (comp instanceof Scrollable) {
 		    height = ((Scrollable) comp).getPreferredScrollableViewportSize().height + 100;
@@ -143,6 +152,19 @@ public class OutputWindow extends PPDialog {
 		});
 	}
 	
+	static void changeToDisabledColor(JTextArea textComp) {
+		Object disabledBgColor = UIManager.get("TextField.disabledBackground");
+		if (disabledBgColor != null && disabledBgColor instanceof Color) {
+			textComp.setBackground((Color) disabledBgColor);
+		}
+		textComp.setForeground(textComp.getDisabledTextColor());
+	}
+	
+	static void changeToEnabledColor(JTextArea textComp) {
+		textComp.setBackground(Color.WHITE);
+		textComp.setForeground(Color.BLACK);
+	}
+
 	public void hideWindow() {
 		setVisible(false);
 		if (afterPreview != null) {
