@@ -62,6 +62,9 @@ public class Acl2Parser extends AbstractParser {
 			this.lower = lower;
 			this.upper = upper;
 		}
+		public boolean isOutside(int val) {
+			return val < lower || val > upper;
+		}
 	}
 	
 	static class CacheSets implements Serializable {
@@ -612,7 +615,7 @@ public class Acl2Parser extends AbstractParser {
 								ParserNotice.ERROR));
 					} else {
 						Range range = paramCounts.get(top.name);
-						if (range != null && (top.params.size() < range.lower || top.params.size() > range.upper)) {
+						if (range != null && range.isOutside(top.params.size())) {
 							String msg;
 							if (range.lower == range.upper) {
 								msg = "<html><b>" + htmlEncode(top.name) + "</b> expects "
