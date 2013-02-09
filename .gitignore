@@ -22,3 +22,5 @@ ctrl-c/ctrlc-windows/*.opensdf
 ctrl-c/ctrlc-windows/*.user
 saved_session.dat
 bin/
+.idea/*
+proof-pad.iml
