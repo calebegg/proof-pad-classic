@@ -530,6 +530,7 @@ public class Repl extends JPanel {
 
 	@Override public void setFont(Font f) {
 		super.setFont(f);
+        if (fontChangeList == null) return;
         synchronized (fontChangeList) {
 			for (JComponent c : fontChangeList) {
 				setFontAndHeight(f, c);
