@@ -752,9 +752,12 @@ public class Acl2Parser extends AbstractParser {
 	
 	public static CacheSets parseBook(File book, File acl2Dir, Map<CacheKey, CacheSets> cache)
 			throws FileNotFoundException, BadLocationException {
-		CacheSets bookCache;
+		CacheSets bookCache = new CacheSets();
 		Scanner bookScanner = new Scanner(book);
 		bookScanner.useDelimiter("\\Z");
+        if (!bookScanner.hasNext()) {
+            return bookCache;
+        }
 		String bookContents = bookScanner.next();
 		bookScanner.close();
 		logger.info("PARSING: " + book);
@@ -764,7 +767,6 @@ public class Acl2Parser extends AbstractParser {
 		RSyntaxDocument bookDoc = new PPDocument();
 		bookDoc.insertString(0, bookContents, null);
 		bookParser.parse(bookDoc, null);
-		bookCache = new CacheSets();
 		bookCache.functions = bookParser.functions;
 		bookCache.constants = bookParser.constants;
 		bookCache.macros = bookParser.macros;
