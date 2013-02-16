@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 
 public class GenerateData {
-	public final static String pathToAcl2 = "/Users/calebegg/Code/acl2/";
+	public final static String pathToAcl2 = "/Applications/Proof Pad.app/Contents/Resources/Java/acl2/";
 	public static void main(String[] args) throws Exception {
 		CacheData cache = new CacheData();
 		Main.cache = cache;
@@ -48,11 +48,7 @@ public class GenerateData {
 					.replaceAll("_rparen_", ")")
 					.replaceAll("_qm_", "?")
 					.replaceAll("_at_", "@");
-            if ((m = otherSymbol.matcher(fun)).find()) {
-                System.err.println("Unexpected symbol found: " + m.group(1));
-            } else {
-                docs.put(fun, shortDoc);
-            }
+            docs.put(fun, shortDoc);
         }
 		docs.put("DEFUN", "Defines a new function and adds it to the logical world so it can be " +
 				"used in other functions and in the console.");
