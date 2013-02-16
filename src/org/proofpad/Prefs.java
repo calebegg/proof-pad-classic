@@ -72,7 +72,7 @@ public class Prefs {
 			return javaPrefs.get(name, def);
 		}
 		@Override public void set(String val) {
-			javaPrefs.get(name, val);
+			javaPrefs.put(name, val);
 		}
 	}
 
