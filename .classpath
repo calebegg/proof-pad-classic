@@ -2,8 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="dependencies/rsyntaxtextarea.jar"/>
-	<classpathentry kind="lib" path="dependencies/xstream-1.4.3.jar"/>
 	<classpathentry kind="lib" path="dependencies/OrangeExtensions-1.2.jar"/>
+	<classpathentry kind="lib" path="dependencies/xstream.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

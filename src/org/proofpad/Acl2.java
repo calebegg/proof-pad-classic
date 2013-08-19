@@ -173,8 +173,6 @@ public class Acl2 extends Thread {
 		this.acl2Paths = acl2Paths;
 		sb = new StringBuilder();
 		this.workingDir = workingDir;
-		// Startup callback
-		callbacks.add(null);
 	}
 
 	public Acl2(List<String> acl2Paths, File workingDir) {
@@ -343,7 +341,9 @@ public class Acl2 extends Thread {
 			} else {
 				maybeWorkingDir = workingDir;
 			}
-			processBuilder.directory(workingDir);
+            // Startup callback
+            callbacks.add(null);
+            processBuilder.directory(workingDir);
 			try {
 				acl2Process = processBuilder.start();
 			} catch (IOException e) {
@@ -429,6 +429,7 @@ public class Acl2 extends Thread {
 			callback.run(true, "");
 			return;
 		}
+        System.err.println(workingDir);
 		int parenLevel = 0;
 		StringBuilder exp = new StringBuilder();
 		List<String> exps = new LinkedList<String>();

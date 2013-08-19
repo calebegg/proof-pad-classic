@@ -20,7 +20,7 @@ public class UserData implements Serializable {
 	}
 	
 	@SuppressWarnings("unused")
-	private static class Use implements Serializable {
+	public static class Use implements Serializable {
 		private static final long serialVersionUID = 8381796174167421554L;
 		final String key;
 		final boolean keyboard;
