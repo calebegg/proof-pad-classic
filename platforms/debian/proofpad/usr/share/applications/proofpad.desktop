@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Proof Pad
+Comment=An IDE for ACL2
+Exec=/usr/bin/proofpad
+Icon=/var/lib/proofpad/proofpad_icon.png
+Terminal=false
+Type=Application
+Categories=Development
+StartupNotify=true

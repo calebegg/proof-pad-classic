@@ -1,71 +1,80 @@
 package org.proofpad;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.Font;
-import java.awt.IllegalComponentStateException;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
+import org.fife.ui.rtextarea.Gutter;
+import org.proofpad.Acl2.ErrorListener;
+import org.proofpad.InfoBar.InfoButton;
+import org.proofpad.PrefWindow.FontChangeListener;
+import org.proofpad.Repl.MsgType;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.undo.UndoManager;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.prefs.Preferences;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.undo.UndoManager;
-
-import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rtextarea.Gutter;
-import org.proofpad.Acl2.ErrorListener;
-import org.proofpad.InfoBar.InfoButton;
-import org.proofpad.PrefsWindow.FontChangeListener;
-import org.proofpad.Repl.MsgType;
-
 public class PPWindow extends JFrame {
-	static final Color activeToolbar = new Color(.8627f, .8627f, .8627f);
-	static final Color inactiveToolbar = new Color(.9529f, .9529f, .9529f);
-	public static final Color transparent = new Color(1f, 1f, 1f, 0f);
+	public class ErrorCallout extends JComponent {
+		private static final long serialVersionUID = -2592917877553979143L;
+		private final boolean below;
+		
+		private static final int WIDTH = 25;
+		private static final int HEIGHT = 30;
+
+		public ErrorCallout(final boolean below) {
+			this.below = below;
+			setOpaque(false);
+			setVisible(false);
+			setCursor(ProofBar.HAND);
+			addMouseListener(new MouseAdapter() {
+				@Override public void mouseClicked(MouseEvent e) {
+					Rectangle toScroll = below ? errorRectBelow : errorRectAbove;
+					if (toScroll != null) editor.scrollRectToVisible(toScroll);
+				}
+			});
+		}
+
+		public void adjustBounds() {
+			if (below) {
+				setBounds(proofBar.getWidth() + 5,
+						toolbar.getHeight() + editorScroller.getHeight() - HEIGHT - 2, WIDTH + 1, HEIGHT + 1);
+			} else {
+				setBounds(proofBar.getWidth() + 5, toolbar.getHeight() + 1, WIDTH + 1, HEIGHT + 1);
+			}
+		}
+		@Override protected void paintComponent(Graphics gOld) {
+			Graphics2D g = (Graphics2D) gOld;
+			if (!below) {
+				g.translate(0, HEIGHT / 2);
+				g.transform(AffineTransform.getScaleInstance(1, -1));
+				g.translate(0, - HEIGHT / 2);
+			}
+			super.paintComponent(g);
+			g.setColor(Colors.ERROR);
+			RoundRectangle2D.Float rect = new RoundRectangle2D.Float(0, 0, WIDTH, WIDTH, 6, 6);
+			g.fill(rect);
+			g.draw(rect);
+			g.fill(new Polygon(new int[] {0, 0, HEIGHT - WIDTH}, new int[] {12, HEIGHT, 25}, 3));
+			g.drawImage(ProofBar.errorIcon.getImage(), (25 - 19) / 2, (25 - 19) / 2, null);
+		}
+	}
+
 	static JFileChooser fc = new JFileChooser();
 	static {
 		fc.addChoosableFileFilter(new FileFilter() {
@@ -75,12 +84,9 @@ public class PPWindow extends JFrame {
 			}
 			@Override
 			public boolean accept(File f) {
-				if (f.isDirectory()) {
-					return true;
-				}
-				return f.getName().endsWith(".lisp") || f.getName().endsWith(".lsp")
-						|| f.getName().endsWith(".acl2");
-			}
+                return f.isDirectory() || f.getName().endsWith(".lisp") || f.getName().endsWith(".lsp") ||
+                        f.getName().endsWith(".acl2");
+            }
 		});
 	}
 	private static final long serialVersionUID = -7435370608709935765L;
@@ -98,8 +104,7 @@ public class PPWindow extends JFrame {
 	final CodePane editor;
 	JButton undoButton;
 	JButton redoButton;
-	Token tokens;
-	Acl2 acl2;
+    Acl2 acl2;
 	ProofBar proofBar;
 	MenuBar menuBar;
 	JScrollPane editorScroller;
@@ -117,19 +122,20 @@ public class PPWindow extends JFrame {
 	ActionListener admitNextAction;
 	ActionListener undoPrevAction;
 	ActionListener clearReplScrollback;
-	ActionListener tutorialAction;
 	ActionListener saveAsAction;
 	ActionListener showAcl2Output;
 
 	MoreBar moreBar;
 	Gutter gutter;
-	Runnable afterPreview;
-	JPanel westPanel;
+    JPanel westPanel;
 	public OutputWindow outputWindow;
-	boolean findBarIsOpen;
-	private JPanel splitTop;
+    private JPanel splitTop;
 	boolean userLocation;
 	InfoBar infoBar;
+	ErrorCallout errorCalloutBelow;
+	ErrorCallout errorCalloutAbove;
+	Rectangle errorRectBelow;
+	Rectangle errorRectAbove;
 
 	public PPWindow() {
 		this((File)null);
@@ -175,7 +181,7 @@ public class PPWindow extends JFrame {
 				acl2Paths.add("C:\\PROGRA~3\\PROOFP~1\\acl2\\run_acl2.exe");
 			}
 			try {
-				String maybeAcl2Path = "";
+				String maybeAcl2Path;
 				String jarPath = Main.getJarPath();
 				File jarFile = new File(jarPath);
 				String sep = System.getProperty("file.separator");
@@ -197,7 +203,7 @@ public class PPWindow extends JFrame {
 			}
 		});
 		moreBar = new MoreBar(this);
-		proofBar = new ProofBar(acl2, moreBar);
+		proofBar = new ProofBar(acl2, moreBar, parser, this);
 		editor = new CodePane(proofBar);
 		final JPanel editorContainer = new JPanel();
 		editorContainer.setBackground(Color.WHITE);
@@ -243,14 +249,13 @@ public class PPWindow extends JFrame {
 		editor.addParser(parser);
 		try {
 			acl2.initialize();
-			acl2.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "ACL2 executable not found",
 					"Error", JOptionPane.ERROR_MESSAGE);
 		}
 		if (acl2.getAcl2Path() != null) {
-			parser.setAcl2Dir(new File(acl2.getAcl2Path()).getParentFile());
+			parser.setAcl2Dir(new File(acl2.getAcl2Path().replaceAll("\\\\ ", " ")).getParentFile());
 		}
 
 		undoAction = new ActionListener() {
@@ -296,25 +301,11 @@ public class PPWindow extends JFrame {
 			}
 		};
 		
-		buildAction = new ActionListener() {
-			@Override public void actionPerformed(ActionEvent arg0) {
-				if (!saveFile()) {
-					JOptionPane.showMessageDialog(PPWindow.this,
-							"Save the current file in order to build", "Build did not complete",
-							JOptionPane.INFORMATION_MESSAGE);
-					return;
-				}
-
-				final BuildWindow builder = new BuildWindow(openFile, acl2.getAcl2Path());
-
-				builder.setVisible(true);
-				builder.build();
-			}
-		};
+		buildAction = new BuildWorkflow(this);
 		
 		includeBookAction = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				BookViewer viewer = new BookViewer(PPWindow.this);
 				viewer.setVisible(true);
 			}
@@ -322,14 +313,14 @@ public class PPWindow extends JFrame {
 		
 		admitNextAction = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				proofBar.admitNextForm();
 			}
 		};
 		
 		undoPrevAction = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				proofBar.undoOneItem();
 			}
 		};
@@ -343,21 +334,13 @@ public class PPWindow extends JFrame {
 		
 		reindentAction = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				Utils.reindent(editor);
 			}
 		};
 
-		setGlassPane(new TutorialGlassPane(this));
-		tutorialAction = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				getGlassPane().setVisible(!getGlassPane().isVisible());
-			}
-		};
-		
 		showAcl2Output = new ActionListener() {
-			@Override public void actionPerformed(ActionEvent arg0) {
+			@Override public void actionPerformed(ActionEvent e) {
 				new Acl2OutputWindow(acl2).setVisible(true);
 			}
 		};
@@ -366,44 +349,45 @@ public class PPWindow extends JFrame {
 		findAction = findBar.findAction;
 		toolbar = new Toolbar(this);
 		if (Main.OSX && Main.JAVA_7) {
-			toolbar.setBackground(activeToolbar);
+			toolbar.setBackground(Colors.ACTIVE_TOOLBAR_BG);
 		}
 		menuBar = new MenuBar(this);
-		splitMain.add(toolbar, BorderLayout.PAGE_START);
 		setJMenuBar(menuBar);
+		editor.setMenuBar(menuBar);
+		splitMain.add(toolbar, BorderLayout.PAGE_START);
 		
 		// Preferences
-		PrefsWindow.addFontChangeListener(new FontChangeListener() {
-			@Override
-			public void fontChanged(Font font) {
-				editor.setFont(font);
-				repl.setFont(font);
-				proofBar.setLineHeight(editor.getLineHeight());
-				editorScroller.getVerticalScrollBar().setUnitIncrement(editor.getLineHeight());
-				editorScroller.getHorizontalScrollBar().setUnitIncrement(editor.getLineHeight());
-			}
-		});
-		PrefsWindow.addWidthGuideChangeListener(new PrefsWindow.WidthGuideChangeListener() {
-			@Override
-			public void widthGuideChanged(int value) {
-				editor.widthGuide = value;
-				editor.repaint();
-			}
-		});
-		PrefsWindow.addToolbarVisibleListener(new PrefsWindow.ToolbarVisibleListener() {
-			@Override
-			public void toolbarVisible(boolean visible) {
-				toolbar.setVisible(visible);
-				getRootPane().revalidate();
-			}
-		});
-		PrefsWindow.addShowLineNumbersListener(new PrefsWindow.ShowLineNumbersListener() {
-			@Override
-			public void lineNumbersVisible(boolean visible) {
-				gutter.setVisible(visible);
-				westPanel.revalidate();
-			}
-		});
+		PrefWindow.addFontChangeListener(new FontChangeListener() {
+            @Override
+            public void fontChanged(Font font) {
+                editor.setFont(font);
+                repl.setFont(font);
+                proofBar.setLineHeight(editor.getLineHeight());
+                editorScroller.getVerticalScrollBar().setUnitIncrement(editor.getLineHeight());
+                editorScroller.getHorizontalScrollBar().setUnitIncrement(editor.getLineHeight());
+            }
+        });
+		PrefWindow.addWidthGuideChangeListener(new PrefWindow.WidthGuideChangeListener() {
+            @Override
+            public void widthGuideChanged(int value) {
+                editor.widthGuide = value;
+                editor.repaint();
+            }
+        });
+		PrefWindow.addToolbarVisibleListener(new PrefWindow.ToolbarVisibleListener() {
+            @Override
+            public void toolbarVisible(boolean visible) {
+                toolbar.setVisible(visible);
+                getRootPane().revalidate();
+            }
+        });
+		PrefWindow.addShowLineNumbersListener(new PrefWindow.ShowLineNumbersListener() {
+            @Override
+            public void lineNumbersVisible(boolean visible) {
+                gutter.setVisible(visible);
+                westPanel.revalidate();
+            }
+        });
 		
 		///// Event Listeners /////
 
@@ -440,7 +424,7 @@ public class PPWindow extends JFrame {
 		});
 		
 		doc.addDocumentListener(new DocumentListener() {
-			private void update(DocumentEvent e) {
+			private void update() {
 				List<Expression> exps = SExpUtils.topLevelExps(doc);
 				proofBar.adjustHeights((LinkedList<Expression>) exps);
 				fixUndoRedoStatus();
@@ -448,13 +432,13 @@ public class PPWindow extends JFrame {
 				setSaved(false);
 			}
 			@Override public void changedUpdate(DocumentEvent e) {
-				update(e);
+				update();
 			}
 			@Override public void insertUpdate(DocumentEvent e) {
-				update(e);
+				update();
 			}
 			@Override public void removeUpdate(DocumentEvent e) {
-				update(e);
+				update();
 			}
 		});
 
@@ -464,12 +448,12 @@ public class PPWindow extends JFrame {
 				proofBar.repaint();
 				// TODO: Remove these setBackground calls if this bug is ever fixed:
 				// http://java.net/jira/browse/MACOSX_PORT-775
-				if (Main.JAVA_7) toolbar.setBackground(activeToolbar);
+				if (Main.JAVA_7) toolbar.setBackground(Colors.ACTIVE_TOOLBAR_BG);
 			}
 			@Override
 			public void windowDeactivated(WindowEvent e) {
 				proofBar.repaint();
-				if (Main.JAVA_7) toolbar.setBackground(inactiveToolbar);
+				if (Main.JAVA_7) toolbar.setBackground(Colors.INACTIVE_TOOLBAR_BG);
 			}
 			@Override
 			public void windowClosing(WindowEvent arg0) {
@@ -487,6 +471,8 @@ public class PPWindow extends JFrame {
 		addComponentListener(new ComponentAdapter() {
 			@Override public void componentResized(ComponentEvent e) {
 				userLocation = true;
+				errorCalloutAbove.adjustBounds();
+				errorCalloutBelow.adjustBounds();
 			}
 			
 			@Override public void componentMoved(ComponentEvent e) {
@@ -514,7 +500,9 @@ public class PPWindow extends JFrame {
 		}
 		updateWindowMenu();
 
-		setPreferredSize(new Dimension(600, 600));
+		int startWidth = Math.max(600, getFontMetrics(Prefs.font.get()).charWidth('a') * Prefs.widthGuide.get() + 50);
+		
+		setPreferredSize(new Dimension(startWidth, 600));
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setMinimumSize(new Dimension(550, 300));
 
@@ -529,6 +517,8 @@ public class PPWindow extends JFrame {
 				new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent pce) {
+				errorCalloutAbove.adjustBounds();
+				errorCalloutBelow.adjustBounds();
 				adjustMaximizedBounds();
 			}
 		});
@@ -548,6 +538,11 @@ public class PPWindow extends JFrame {
 				proofBar.repaint();
 			}
 		});
+		
+		errorCalloutBelow = new ErrorCallout(true);
+		errorCalloutAbove = new ErrorCallout(false);
+		getLayeredPane().add(errorCalloutBelow, JLayeredPane.MODAL_LAYER);
+		getLayeredPane().add(errorCalloutAbove, JLayeredPane.MODAL_LAYER);
 		
 		String[] iconPaths = {
 				"/Icons/icon.iconset/icon_16x16.png",
@@ -572,7 +567,14 @@ public class PPWindow extends JFrame {
 			}
 		});
 	}
-
+	
+	@Override public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible && !acl2.hasStarted()) {
+			acl2.start();
+		}
+	}
+	
 	protected void setInfoBar(JComponent ib) {
 		Component child = ((BorderLayout) splitTop.getLayout())
 				.getLayoutComponent(BorderLayout.PAGE_START);
@@ -634,7 +636,7 @@ public class PPWindow extends JFrame {
 							+ " you want to save before closing?",
 					"Unsaved changes", JOptionPane.DEFAULT_OPTION,
 					JOptionPane.WARNING_MESSAGE, null, new String[] { "Save",
-							"Don't Save", "Cancel" }, "Save");
+							Main.OSX ? "Delete" : "Don't save", "Cancel" }, "Save");
 		}
 		if (response == 0) {
 			saveFile();
@@ -756,21 +758,12 @@ public class PPWindow extends JFrame {
 		getRootPane().putClientProperty("Window.documentFile", file);
 		setTitle(file.getName() + (!Main.OSX ? " - Proof Pad" : ""));
 		openFile = file;
-		Scanner scan = null;
-		try {
-			scan = new Scanner(openFile);
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-			return;
-		}
-		String content = scan.useDelimiter("\\Z").next();
-		content = content.replaceAll("\\r", "");
-		scan.close();
+        String content = Utils.readFile(openFile);
 		editor.setText(content);
 		editor.setCaretPosition(0);
-		java.util.List<Expression> exps = SExpUtils
+		java.util.List<Expression> expressions = SExpUtils
 				.topLevelExps((PPDocument) editor.getDocument());
-		proofBar.adjustHeights((LinkedList<Expression>) exps);
+		proofBar.adjustHeights((LinkedList<Expression>) expressions);
 		setSaved(true);
 		adjustMaximizedBounds();
 		updateWindowMenu();
@@ -876,11 +869,31 @@ public class PPWindow extends JFrame {
 	public static void createOrReuse(File file) {
 		if (PPWindow.windows.size() == 1 &&
 				PPWindow.windows.get(0).openFile == null &&
-				PPWindow.windows.get(0).isSaved == true) {
+				PPWindow.windows.get(0).isSaved) {
 			PPWindow.windows.get(0).openAndDisplay(file);
 		} else {
 			PPWindow win = new PPWindow(file);
 			win.setVisible(true);
 		}		
+	}
+	
+	public void showErrorCallout(boolean below, Rectangle location) {
+		if (below) {
+			errorCalloutBelow.adjustBounds();
+			errorCalloutBelow.setVisible(true);
+			errorRectBelow = location;
+		} else {
+			errorCalloutAbove.adjustBounds();
+			errorCalloutAbove.setVisible(true);
+			errorRectAbove = location;
+		}
+	}
+	
+	public void hideErrorCallout(boolean below) {
+		if (below) {
+			errorCalloutBelow.setVisible(false);
+		} else {
+			errorCalloutAbove.setVisible(false);
+		}
 	}
 }

@@ -1,9 +1,15 @@
 package org.proofpad;
 
+import javax.swing.text.BadLocationException;
+import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.swing.text.BadLocationException;
 
 public class Utils {
 	public static void reindent(CodePane editor) {
@@ -32,7 +38,28 @@ public class Utils {
 				
 				doc.remove(offset - eolLen, eolLen + whitespaceLen);
 				doc.insertString(offset - eolLen, "\n", null);
-			} catch (BadLocationException e) { }
+			} catch (BadLocationException ignored) { }
 		}
 	}
+
+	public static void browseTo(String url) {
+		try {
+			Desktop.getDesktop().browse(new URI(url));
+		} catch (IOException ignored) {
+		} catch (URISyntaxException ignored) { }
+	}
+
+    public static String readFile(File file) {
+        Scanner scan;
+        try {
+            scan = new Scanner(file);
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+            return null;
+        }
+        String content = scan.useDelimiter("\\Z").next();
+        content = content.replaceAll("\\r", "");
+        scan.close();
+        return content;
+    }
 }

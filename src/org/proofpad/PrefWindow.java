@@ -1,56 +1,17 @@
 package org.proofpad;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.GraphicsEnvironment;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import org.proofpad.Prefs.BooleanPref;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.InputVerifier;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import org.proofpad.Prefs.BooleanPref;
-
-public class PrefsWindow extends JDialog {
+public class PrefWindow extends PPDialog {
 
 	private class Separator extends JComponent {
 		private static final long serialVersionUID = 7305509836424390157L;
@@ -79,7 +40,7 @@ public class PrefsWindow extends JDialog {
 	}
 	
 	private static final long serialVersionUID = -5097145621288246384L;
-	private static PrefsWindow instance = null;
+	private static PrefWindow instance = null;
 	private static List<FontChangeListener> fontChangeListeners =
 			new LinkedList<FontChangeListener>();
 	private static List<WidthGuideChangeListener> widthGuideChangeListeners =
@@ -87,29 +48,21 @@ public class PrefsWindow extends JDialog {
 	private static List<ToolbarVisibleListener> toolbarVisibleListeners =
 			new LinkedList<ToolbarVisibleListener>();
 	private static List<ShowLineNumbersListener> showLineNumbersListeners =
-			new LinkedList<PrefsWindow.ShowLineNumbersListener>();
+			new LinkedList<PrefWindow.ShowLineNumbersListener>();
 	
-	public static PrefsWindow getInstance() {
+	public static PrefWindow getInstance() {
 		if (instance == null) {
-			instance = new PrefsWindow();
+			instance = new PrefWindow();
 		}
 		return instance;
 	}
 
-	private PrefsWindow() {
-		super((JFrame)null, "Settings");
-		final PrefsWindow that = this;
+	private PrefWindow() {
+		super(null, "Settings");
+		final PrefWindow that = this;
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(4, 25, 4, 25));
 		getRootPane().putClientProperty("apple.awt.brushMetalLook", "false");
 		final int widthGuide = Prefs.widthGuide.get();
-		setResizable(false);
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "HIDE");
-		getRootPane().getActionMap().put("HIDE", new AbstractAction() {
-			private static final long serialVersionUID = -5310527346557745533L;
-			@Override public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-			}
-		});
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -125,11 +78,9 @@ public class PrefsWindow extends JDialog {
 			@Override public void run() {
 				String[] fontFamilies = GraphicsEnvironment.getLocalGraphicsEnvironment()
 						.getAvailableFontFamilyNames();
-				List<String> monospaced = new LinkedList<String>();
 				for (String family : fontFamilies) {
 					FontMetrics fm = getFontMetrics(new Font(family, Font.PLAIN, 128));
 					if (fm.charWidth('.') == fm.charWidth('m')) {
-						monospaced.add(family);
 						fontPicker.addItem(family);
 					}
 				}
@@ -369,15 +320,14 @@ public class PrefsWindow extends JDialog {
 		acl2Browse.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				String path = null;
+				String path;
 				FileDialog fc = new FileDialog((Frame) null, "Choose ACL2 executable");
 				fc.setVisible(true);
 				try {
-					path = new File(fc.getDirectory(), fc.getFile())
-							.getAbsolutePath();
+					path = new File(fc.getDirectory(), fc.getFile()).getAbsolutePath();
 					Prefs.acl2Path.set(path);
 					acl2Path.setText(path);
-				} catch (Exception e) { }
+				} catch (RuntimeException ignored) { }
 			}
 		});
 		c.gridx = 1;

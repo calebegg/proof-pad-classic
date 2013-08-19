@@ -1,4 +1,4 @@
-;; Welcome to ACL2_IDE_NAME
+;; Welcome to Proof Pad
 
 ;; This tutorial will give you a brief introduction to
 ;; the features of ACL2 and the IDE itself.

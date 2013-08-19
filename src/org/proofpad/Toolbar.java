@@ -1,23 +1,13 @@
 package org.proofpad;
 
-import java.awt.Desktop;
-import java.awt.Insets;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Scanner;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 public class Toolbar extends JPanel {
 	private static final int BUTTON_GAP = 6;
@@ -96,11 +86,8 @@ public class Toolbar extends JPanel {
 		button.setToolTipText("An update is available.");
 		button.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
-				try {
-					Desktop.getDesktop().browse(new URI("http://proofpad.org/"));
-				} catch (IOException e) {
-				} catch (URISyntaxException e) { }
-			}
+                Utils.browseTo("http://proofpad.org/");
+            }
 		});
 		button.addActionListener(new UserData.LogUse("updateButton"));
 		prerelease = new JLabel("Prerelease: " + Main.RELEASE);
@@ -110,15 +97,6 @@ public class Toolbar extends JPanel {
 		checkForUpdate();
 		add(prerelease);
 		add(button);
-		add(Box.createHorizontalStrut(BUTTON_GAP));
-		button = new JButton();
-		button.putClientProperty("JButton.buttonType", "help");
-		if (!OSX) {
-			button.setText("Tutorial");
-		}
-		button.addActionListener(parent.tutorialAction);
-		button.addActionListener(new UserData.LogUse("tutorialButton"));
-		//add(button);
 	}
 	
 	public void checkForUpdate() {
@@ -133,8 +111,8 @@ public class Toolbar extends JPanel {
 						prerelease.setVisible(true);
 					}
 					s.close();
-				} catch (MalformedURLException e) {
-				} catch (IOException e) { }
+				} catch (MalformedURLException ignored) {
+				} catch (IOException ignored) { }
 			}
 		}).start();
 	}

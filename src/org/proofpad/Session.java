@@ -1,6 +1,6 @@
 package org.proofpad;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;
@@ -14,8 +14,8 @@ public class Session implements Serializable {
 		File file;
 		Rectangle location;
 		String contents;
-		int admittedLoc;
-		int scrollPos;
+		@SuppressWarnings("unused") int admittedLoc;
+		@SuppressWarnings("unused") int scrollPos;
 	}
 	
 	private final SavedWindow[] savedWindows;

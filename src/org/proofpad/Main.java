@@ -1,57 +1,24 @@
 package org.proofpad;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.Date;
-import java.util.Iterator;
-
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JOptionPane;
-import javax.swing.ProgressMonitor;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
-
-import com.apple.eawt.AboutHandler;
-import com.apple.eawt.AppEvent.AboutEvent;
-import com.apple.eawt.AppEvent.AppForegroundEvent;
-import com.apple.eawt.AppEvent.AppReOpenedEvent;
-import com.apple.eawt.AppEvent.OpenFilesEvent;
-import com.apple.eawt.AppEvent.PreferencesEvent;
-import com.apple.eawt.AppEvent.QuitEvent;
-import com.apple.eawt.AppForegroundListener;
-import com.apple.eawt.AppReOpenedListener;
-import com.apple.eawt.Application;
-import com.apple.eawt.OpenFilesHandler;
-import com.apple.eawt.PreferencesHandler;
-import com.apple.eawt.QuitHandler;
-import com.apple.eawt.QuitResponse;
+import com.apple.eawt.*;
+import com.apple.eawt.AppEvent.*;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.net.*;
+import java.util.Date;
+import java.util.Iterator;
+
 public class Main {
 	public static final String displayName = "Proof Pad";
-	public static final int RELEASE = 3;
-	public static final Border WINDOW_BORDER = BorderFactory.createEmptyBorder(4, 4, 4, 4);
-	public static final boolean OSX = System.getProperty("os.name").indexOf("Mac") != -1;
+	public static final int RELEASE = 4;
+	public static final boolean OSX = System.getProperty("os.name").contains("Mac");
 	public static final boolean WIN =
-	System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
+	    System.getProperty("os.name").toLowerCase().contains("windows");
 	public static final boolean JAVA_7 = System.getProperty("java.version").startsWith("1.7");
 	
 	static final String SESSION_PATH = new File(getJarPath()).getParent() +
@@ -82,8 +49,7 @@ public class Main {
 
 	public static MenuBar menuBar;
 	
-	public static void main(final String[] args) throws FileNotFoundException, IOException,
-			ClassNotFoundException {
+	public static void main(final String[] args) throws IOException, ClassNotFoundException {
 		logtime("Starting main");
 		// http://java.net/jira/browse/MACOSX_PORT-764
 //		System.setProperty("apple.awt.brushMetalLook", "true");
@@ -120,7 +86,7 @@ public class Main {
 			});
 			app.setAboutHandler(new AboutHandler() {
 				@Override public void handleAbout(AboutEvent e) {
-					new AboutWindow().setVisible(true);
+					new AboutWindow(null).setVisible(true);
 				}
 			});
 			app.setQuitHandler(new QuitHandler() {
@@ -133,7 +99,7 @@ public class Main {
 			});
 			app.setPreferencesHandler(new PreferencesHandler() {
 				@Override public void handlePreferences(PreferencesEvent arg0) {
-					PrefsWindow.getInstance().setVisible(true);
+					PrefWindow.getInstance().setVisible(true);
 				}
 			});
 			app.addAppEventListener(new AppForegroundListener() {
@@ -250,7 +216,7 @@ public class Main {
 		try {
 			return URLDecoder.decode(Main.class.getProtectionDomain().getCodeSource().getLocation()
 							.getPath(), "UTF-8");
-		} catch (UnsupportedEncodingException e) { }
+		} catch (UnsupportedEncodingException ignored) { }
 		return "";
 	}
 	

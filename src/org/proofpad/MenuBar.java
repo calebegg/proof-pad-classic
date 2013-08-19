@@ -1,31 +1,18 @@
 package org.proofpad;
 
-import java.awt.Desktop;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GraphicsEnvironment;
-import java.awt.Toolkit;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
+import org.proofpad.PrefWindow.ToolbarVisibleListener;
+
+import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultEditorKit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.prefs.Preferences;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.KeyStroke;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultEditorKit;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
-import org.proofpad.PrefsWindow.ToolbarVisibleListener;
 
 /*
  * GNOME HIG: http://developer.gnome.org/hig-book/3.4/menus-standard.html.en
@@ -49,13 +36,14 @@ public class MenuBar extends JMenuBar {
 	public JMenuItem saveItem;
 	JMenu recentMenu;
 	JMenuItem parentItem;
+	private JMenuItem lookUpItem;
 
 	public MenuBar(final PPWindow parent) {
 		this.parent = parent;
 		
 		final ActionListener prefsAction = new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				PrefsWindow.getInstance().setVisible(true);
+				PrefWindow.getInstance().setVisible(true);
 			}
 		};
 		
@@ -247,7 +235,7 @@ public class MenuBar extends JMenuBar {
 						int selStart = parent.editor.getSelectionStart();
 						int selEnd = parent.editor.getSelectionEnd();
 						parent.editor.getDocument().remove(selStart, selEnd - selStart);
-					} catch (BadLocationException e1) { }
+					} catch (BadLocationException ignored) { }
 				}
 			});
 			item.addActionListener(new UserData.LogUse("deleteMenuItem"));
@@ -299,23 +287,25 @@ public class MenuBar extends JMenuBar {
 		final JMenuItem showToolbarItem;
 		if (OSX) {
 			showToolbarItem = new JMenuItem(getToolbarLabelPrefix() + "Toolbar");
-			PrefsWindow.addToolbarVisibleListener(new ToolbarVisibleListener() {
-				@Override public void toolbarVisible(boolean visible) {
-					showToolbarItem.setText(getToolbarLabelPrefix() + "Toolbar");
-				}
-			});
+			PrefWindow.addToolbarVisibleListener(new ToolbarVisibleListener() {
+                @Override
+                public void toolbarVisible(boolean visible) {
+                    showToolbarItem.setText(getToolbarLabelPrefix() + "Toolbar");
+                }
+            });
 		} else {
 			showToolbarItem = new JCheckBoxMenuItem("Toolbar");
 			showToolbarItem.setSelected(Prefs.showToolbar.get());
-			PrefsWindow.addToolbarVisibleListener(new ToolbarVisibleListener() {
-				@Override public void toolbarVisible(boolean visible) {
-					showToolbarItem.setSelected(visible);
-				}
-			});
+			PrefWindow.addToolbarVisibleListener(new ToolbarVisibleListener() {
+                @Override
+                public void toolbarVisible(boolean visible) {
+                    showToolbarItem.setSelected(visible);
+                }
+            });
 		}
 		showToolbarItem.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				PrefsWindow.toggleToolbarVisible();
+				PrefWindow.toggleToolbarVisible();
 				showToolbarItem.setText(getToolbarLabelPrefix() + "Toolbar");
 			}
 		});
@@ -333,7 +323,7 @@ public class MenuBar extends JMenuBar {
 			@Override public void actionPerformed(ActionEvent e) {
 				Font font = Prefs.font.get();
 				Prefs.font.set(font.deriveFont((float) (font.getSize() + 2)));
-				PrefsWindow.fireFontChangeEvent();
+				PrefWindow.fireFontChangeEvent();
 			}
 		});
 		menu.add(item);
@@ -347,7 +337,7 @@ public class MenuBar extends JMenuBar {
 			@Override public void actionPerformed(ActionEvent e) {
 				Font font = Prefs.font.get();
 				Prefs.font.set(font.deriveFont((float) (font.getSize() - 2)));
-				PrefsWindow.fireFontChangeEvent();
+				PrefWindow.fireFontChangeEvent();
 			}
 		});
 		menu.add(item);
@@ -358,7 +348,7 @@ public class MenuBar extends JMenuBar {
 				@Override public void actionPerformed(ActionEvent e) {
 					Font font = Prefs.font.get();
 					Prefs.font.set(font.deriveFont((float) Prefs.fontSize.def));
-					PrefsWindow.fireFontChangeEvent();
+					PrefWindow.fireFontChangeEvent();
 				}
 			});
 			menu.add(item);
@@ -495,6 +485,7 @@ public class MenuBar extends JMenuBar {
 		/* ******* */
 		menu = new JMenu(OSX ? "Help " : "Help");
 		item = new JMenuItem("Look up...");
+		lookUpItem = item;
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, modKey | KeyEvent.ALT_DOWN_MASK));
 		if (parent == null) {
 			item.setEnabled(false);
@@ -503,21 +494,19 @@ public class MenuBar extends JMenuBar {
 			item.addActionListener(new UserData.LogUse("lookUpMenuItem"));
 		}
 		menu.add(item);
-		item = new JMenuItem("Tutorial");
-		if (parent == null) {
-			item.setEnabled(false);
-		} else {
-			item.addActionListener(parent.tutorialAction);
-			item.addActionListener(new UserData.LogUse("tutorialMenuItem"));
-		}
+		item = new JMenuItem("Documentation");
+		item.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				Utils.browseTo("http://proofpad.org/docs/");
+			}
+		});
+		item.addActionListener(new UserData.LogUse("docsMenuItem"));
 		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem(applyTitleCase("Report a bug"));
 		item.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				try {
-					Desktop.getDesktop().browse(new URI("https://github.com/calebegg/proof-pad/issues/new"));
-				} catch (Exception ex) { }
+				Utils.browseTo("https://github.com/calebegg/proof-pad/issues/new");
 			}
 		});
 		item.addActionListener(new UserData.LogUse("reportBugMenuItem"));
@@ -526,7 +515,7 @@ public class MenuBar extends JMenuBar {
 			item = new JMenuItem("About Proof Pad");
 			item.addActionListener(new ActionListener() {
 				@Override public void actionPerformed(ActionEvent e) {
-					new AboutWindow().setVisible(true);
+					new AboutWindow(parent).setVisible(true);
 				}
 			});
 			item.addActionListener(new UserData.LogUse("aboutMenuItem"));
@@ -641,7 +630,7 @@ public class MenuBar extends JMenuBar {
 		}
 	}
 	
-	private static String applyTitleCase(String phrase) {
+	public static String applyTitleCase(String phrase) {
 		if (!TITLE_CASE || phrase.isEmpty()) {
 			return phrase;
 		}
@@ -657,4 +646,11 @@ public class MenuBar extends JMenuBar {
 		return new String(cs);
 	}
 
+	public void setLookUpName(String name) {
+		if (name != null && !name.isEmpty()) {
+			lookUpItem.setText(applyTitleCase("Look up") + " \"" + name + "\"...");
+		} else {
+			lookUpItem.setText(applyTitleCase("Look up..."));
+		}
+	}
 }

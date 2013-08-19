@@ -28,6 +28,9 @@ ${EndIf}
 !macroend
  
 function .onInit
+	${If} ${RunningX64}
+		StrCpy $instdir $programfiles64
+	${EndIf}
 	setShellVarContext all
 	!insertmacro VerifyUserIsAdmin
 functionEnd

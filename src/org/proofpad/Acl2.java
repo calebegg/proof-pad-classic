@@ -1,23 +1,16 @@
 package org.proofpad;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.EventListener;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.swing.text.Segment;
-
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.proofpad.InfoBar.CloseListener;
 import org.proofpad.InfoBar.InfoButton;
 import org.proofpad.Repl.MsgType;
+
+import javax.swing.text.Segment;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.EventListener;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Acl2 extends Thread {
 	public interface OutputChangeListener {
@@ -25,9 +18,9 @@ public class Acl2 extends Thread {
 	}
 
 	private static final int ACL2_IS_SLOW_DELAY = 15000;
-	
+
 	public final StringBuilder logOutput = new StringBuilder();
-	
+
 	private class Spooler extends Thread {
 		InputStream in;
 		final List<Character> spool = new LinkedList<Character>();
@@ -55,7 +48,7 @@ public class Acl2 extends Thread {
 			}
 		}
 	}
-	
+
 	public interface ErrorListener {
 		public InfoBar handleError(String msg, InfoButton[] btns);
 	}
@@ -67,7 +60,7 @@ public class Acl2 extends Thread {
 	public interface OutputEventListener extends EventListener {
 		public void handleOutputEvent(OutputEvent outputEvent);
 	}
-	
+
 	public class OutputEvent {
 		final public String output;
 		final public MsgType type;
@@ -76,13 +69,8 @@ public class Acl2 extends Thread {
 			this.type = type;
 		}
 	}
-	
+
 	public interface Callback {
-		/**
-		 * @param success
-		 * @param response
-		 * @return Whether or not to print this output to the REPL.
-		 */
 		public boolean run(boolean success, String response);
 	}
 
@@ -92,7 +80,7 @@ public class Acl2 extends Thread {
 			return false;
 		}
 	};
-	
+
 	static List<List<Character>> prompt = new LinkedList<List<Character>>();
 	static List<List<Character>> failure = new LinkedList<List<Character>>();
 	static String[] failures;
@@ -118,7 +106,7 @@ public class Acl2 extends Thread {
 			failure.add(stringToCharacterList(f));
 		}
 	}
-	Process acl2Proc;
+	Process acl2Process;
 	private Spooler sp;
 
 	private boolean errorOccured;
@@ -128,7 +116,9 @@ public class Acl2 extends Thread {
 	private final List<OutputEvent> outputQueue = new LinkedList<OutputEvent>();
 	private final Acl2TokenMaker tm = new Acl2TokenMaker();
 	File workingDir;
-	
+
+	final boolean isBuilder;
+
 	private final List<RestartListener> restartListeners = new LinkedList<RestartListener>();
 
 	private int procId;
@@ -155,11 +145,11 @@ public class Acl2 extends Thread {
 
 	BufferedWriter out;
 
-	private Thread acl2Monitor;
-
 	boolean isTerminating;
 
 	private final LinkedList<OutputChangeListener> outputChangeListeners = new LinkedList<OutputChangeListener>();
+
+	private boolean hasStarted = false;
 
 	private final static String marker = "PROOFPAD-MARKER:" + "proofpad".hashCode();
 	private final static List<Character> markerChars = stringToCharacterList(marker);
@@ -176,14 +166,17 @@ public class Acl2 extends Thread {
 	public void removeOutputChangeListener(OutputChangeListener ocl) {
 		outputChangeListeners.remove(ocl);
 	}
-	
-	public Acl2(List<String> acl2Paths, File workingDir) {
+
+	public Acl2(List<String> acl2Paths, File workingDir, boolean isBuilder) {
 		super("ACL2 background thread");
+		this.isBuilder = isBuilder;
 		this.acl2Paths = acl2Paths;
 		sb = new StringBuilder();
 		this.workingDir = workingDir;
-		// Startup callback
-		callbacks.add(null);
+	}
+
+	public Acl2(List<String> acl2Paths, File workingDir) {
+		this(acl2Paths, workingDir, false);
 	}
 
 	@Override
@@ -194,7 +187,7 @@ public class Acl2 extends Thread {
 			Prefs.firstRun.set(false);
 		}
 		List<Character> buffer = new LinkedList<Character>();
-		if (acl2Proc == null) {
+		if (acl2Process == null) {
 			fireOutputEvent(new OutputEvent("ACL2 did not start correctly.", MsgType.ERROR));
 			Main.userData.addError("ACL2 failed to start.");
 			return;
@@ -218,8 +211,8 @@ public class Acl2 extends Thread {
 						}
 					});
 				}
-				if (sp.spool.isEmpty()) {
-					synchronized(sp) {
+				synchronized(sp) {
+					if (sp.spool.isEmpty()) {
 						sp.wait();
 					}
 				}
@@ -300,7 +293,7 @@ public class Acl2 extends Thread {
 		}
 		return null;
 	}
-	
+
 	void failAllCallbacks() {
 		List<Callback> callbacksCopy = new LinkedList<Callback>(callbacks);
 		for (Callback callback : callbacksCopy) {
@@ -308,7 +301,7 @@ public class Acl2 extends Thread {
 		}
 		callbacks.clear();
 	}
-	
+
 	private void fireOutputEvents(boolean success) {
 		if (!outputQueue.isEmpty()) {
 			outputQueue.remove(0);
@@ -333,7 +326,6 @@ public class Acl2 extends Thread {
 	public void initialize() throws IOException {
 		ProcessBuilder processBuilder;
 		acl2IsSlowShown = false;
-
 		for (String maybeAcl2Path : acl2Paths) {
 			System.out.println(acl2Paths);
 			if (Main.WIN) {
@@ -349,23 +341,25 @@ public class Acl2 extends Thread {
 			} else {
 				maybeWorkingDir = workingDir;
 			}
-			processBuilder.directory(workingDir);
+            // Startup callback
+            callbacks.add(null);
+            processBuilder.directory(workingDir);
 			try {
-				acl2Proc = processBuilder.start();
+				acl2Process = processBuilder.start();
 			} catch (IOException e) {
 				// Try the next path
 				e.printStackTrace();
 				continue;
 			}
-			acl2Path = maybeAcl2Path.replaceAll("\\\\ ", " ");
+			acl2Path = maybeAcl2Path;
 			workingDir = maybeWorkingDir;
-			BufferedReader in = new BufferedReader(new InputStreamReader(acl2Proc.getInputStream()));
 			if (!Main.WIN) {
+				BufferedReader in = new BufferedReader(new InputStreamReader(acl2Process.getInputStream()));
 				procId = Integer.parseInt(in.readLine());
 			}
-			sp = new Spooler(acl2Proc.getInputStream());
+			sp = new Spooler(acl2Process.getInputStream());
 			sp.start();
-			out = new BufferedWriter(new OutputStreamWriter(acl2Proc.getOutputStream()));
+			out = new BufferedWriter(new OutputStreamWriter(acl2Process.getOutputStream()));
 			writeAndFlush("(cw \"" + marker + "\")\n");
 			String draculaPath = "";
 			try {
@@ -374,7 +368,7 @@ public class Acl2 extends Thread {
 				} else {
 					draculaPath = new File(maybeAcl2Path).getParent().replaceAll("\\\\", "") + "/dracula";
 				}
-			} catch (Exception e) { }
+			} catch (Exception ignored) { }
 			initializing = true;
 			numInitExps = 0;
 			admit("(add-include-book-dir :teachpacks \"" + draculaPath + "\")", doNothingCallback);
@@ -383,29 +377,32 @@ public class Acl2 extends Thread {
 		}
 		errorOccured = false;
 		// Start a thread to check ACL2 occasionally
-		acl2Monitor = new Thread(new Runnable() {
-			@Override public void run() {
+		Thread acl2Monitor = new Thread(new Runnable() {
+			@Override
+			public void run() {
 				while (true) {
 					try {
-						Thread.sleep(4000);
-					} catch (InterruptedException e) { }
-					if (acl2Proc == null) return;
+						Thread.sleep(isBuilder ? 500 : 4000);
+					} catch (InterruptedException ignored) {
+					}
+					if (acl2Process == null) return;
 					try {
-						acl2Proc.exitValue();
+						int exitVal = acl2Process.exitValue();
 						// If we get here, the process has terminated.
-						System.out.println("ACL2 terminated.");
+						System.out.println("Exit code: " + exitVal);
 						failAllCallbacks();
 						fireRestartEvent();
 						showAcl2TerminatedError();
 						return;
-					} catch (IllegalThreadStateException e) { }
+					} catch (IllegalThreadStateException ignored) {
+					}
 				}
 			}
 		}, "ACL2 monitor");
 		acl2Monitor.start();
 		initializing = false;
 	}
-	
+
 	private void writeAndFlush(String string) {
 		try {
 			out.write(string);
@@ -413,10 +410,10 @@ public class Acl2 extends Thread {
 				@Override public void run() {
 					try {
 						out.flush();
-					} catch (IOException e) { }
+					} catch (IOException ignored) { }
 				}
 			}).start();
-		} catch (IOException e) { }
+		} catch (IOException ignored) { }
 	}
 	public void admit(String code, Callback callback) {
 		if (out == null) return;
@@ -432,10 +429,11 @@ public class Acl2 extends Thread {
 			callback.run(true, "");
 			return;
 		}
+        System.err.println(workingDir);
 		int parenLevel = 0;
 		StringBuilder exp = new StringBuilder();
 		List<String> exps = new LinkedList<String>();
-		
+
 		Token t = tm.getTokenList(new Segment(code.toCharArray(), 0, code.length()), Token.NULL, 0);
 		while (t != null && t.offset != -1) {
 			if (t.isSingleChar('(')) {
@@ -451,7 +449,7 @@ public class Acl2 extends Thread {
 			}
 			t = t.getNextToken();
 		}
-		
+
 //		System.out.println(exps);
 		for (String current : exps) {
 			if (initializing) {
@@ -464,9 +462,6 @@ public class Acl2 extends Thread {
 		}
 		if (exps.isEmpty()) {
 			callback.run(true, "");
-		}
-		synchronized (this) {
-			notify();
 		}
 	}
 	private static List<Character> stringToCharacterList(String s) {
@@ -482,9 +477,6 @@ public class Acl2 extends Thread {
 		terminate();
 		initialize();
 		this.interrupt();
-		synchronized (this) {
-			notify();
-		}
 		fireRestartEvent();
 		System.out.println("ACL2 is restarting");
 		failAllCallbacks();
@@ -496,10 +488,10 @@ public class Acl2 extends Thread {
 			l.acl2Restarted();
 		}
 	}
-	
+
 	public void terminate() {
 		isTerminating = true;
-		if (acl2Proc == null) return;
+		if (acl2Process == null) return;
 		admit("(good-bye)", Acl2.doNothingCallback);
 		if (Main.WIN) {
 			writeByte(0);
@@ -514,9 +506,9 @@ public class Acl2 extends Thread {
 			}
 		}).start();
 		try {
-			acl2Proc.waitFor();
+			acl2Process.waitFor();
 		} catch (InterruptedException e) {
-			acl2Proc.destroy();
+			acl2Process.destroy();
 		}
 		isTerminating = false;
 	}
@@ -527,7 +519,7 @@ public class Acl2 extends Thread {
 			out.flush();
 		} catch (IOException e) { }
 	}
-	
+
 	public void ctrlc() {
 		if (Main.WIN) {
 			writeByte(1);
@@ -550,7 +542,7 @@ public class Acl2 extends Thread {
 	public void setOutputEventListener(OutputEventListener outputEventListener) {
 		this.outputEventListener = outputEventListener;
 	}
-	
+
 	public static boolean isError(String line) {
 		for (String f : failures) {
 			if (line.startsWith(f)) {
@@ -574,5 +566,12 @@ public class Acl2 extends Thread {
 	}
 	public void setErrorListener(ErrorListener errorListener) {
 		this.errorListener = errorListener;
+	}
+	@Override public synchronized void start() {
+		hasStarted = true;
+		super.start();
+	}
+	public boolean hasStarted() {
+		return hasStarted;
 	}
 }

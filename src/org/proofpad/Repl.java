@@ -1,41 +1,17 @@
 package org.proofpad;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.proofpad.Acl2.OutputEvent;
 import org.proofpad.SExpUtils.ExpType;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class Repl extends JPanel {
@@ -134,7 +110,7 @@ public class Repl extends JPanel {
 
 	public class StatusLabel extends JLabel {
 		private static final long serialVersionUID = -6292618935259682146L;
-		static final int size = ProofBar.width;
+		static final int size = ProofBar.WIDTH;
 		public StatusLabel(MsgType msg) {
 			setHorizontalAlignment(CENTER);
 			setMsgType(msg);
@@ -167,18 +143,8 @@ public class Repl extends JPanel {
 			}
 		}
 	}
-	
-	public class Pair<T, U> {
-		public final T first;
-		public final U second;
 
-		public Pair(T first, U second) {
-			this.first = first;
-			this.second = second;
-		}
-	}
-	
-	private static final long serialVersionUID = -4551996064006604257L;
+    private static final long serialVersionUID = -4551996064006604257L;
 	private static final int MAX_BOTTOM_HEIGHT = 100;
 	final Acl2 acl2;
 	private final JPanel output = new JPanel();
@@ -187,14 +153,12 @@ public class Repl extends JPanel {
 	private final CodePane definitions;
 	protected int historyIndex = 0;
 	boolean addedInputToHistory = false;
-	private final Font font;
-	private final List<JComponent> fontChangeList = new LinkedList<JComponent>();
+    private final List<JComponent> fontChangeList = new LinkedList<JComponent>();
 	CodePane input;
 	JScrollPane inputScroller;
 	private final JSplitPane split;
 	private HeightChangeListener heightChangeListener;
-	private final JPanel bottom;
-	PPWindow parent;
+    PPWindow parent;
 	protected JButton run;
 	private int oldNeededHeight = 26;
 		
@@ -227,14 +191,14 @@ public class Repl extends JPanel {
 		history = new ArrayList<String>();
 		output.setLayout(new BoxLayout(output, BoxLayout.Y_AXIS));
 		output.setBackground(Color.WHITE);
-		font = new Font("Monospaced", Font.PLAIN, 14);
+        Font font = new Font("Monospaced", Font.PLAIN, 14);
 		output.setFont(font);
 		final JScrollPane scroller = new JScrollPane(output);
 		vertical = scroller.getVerticalScrollBar();
 		scroller.setBorder(BorderFactory.createEmptyBorder());
 		scroller.setPreferredSize(new Dimension(500,100));
 		split.setTopComponent(scroller);
-		bottom = new JPanel();
+        JPanel bottom = new JPanel();
 		bottom.setLayout(new BoxLayout(bottom, BoxLayout.X_AXIS));
 		bottom.setBackground(Color.WHITE);
 		JLabel prompt = new StatusLabel(MsgType.INPUT);
@@ -323,7 +287,13 @@ public class Repl extends JPanel {
 			"WARRANTY\\..*");
 	private static Pattern guardViolation = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard " +
 			"for the function call (.*?), which is (.*?), is violated by the arguments in the " +
-			"call (.*?)\\. See :DOC set-guard-checking for information.*");
+			"call (.*?)\\..*");
+	private static Pattern guardViolationDetail = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard " +
+			"for the function call \\(([^\\s]*?) ([^\\s]*?)\\), which is (.*?), is violated by the arguments in the " +
+			"call \\(([^\\s]*?) ([^\\s]*?)\\)\\..*");
+	private static Pattern guardViolationDetail2 = Pattern.compile("ACL2 Error in TOP-LEVEL: The guard " +
+			"for the function call \\(([^\\s]*?) ([^\\s]*?) ([^\\s]*?)\\), which is (.*?), is violated by the arguments in the " +
+			"call \\(([^\\s]*?) ([^\\s]*?) ([^\\s]*?)\\)\\..*");
 	private static Pattern globalVar = Pattern.compile("ACL2 Error in TOP-LEVEL: Global " +
 			"variables, such as (.*?), are not allowed. See :DOC ASSIGN and :DOC @.");
 	private static Pattern wrongNumParams = Pattern.compile("ACL2 Error in TOP-LEVEL: (.*?) " +
@@ -338,12 +308,23 @@ public class Repl extends JPanel {
 	private static Pattern undefinedFunc = Pattern.compile("ACL2 Error in TOP-LEVEL: The symbol " +
 			"(.*?) \\(in package \"ACL2\"\\) has neither a function nor macro definition in " +
 			"ACL2\\. Please define it\\..*");
+	private static Pattern checkExpectFailed = Pattern.compile("HARD ACL2 ERROR in TESTING: " +
+			"Expected: (.*?) Actual: (.*?) ACL2 Error in TOP-LEVEL: Evaluation aborted.*");
 	
-	public static List<Message> summarize(String result) {
-		return summarize(result, null);
+	private static Map<String, String> commonGuards = new HashMap<String, String>();
+	static {
+		commonGuards.put("(AND (INTEGERP VAR) (<= 0 VAR))", "a natural number");
+		commonGuards.put("(OR (CONSP VAR) (EQUAL VAR NIL))", "a list");
+		commonGuards.put("(INTEGERP VAR)", "an integer");
+		commonGuards.put("(AND (ACL2-NUMBERP VAR) (NOT (EQUAL VAR 0)))", "a nonzero number");
+
+		commonGuards.put("(AND (ACL2-NUMBERP VAR1) (ACL2-NUMBERP VAR2))", "two numbers");
+		commonGuards.put("(AND (REAL/RATIONALP VAR1) (REAL/RATIONALP VAR2) (NOT (EQL VAR2 0)))",
+				"two rationals, the second nonzero");
+		commonGuards.put("(TRUE-LISTP VAR1)", "a list");
 	}
-	
-	public static String joinString(String toJoin) {
+
+    public static String joinString(String toJoin) {
 		return toJoin.replaceAll("[\n\r]+", " ").replaceAll("\\s+", " ").trim();
 	}
 	
@@ -351,13 +332,35 @@ public class Repl extends JPanel {
 		List<Message> msgs = new ArrayList<Message>();
 		Matcher match;
 		String joined = joinString(result);
-		if ((match = welcomeMessage.matcher(joined)).matches()) {
+		if (welcomeMessage.matcher(joined).matches()) {
 			Main.userData.addReplMsg("welcomeMessage");
 			msgs.add(new Message("ACL2 started successfully.", MsgType.INFO));
 		}
 		if ((match = guardViolation.matcher(joined)).matches()) {
-			msgs.add(new Message("Guard violation in " + match.group(3).toLowerCase() + ".", MsgType.ERROR));
-			Main.userData.addReplMsg("guardViolation");
+			Matcher detailMatch;
+			String key = null;
+			System.out.println("Is a guard violation");
+			if ((detailMatch = guardViolationDetail.matcher(joined)).matches() && 
+					commonGuards.containsKey(key = detailMatch.group(3).replace(
+							" " + detailMatch.group(2), " VAR"))) {
+				msgs.add(new Message(detailMatch.group(1).toLowerCase() + " expects " +
+						commonGuards.get(key) + " but instead received " +
+						detailMatch.group(5).toLowerCase() + ".", MsgType.ERROR));
+				Main.userData.addReplMsg("guardViolationDetail");
+			} else if ((detailMatch = guardViolationDetail2.matcher(joined)).matches() && 
+						commonGuards.containsKey(key = detailMatch.group(4).replace(
+								" " + detailMatch.group(2), " VAR1").replace(
+										" " + detailMatch.group(3), " VAR2"))) {
+					msgs.add(new Message(detailMatch.group(1).toLowerCase() + " expects " +
+							commonGuards.get(key) + " but instead received " +
+							detailMatch.group(6).toLowerCase() + " and " +
+							detailMatch.group(7).toLowerCase() + ".", MsgType.ERROR));
+					Main.userData.addReplMsg("guardViolationDetail");
+			} else {
+				System.out.println("" + key);
+				msgs.add(new Message("Guard violation in " + match.group(3).toLowerCase() + ".", MsgType.ERROR));
+				Main.userData.addReplMsg("guardViolation");
+			}
 		}
 		if ((match = globalVar.matcher(joined)).matches()) {
 			msgs.add(new Message("Global variables, such as " + match.group(1).toLowerCase() +
@@ -374,10 +377,12 @@ public class Repl extends JPanel {
 				   (match = nonRec.matcher(joined)).matches() ||
 				   (match = admission.matcher(joined)).matches()) {
 			if (type == MsgType.ERROR) {
-				msgs.add(new Message("Admission of " + match.group(1).toLowerCase() + " failed.", MsgType.ERROR));
+				msgs.add(new Message("Admission of " + match.group(1).toLowerCase() + " failed.",
+						MsgType.ERROR));
 				Main.userData.addReplMsg("admissionFailed");
 			} else {
-				msgs.add(new Message(match.group(1).toLowerCase() + " was admitted successfully.", MsgType.SUCCESS));
+				msgs.add(new Message(match.group(1).toLowerCase() + " was admitted successfully.",
+						MsgType.SUCCESS));
 				Main.userData.addReplMsg("admissionSucceeded");
 			}
 		}
@@ -386,9 +391,14 @@ public class Repl extends JPanel {
 			msgs.add(new Message("The function " + func + " is undefined.", MsgType.ERROR));
 			Main.userData.addReplMsg("undefinedFunc");
 		}
-		if ((match = proved.matcher(joined)).find()) {
+		if (proved.matcher(joined).find()) {
 			msgs.add(new Message("Proof successful.", MsgType.SUCCESS));
 			Main.userData.addReplMsg("proofSuccess");
+		}
+		if ((match = checkExpectFailed.matcher(joined)).matches()) {
+			msgs.add(new Message("Test failed. Expected: " + match.group(1) + "; Actual: " +
+					match.group(2), MsgType.ERROR));
+			Main.userData.addReplMsg("checkExpectFailed");
 		}
 		if (isTestResults(joined)) {
 			if (type == MsgType.ERROR) {
@@ -445,21 +455,21 @@ public class Repl extends JPanel {
 		status.setMsgType(type);
 		switch (type) {
 		case ERROR:
-			line.setBackground(ProofBar.ERROR_COLOR);
-			status.setBackground(ProofBar.ERROR_COLOR);
+			line.setBackground(Colors.ERROR);
+			status.setBackground(Colors.ERROR);
 			break;
 		case INFO:
 			break;
 		case SUCCESS:
-			status.setBackground(ProofBar.ADMITTED_COLOR);
+			status.setBackground(Colors.ADMITTED);
 			break;
 		case INPUT:
 			status.setForeground(Color.GRAY);
 			text.setForeground(Color.GRAY);
 			break;
 		case WARNING:
-			line.setBackground(ProofBar.WARNING_COLOR);
-			status.setBackground(ProofBar.WARNING_COLOR);
+			line.setBackground(Colors.WARNING);
+			status.setBackground(Colors.WARNING);
 			break;
 		}
 		line.add(text);
@@ -520,8 +530,8 @@ public class Repl extends JPanel {
 
 	@Override public void setFont(Font f) {
 		super.setFont(f);
-		if (fontChangeList == null) return;
-		synchronized (fontChangeList) {
+        if (fontChangeList == null) return;
+        synchronized (fontChangeList) {
 			for (JComponent c : fontChangeList) {
 				setFontAndHeight(f, c);
 			}
@@ -543,11 +553,7 @@ public class Repl extends JPanel {
 		this.heightChangeListener = heightChangeListener;
 	}
 
-	public int getInputHeight() {
-		return inputScroller.getHeight();
-	}
-
-	void maybeEnableButtons() {
+    void maybeEnableButtons() {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override public void run() {
 				boolean enable = input.getLastVisibleOffset() != 0;

@@ -1,9 +1,10 @@
 package org.proofpad;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.Token;
+
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class SExpUtils {
@@ -19,7 +20,7 @@ public class SExpUtils {
 		int height = 0;
 		boolean first = false;
 		StringBuilder contents = new StringBuilder();
-		boolean contentsAdmittable = true;
+		boolean contentsAdmittable = false;
 		ExpType firstType = ExpType.FINAL;
 		int charIndex = -1;
 		Expression prev = null;
@@ -28,7 +29,6 @@ public class SExpUtils {
 			height++;
 			Token token = doc.getTokenListForLine(i);
 			while (token != null && token.offset != -1) {
-				//System.out.println(token);
 				if (charIndex == -1) {
 					charIndex = token.offset;
 				}

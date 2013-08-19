@@ -1,27 +1,10 @@
 package org.proofpad;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.DefaultFocusTraversalPolicy;
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
 public class ErrorWindow extends JDialog {
 	private static final int MAX_HEIGHT = 700;
@@ -35,7 +18,7 @@ public class ErrorWindow extends JDialog {
 		StringBuilder sb = new StringBuilder(e + ": " + e.getMessage());
 		StackTraceElement[] stes = e.getStackTrace();
 		for (StackTraceElement ste : stes) {
-			sb.append("\n" + ste);
+			sb.append("\n").append(ste);
 		}
 		final String stackTrace = sb.toString();
 		// TODO: Long error messages should have ellipses. max width?

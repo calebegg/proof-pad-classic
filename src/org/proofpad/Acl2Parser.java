@@ -1,29 +1,15 @@
 package org.proofpad;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.Token;
+import org.fife.ui.rsyntaxtextarea.parser.*;
+
+import javax.swing.text.BadLocationException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.logging.Logger;
-
-import javax.swing.text.BadLocationException;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
-import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
-import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
-import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
-import org.fife.ui.rsyntaxtextarea.parser.ParseResult;
-import org.fife.ui.rsyntaxtextarea.parser.ParserNotice;
 
 public class Acl2Parser extends AbstractParser {
 	
@@ -62,6 +48,9 @@ public class Acl2Parser extends AbstractParser {
 			this.lower = lower;
 			this.upper = upper;
 		}
+		public boolean isOutside(int val) {
+			return val < lower || val > upper;
+		}
 	}
 	
 	static class CacheSets implements Serializable {
@@ -79,6 +68,7 @@ public class Acl2Parser extends AbstractParser {
 	private File acl2Dir;
 	private final List<ParseListener> parseListeners = new LinkedList<Acl2Parser.ParseListener>();
 	private final Map<String, Acl2ParserNotice> funcNotices = new HashMap<String, Acl2Parser.Acl2ParserNotice>();
+	private boolean errorShown;
 	
 	public Acl2Parser(File workingDir, File acl2Dir) {
 		this.workingDir = workingDir;
@@ -87,6 +77,8 @@ public class Acl2Parser extends AbstractParser {
 
 	private static Map<String, Range> paramCounts = new HashMap<String, Range>();
 	static {
+		paramCounts.put("defun", new Range(3, Integer.MAX_VALUE));
+		
 		paramCounts.put("-", new Range(1, 2));
 		paramCounts.put("/", new Range(1, 2));
 		paramCounts.put("/=", new Range(2, 2));
@@ -478,6 +470,7 @@ public class Acl2Parser extends AbstractParser {
 	
 	@Override
 	public ParseResult parse(RSyntaxDocument doc, String style /* ignored */) {
+		errorShown = false;
 		DefaultParseResult result = new DefaultParseResult(this);
 		int lines = doc.getDefaultRootElement().getElementCount();
 		result.setParsedLines(0, lines);
@@ -492,6 +485,7 @@ public class Acl2Parser extends AbstractParser {
 				"declare", "include-book", "defttag"
 		}));
 		constants = new HashSet<String>();
+		List<ParserNotice> info = new LinkedList<ParserNotice>();
 		constants.add("state");
 		Stack<ParseToken> s = new Stack<ParseToken>();
 		Token token;
@@ -508,6 +502,11 @@ public class Acl2Parser extends AbstractParser {
 					top.params.add(token.getLexeme());
 					if (top.name.equals("defun") && top.params.size() == 1) {
 						if (!macros.contains(tokenName) && !functions.contains(tokenName)) {
+							if (token.type != Token.IDENTIFIER) {
+								result.addNotice(new Acl2ParserNotice(this,
+										"Function names must be identifiers, but " + tokenName +
+										" is not.", line, token, ParserNotice.ERROR));
+							}
 							functions.add(tokenName);
 							if (funcNotices.containsKey(tokenName)) {
 								Acl2ParserNotice notice = funcNotices.get(tokenName);
@@ -550,7 +549,9 @@ public class Acl2Parser extends AbstractParser {
 				ParseToken parent = s.size() <= 1 ? null : s.get(s.size() - 2);
 				ParseToken grandparent = s.size() <= 2 ? null : s.get(s.size() - 3);
 				boolean isVariableOfParent = parent != null && parent.name != null &&
-						(parent.name.equals("defun") && parent.params.size() == 2 ||
+						((parent.name.equals("defun") ||
+								parent.name.equals("defmacro") ||
+								parent.name.equals("defabbrev")) && parent.params.size() == 2 ||
 						 parent.name.equals("mv-let") && parent.params.size() == 1);
 				boolean isVariableOfGrandparent = (grandparent != null && grandparent.name != null &&
 						((grandparent.name.equals("let") || grandparent.name.equals("let*")) &&
@@ -606,12 +607,18 @@ public class Acl2Parser extends AbstractParser {
 								ParserNotice.ERROR));
 					} else {
 						Range range = paramCounts.get(top.name);
-						if (range != null && (top.params.size() < range.lower || top.params.size() > range.upper)) {
+						if (range != null && range.isOutside(top.params.size())) {
 							String msg;
 							if (range.lower == range.upper) {
 								msg = "<html><b>" + htmlEncode(top.name) + "</b> expects "
 										+ range.lower + " parameter" +
 										(range.lower == 1 ? "" : "s")  + ".</html>";
+							} else if (range.upper == Integer.MAX_VALUE) {
+								msg = "<html><b>" + htmlEncode(top.name) + "</b> expects at least "
+										+ range.lower + " parameters.</html>";							
+							} else if (range.lower == Integer.MIN_VALUE) {
+								msg = "<html><b>" + htmlEncode(top.name) + "</b> expects at most "
+										+ range.upper + " parameters.</html>";							
 							} else {
 								msg = "<html><b>" + htmlEncode(top.name) + "</b> expects between "
 										+ range.lower + " and " + range.upper + " parameters.</html>";							
@@ -626,9 +633,17 @@ public class Acl2Parser extends AbstractParser {
 							File dir;
 							String dirKey = "";
 							if (dirLoc == 0) {
-								dir = workingDir;
+								if (bookName.startsWith("\"/")) {
+									dir = null;
+								} else {
+									dir = workingDir;
+								}
 							} else {
-								dirKey = top.params.get(dirLoc);
+								try {
+									dirKey = top.params.get(dirLoc);
+								} catch (IndexOutOfBoundsException e) {
+									dirKey = "";
+								}
 								if (dirKey.equals(":system")) {
 									dir = new File(getAcl2Dir(), "books");
 								} else if (dirKey.equals(":teachpacks")) {
@@ -642,9 +657,14 @@ public class Acl2Parser extends AbstractParser {
 								}
 							}
 							if (Main.WIN) {
-								bookName.replaceAll("\\\\/", "\\");
+								bookName = bookName.replaceAll("\\\\/", "\\");
 							}
-							File book = new File(dir, bookName.substring(1, bookName.length() - 1) + ".lisp");
+							File book;
+							if (dir == null) {
+								book = new File(bookName.substring(1, bookName.length() - 1) + ".lisp");
+							} else {
+								book = new File(dir, bookName.substring(1, bookName.length() - 1) + ".lisp");
+							}
 							CacheSets bookCache = null;
 							long mtime = book.lastModified();
 							if (dirKey.equals(":system")) {
@@ -699,7 +719,7 @@ public class Acl2Parser extends AbstractParser {
 							String msg = "<html>" + docs.get(upperToken) + "<br><font " +
 									"color=\"gray\" size=\"2\">" + modKey +
 									"L for more.</font></html>";
-							result.addNotice(new Acl2ParserNotice(this,
+							info.add(new Acl2ParserNotice(this,
 									msg, line, token, ParserNotice.INFO));
 						}
 					}
@@ -718,14 +738,26 @@ public class Acl2Parser extends AbstractParser {
 		for (ParseListener pl : parseListeners) {
 			pl.wasParsed();
 		}
+		for (ParserNotice infoNotice : info ) {
+			result.addNotice(infoNotice);
+		}
+		for (Object pn : result.getNotices()) {
+			if (((ParserNotice) pn).getLevel() == ParserNotice.ERROR) {
+				errorShown = true;
+				break;
+			}
+		}
 		return result;
 	}
 	
 	public static CacheSets parseBook(File book, File acl2Dir, Map<CacheKey, CacheSets> cache)
 			throws FileNotFoundException, BadLocationException {
-		CacheSets bookCache;
+		CacheSets bookCache = new CacheSets();
 		Scanner bookScanner = new Scanner(book);
 		bookScanner.useDelimiter("\\Z");
+        if (!bookScanner.hasNext()) {
+            return bookCache;
+        }
 		String bookContents = bookScanner.next();
 		bookScanner.close();
 		logger.info("PARSING: " + book);
@@ -735,7 +767,6 @@ public class Acl2Parser extends AbstractParser {
 		RSyntaxDocument bookDoc = new PPDocument();
 		bookDoc.insertString(0, bookContents, null);
 		bookParser.parse(bookDoc, null);
-		bookCache = new CacheSets();
 		bookCache.functions = bookParser.functions;
 		bookCache.constants = bookParser.constants;
 		bookCache.macros = bookParser.macros;
@@ -756,6 +787,10 @@ public class Acl2Parser extends AbstractParser {
 
 	public void setAcl2Dir(File acl2Dir) {
 		this.acl2Dir = acl2Dir;
+	}
+
+	public boolean isErrorShown() {
+		return errorShown;
 	}
 
 }
