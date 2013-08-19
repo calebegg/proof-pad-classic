@@ -15,3 +15,5 @@ help/win
 help/mac
 user_data.dat
 _site
+proof-pad.iml
+.idea/*
